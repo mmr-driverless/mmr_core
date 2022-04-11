@@ -1,0 +1,7 @@
+../Drivers/MMR_CAN/Src/mmr_can_scs_manager.c:8:6:MMR_CAN_MaybeHandleAck	24	static
+../Drivers/MMR_CAN/Src/mmr_can_scs_manager.c:24:11:MMR_CAN_SendAck	16	static
+../Drivers/MMR_CAN/Src/mmr_can_scs_manager.c:33:11:MMR_CAN_SendScs	32	static
+../Drivers/MMR_CAN/Src/mmr_can_scs_manager.c:53:11:MMR_CAN_HandleNextScs	24	static
+../Drivers/MMR_CAN/Src/mmr_can_scs_manager.c:71:18:sendScs	32	static
+../Drivers/MMR_CAN/Src/mmr_can_scs_manager.c:81:29:checkScs	16	static
+../Drivers/MMR_CAN/Src/mmr_can_scs_manager.c:89:13:maybeIncrementRtr	24	static

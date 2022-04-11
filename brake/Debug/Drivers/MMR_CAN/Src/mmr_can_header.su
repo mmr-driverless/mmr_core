@@ -1,0 +1,5 @@
+../Drivers/MMR_CAN/Src/mmr_can_header.c:5:10:MMR_CAN_HeaderToBits	16	static
+../Drivers/MMR_CAN/Src/mmr_can_header.c:14:14:MMR_CAN_HeaderFromBits	32	static
+../Drivers/MMR_CAN/Src/mmr_can_header.c:25:6:MMR_CAN_IsHeaderScs	16	static
+../Drivers/MMR_CAN/Src/mmr_can_header.c:29:6:MMR_CAN_IsMultiFrame	16	static
+../Drivers/MMR_CAN/Src/mmr_can_header.c:33:6:MMR_CAN_IsMultiFrameEnd	16	static

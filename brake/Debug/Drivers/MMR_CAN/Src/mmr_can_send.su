@@ -1,0 +1,10 @@
+../Drivers/MMR_CAN/Src/mmr_can_send.c:31:11:MMR_CAN_Send	72	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:42:11:MMR_CAN_SendNoTamper	72	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:50:27:buildParams	64	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:65:18:sendNormal	24	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:71:18:sendMulti	40	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:90:18:sendSingleMultiFrame	24	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:104:18:send	16	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:116:13:syncHeaders	16	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:140:16:computeFramesToSend	24	static
+../Drivers/MMR_CAN/Src/mmr_can_send.c:155:16:computeNextMessageLength	16	static
