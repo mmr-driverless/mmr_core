@@ -1,5 +1,0 @@
-../Drivers/MMR_CAN/Src/mmr_can_receive.c:23:11:MMR_CAN_TryReceive	24	static
-../Drivers/MMR_CAN/Src/mmr_can_receive.c:37:11:MMR_CAN_Receive	64	static
-../Drivers/MMR_CAN/Src/mmr_can_receive.c:58:18:receiveAll	24	static
-../Drivers/MMR_CAN/Src/mmr_can_receive.c:73:18:receiveOne	32	static
-../Drivers/MMR_CAN/Src/mmr_can_receive.c:86:13:headerIsMultiFrame	16	static

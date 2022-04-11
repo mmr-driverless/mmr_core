@@ -1,4 +1,0 @@
-../Drivers/MMR_CAN/Src/mmr_can_scs_entries.c:9:17:MMR_CAN_GetNextScsEntry	16	static
-../Drivers/MMR_CAN/Src/mmr_can_scs_entries.c:20:17:MMR_CAN_PutScsEntry	40	static
-../Drivers/MMR_CAN/Src/mmr_can_scs_entries.c:35:17:MMR_CAN_ClearScsEntry	32	static
-../Drivers/MMR_CAN/Src/mmr_can_scs_entries.c:46:17:MMR_CAN_FindScsEntry	32	static

@@ -1,3 +1,0 @@
-../Drivers/MMR_CAN/Src/mmr_can_message_id.c:5:6:MMR_CAN_IsMessageIdOfType	16	static
-../Drivers/MMR_CAN/Src/mmr_can_message_id.c:13:9:MMR_CAN_GetMessageIdType	16	static
-../Drivers/MMR_CAN/Src/mmr_can_message_id.c:17:9:MMR_CAN_GetMessageIdSubtype	16	static

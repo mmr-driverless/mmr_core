@@ -1,4 +1,0 @@
-../Drivers/MMR_CAN/Src/mmr_can_events.c:14:11:MMR_CAN_InitRxHandlers	16	static
-../Drivers/MMR_CAN/Src/mmr_can_events.c:25:13:__handleCanRxInterrupt	16	static
-../Drivers/MMR_CAN/Src/mmr_can_events.c:35:13:__invokeAll	32	static
-../Drivers/MMR_CAN/Src/mmr_can_events.c:60:6:HAL_CAN_RxFifo0MsgPendingCallback	16	static

@@ -1,5 +1,0 @@
-../Drivers/MMR_CAN/Src/mmr_can.c:8:6:MMR_CAN_SetTickProvider	16	static
-../Drivers/MMR_CAN/Src/mmr_can.c:13:10:MMR_CAN_GetCurrentTick	8	static
-../Drivers/MMR_CAN/Src/mmr_can.c:18:11:MMR_CAN_BasicSetupAndStart	32	static
-../Drivers/MMR_CAN/Src/mmr_can.c:26:11:MMR_CAN_FilterConfig	64	static
-../Drivers/MMR_CAN/Src/mmr_can.c:45:22:MMR_CAN_GetDefaultFilterSettings	24	static
