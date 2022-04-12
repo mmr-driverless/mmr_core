@@ -202,7 +202,7 @@ int main(void)
     if (rxResult == MMR_RESULT_COMPLETED) {
       switch (msg.header.messageId) {
       case MMR_CAN_MESSAGE_ID_D_BREAKING_PERCENTAGE:
-        current_pressure = MMR_CAN_MsgToFloat(msg) * PRESSURE_RANGE;
+        target_pressure = MMR_CAN_MsgToFloat(msg) * PRESSURE_RANGE;
         break;
       }
     }
