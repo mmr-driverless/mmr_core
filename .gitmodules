@@ -4,3 +4,6 @@
 [submodule "brake/Drivers/MMR_CAN"]
 	path = brake/Drivers/MMR_CAN
 	url = https://github.com/mmr-driverless/mmr_can.git
+[submodule "steering/Drivers/MMR_CAN"]
+	path = steering/Drivers/MMR_CAN
+	url = https://github.com/mmr-driverless/mmr_can.git
