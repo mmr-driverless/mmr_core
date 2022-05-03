@@ -21,37 +21,17 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <math.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-struct PID_data{
-	float saturation_max, saturation_min;
-	float kp, ki, kd;
-	float sample_time;
-	float output, output_presaturation, last_output, last_output_presaturation;
-	float last_error;
-	float output_enabled;
-	float proportional, integral, derivative;
-	float tau;
-};
 
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define POT 0
-#define LEVER 1
-
 #define BUFFER_LENGTH 2
-
-#define MAX_VOLTAGE 3.6f
-#define MAX_ADC_VALUE 4096.0f
-
-#define RADS_PER_VOLT 0.387f*5.0f/3.3f
-#define OP_AMP_GAIN 1.0f
-#define R_SENSE 0.001f
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,14 +40,14 @@ struct PID_data{
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
+ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN PV */
-
+uint16_t ADC_values[BUFFER_LENGTH];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,27 +58,11 @@ static void MX_ADC1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
-float convert_DegToRad(float value);
-float get_NormalizeValue(float value);
 
-float get_TargetAangle();
-float get_MeasuredAngle();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-//PID Compute
-float target_position; // [rad]
-float measured_position; // [rad]
-
-float position_error=0.0f; //[rad]
-
-// ADC arrays
-uint16_t ADC_values[BUFFER_LENGTH];
-
-// PID parameters
-struct PID_data PID_position;
 
 /* USER CODE END 0 */
 
@@ -109,22 +73,8 @@ struct PID_data PID_position;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	target_position = 0.0f;
-	measured_position = 0.0f;
-	// Position PID Parameters setting
-	PID_position.saturation_max=20.0f;
-	PID_position.saturation_min=0.0f;
-	PID_position.kp=7.53f*3.0f*3.0f;
-	PID_position.ki=8.6f*3.0f;
-	PID_position.kd=1.4f*1.5f;
-	PID_position.sample_time=1.0f/80000.0f;
-	PID_position.output=0.0f;
-	PID_position.output_presaturation=0.0f;
-	PID_position.last_output=0.0f;
-	PID_position.last_output_presaturation=0.0f;
-	PID_position.last_error=0.0f;
-	PID_position.output_enabled=0.0f;
-	PID_position.tau=1.0f/14565.0f;
+  uint16_t timer_val;
+  uint16_t timer_count;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -150,17 +100,13 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-  // We initialise the two ADC buffers to zero
-  for(int i=0; i<BUFFER_LENGTH; i++)
-  {
-	  ADC_values[i]=0;
-  }
-
-  HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH); // Syntax error is NOT relevant!
+  HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH);
 
   HAL_TIM_Base_Start(&htim2); // TIM2 Start
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // PWM Start on TIM2
   HAL_TIM_Base_Start_IT(&htim6); // PID Sampling timer start
+
+  timer_val = __HAL_TIM_GET_COUNTER(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -170,9 +116,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  measured_position = get_MeasuredAngle();
-	  target_position = get_TargetAangle();
-	  position_error = target_position - measured_position;
+	timer_count = __HAL_TIM_GET_COUNTER(&htim6) - timer_val;
+
+	if(timer_count >= 10) {
+	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
+	  timer_val = __HAL_TIM_GET_COUNTER(&htim6);
+	}
   }
   /* USER CODE END 3 */
 }
@@ -190,8 +139,7 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -201,11 +149,12 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -214,9 +163,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
-  PeriphClkInit.Adc1ClockSelection = RCC_ADC1PLLCLK_DIV8;
-
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV8;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -235,11 +183,13 @@ static void MX_ADC1_Init(void)
 
   /* USER CODE END ADC1_Init 0 */
 
+  ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
 
   /* USER CODE END ADC1_Init 1 */
+
   /** Common config
   */
   hadc1.Instance = ADC1;
@@ -260,6 +210,15 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+
+  /** Configure the ADC multi-mode
+  */
+  multimode.Mode = ADC_MODE_INDEPENDENT;
+  if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
   /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_1;
@@ -272,9 +231,10 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_5;
+  sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -305,9 +265,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 8-1;
+  htim2.Init.Prescaler = 8 - 1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 100-1;
+  htim2.Init.Period = 100 - 1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
@@ -353,9 +313,9 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 100-1;
+  htim6.Init.Prescaler = 100 - 1;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 100-1;
+  htim6.Init.Period = 100 - 1;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -399,67 +359,22 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DIRECTION_B_GPIO_Port, DIRECTION_B_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DIRECTION_A_GPIO_Port, DIRECTION_A_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(ENABLE_GPIO_Port, ENABLE_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin : DIRECTION_B_Pin */
-  GPIO_InitStruct.Pin = DIRECTION_B_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(DIRECTION_B_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : DIRECTION_A_Pin */
-  GPIO_InitStruct.Pin = DIRECTION_A_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(DIRECTION_A_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : ENABLE_Pin */
-  GPIO_InitStruct.Pin = ENABLE_Pin;
+  /*Configure GPIO pin : PA8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(ENABLE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
 
 /* USER CODE BEGIN 4 */
-float convert_DegToRad(float value) {
-	return value * 3.14f / 180.0f;
-}
 
-float get_NormalizeValue(float value) {
-	return value / MAX_ADC_VALUE;
-}
-
-float get_TargetAangle() {
-	return ((float)ADC_values[LEVER]) * (-0.0005f) + 2.46f;
-	/*float normalized =
-		get_NormalizeValue((float)ADC_values[LEVER])
-		* MAX_VOLTAGE;
-
-	return RADS_PER_VOLT * normalized;*/
-}
-
-float get_MeasuredAngle() {
-	float normalized =
-		get_NormalizeValue((float)ADC_values[POT])
-		* MAX_VOLTAGE;
-
-	return RADS_PER_VOLT * normalized;
-}
 /* USER CODE END 4 */
 
 /**
@@ -493,4 +408,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-

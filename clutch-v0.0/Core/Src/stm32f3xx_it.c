@@ -19,11 +19,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <stdbool.h>
 #include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,31 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-struct PID_data{
-	float saturation_max;
-	float saturation_min;
 
-	float kp;
-	float ki;
-	float kd;
-
-	float sample_time;
-
-	float output;
-	float output_presaturation;
-
-	float last_output;
-	float last_output_presaturation;
-
-	float last_error;
-	float output_enabled;
-
-	float proportional;
-	float integral;
-	float derivative;
-
-	float tau;
-};
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -67,88 +41,6 @@ struct PID_data{
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern DMA_HandleTypeDef hdma_adc1;
-extern TIM_HandleTypeDef htim6;
-/* USER CODE BEGIN EV */
-
-uint32_t duty_cycle = 0; // 0 - 100
-
-extern float position_error;
-extern float target_position;
-
-extern struct PID_data PID_position;
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
-void set_Clockwise();
-void set_CounterClockwise();
-
-void Direction_set(float error);
-float PID_Compute(struct PID_data *PID, float error);
-
-void Direction_set(float error){
-	if(error > 0)
-		set_Clockwise();
-	else
-		set_CounterClockwise();
-}
-
-void set_Clockwise() {
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET); //DIR A
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_RESET); //DIR B
-}
-
-void set_CounterClockwise() {
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET); //DIR A
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET); //DIR B
-}
-
-float PID_Compute(struct PID_data *PID, float error){
-	bool compare_signal = false;
-
-	//Proportional term
-	PID->proportional = (PID->kp) * error;
-
-	//Integral term + Anti-windup clamping
-	compare_signal = (PID->last_output_presaturation != PID->last_output);
-
-	if (compare_signal) // Means it's saturated
-		PID->integral = 0.0f;
-	else
-		PID->integral = PID->integral + (PID->ki) * 0.5f * (PID->sample_time) * (error + PID->last_error);
-	//derivative term
-	 PID->derivative = (2.0f*PID->kd*(error - PID->last_error))+((2.0f*PID->tau - PID->sample_time)/(2.0f*PID->tau + PID->sample_time))*PID->derivative;
-
-	// Control Signal
-	PID->output_presaturation = PID->proportional + PID->integral + PID->derivative;
-	PID->output = PID->output_presaturation;
-
-	//Saturation
-	if (PID->output >= PID->saturation_max)
-		PID->output = PID->saturation_max;
-	else if (PID->output <= PID->saturation_min)
-		PID->output = PID->saturation_min;
-	//update terms
-
-	PID->last_error = error;
-	PID->last_output_presaturation = PID->output_presaturation;
-	PID->last_output = PID->output;
-
-	return PID->output;
-}
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_adc1;
-extern TIM_HandleTypeDef htim6;
-/* USER CODE BEGIN EV */
 
 /* USER CODE END PV */
 
@@ -166,34 +58,6 @@ extern TIM_HandleTypeDef htim6;
 extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim6;
 /* USER CODE BEGIN EV */
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/* External variables --------------------------------------------------------*/
-
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/* External variables --------------------------------------------------------*/
 
 /* USER CODE END EV */
 
@@ -350,29 +214,19 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM6 global interrupt, DAC interrupts.
+  * @brief This function handles TIM6 global and DAC1 underrun error interrupts.
   */
-void TIM6_DAC_IRQHandler(void)
+void TIM6_DAC1_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-	Direction_set(position_error);
-	position_error= fabsf(position_error);
+  /* USER CODE BEGIN TIM6_DAC1_IRQn 0 */
 
-
-	duty_cycle = (uint32_t)(
-		(PID_Compute(&PID_position, position_error)/100.0f)
-		*TIM2->ARR
-	);
-	TIM2->CCR1 = duty_cycle;
-
-  /* USER CODE END TIM6_DAC_IRQn 0 */
+  /* USER CODE END TIM6_DAC1_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
-  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+  /* USER CODE BEGIN TIM6_DAC1_IRQn 1 */
 
-  /* USER CODE END TIM6_DAC_IRQn 1 */
+  /* USER CODE END TIM6_DAC1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-
