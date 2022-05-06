@@ -7,3 +7,6 @@
 [submodule "steering/Drivers/MMR_CAN"]
 	path = steering/Drivers/MMR_CAN
 	url = https://github.com/mmr-driverless/mmr_can.git
+[submodule "steering_f302r8/Drivers/MMR_CAN"]
+	path = steering_f302r8/Drivers/MMR_CAN
+	url = https://github.com/mmr-driverless/mmr_can.git
