@@ -55,7 +55,7 @@ float getDerivativeTerm(PID* pid, float error) {
 		pid->_terms.d;
 }
  
-float PIDcompute(PID* pid, float reference, float measured) {
+float PIDCompute(PID* pid, float reference, float measured) {
   float error = getError(reference, measured);
 	
 	_updateTerms(pid, getError(reference, measured));

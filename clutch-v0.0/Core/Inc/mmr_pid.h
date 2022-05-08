@@ -31,8 +31,8 @@ typedef struct PID {
 } PID;
 
 PID PIDInit(PIDSaturation saturations, PIDParameters parameters, float sampleTime, float tau);
-float PIDcompute(PID* pid, float reference, float measured);
-float PIDcascade(PID* pid1, PID* pid2, float reference, float measured);
+float PIDCompute(PID* pid, float reference, float measured);
+float PIDCascade(PID* pid1, PID* pid2, float reference, float measured);
 
 float getProportionalTerm(PID* pid, float error);
 float getIntegralTerm(PID* pid, float error);
