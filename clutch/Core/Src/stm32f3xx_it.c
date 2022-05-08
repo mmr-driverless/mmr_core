@@ -22,6 +22,7 @@
 #include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +32,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -41,12 +41,11 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+/* USER CODE BEGIN EV */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -57,9 +56,14 @@
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim6;
-/* USER CODE BEGIN EV */
 
-/* USER CODE END EV */
+extern PID pid;
+extern Clutch clutch;
+
+uint32_t dt = 0;
+float error = 0;
+/* USER CODE BEGIN EV */
+/* USER CODE END PV */
 
 /******************************************************************************/
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
@@ -214,17 +218,22 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM6 global and DAC1 underrun error interrupts.
+  * @brief This function handles TIM6 global interrupt, DAC interrupts.
   */
-void TIM6_DAC1_IRQHandler(void)
+void TIM6_DAC_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM6_DAC1_IRQn 0 */
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+	 //Direction_set(position_error);
+		  //position_error=fabsf(position_error);
+	dt = (uint32_t)((getMotorDutyCycle(&clutch, &pid)*TIM2->ARR));
+	error = pid._lastError;
+	TIM2->CCR1 = dt;
 
-  /* USER CODE END TIM6_DAC1_IRQn 0 */
+  /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
-  /* USER CODE BEGIN TIM6_DAC1_IRQn 1 */
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 
-  /* USER CODE END TIM6_DAC1_IRQn 1 */
+  /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

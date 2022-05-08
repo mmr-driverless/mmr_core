@@ -1,6 +1,6 @@
 #include "mmr_clutch.h"
 
-Clutch ClutchInit(ClutchIndexes indexes, uint16_t *adcValues, uint8_t bufferLength) {
+Clutch clutchInit(ClutchIndexes indexes, uint16_t *adcValues, uint8_t bufferLength) {
   Clutch clutch = {
     indexes: indexes,
     bufferLength: bufferLength,
@@ -9,10 +9,10 @@ Clutch ClutchInit(ClutchIndexes indexes, uint16_t *adcValues, uint8_t bufferLeng
     _adcValues: adcValues,
   };
 
-  return clutch;  
+  return clutch;
 }
 
-void getMotorDutyCycle(Clutch *clutch, PID *pid) {
+float getMotorDutyCycle(Clutch *clutch, PID *pid) {
   const float measuredAngle = getMeasuredAngle(clutch); 
   const float targetAngle = getTargetAngle(clutch);
 

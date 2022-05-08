@@ -30,7 +30,7 @@ float getOutputInSaturationRange(PID* pid, float output) {
 }
 
 float getError(float reference, float measured) {
-  return reference - measured;
+  return measured - reference; //errore invertito
 }
 
 float getProportionalTerm(PID* pid, float error) {
@@ -69,9 +69,9 @@ float PIDCompute(PID* pid, float reference, float measured) {
 	return output;
 }
 
-PID PIDInit(PIDSaturation saturations, PIDParameters parameters, float sampleTime, float tau) {
+PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau) {
 	PID pid = {
-		saturation: saturations,
+		saturation: saturation,
 		parameters: parameters,
 
 		.sampleTime = sampleTime,

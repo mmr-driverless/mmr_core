@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 typedef struct PIDSaturation {
-  const float max;
-  const float min;
+  float max;
+  float min;
 } PIDSaturation;
 
 typedef struct PIDParameters {
@@ -19,18 +19,18 @@ typedef struct PIDOutputs {
 } PIDOutputs;
 
 typedef struct PID {
-  const PIDSaturation saturation;
-  const PIDParameters parameters;
+  PIDSaturation saturation;
+  PIDParameters parameters;
 
-	const float sampleTime;
-	const float tau;
+  float sampleTime;
+  float tau;
 
   PIDParameters _terms;
   PIDOutputs _lastOutputs;
-	float _lastError;
+  float _lastError;
 } PID;
 
-PID PIDInit(PIDSaturation saturations, PIDParameters parameters, float sampleTime, float tau);
+PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau);
 float PIDCompute(PID* pid, float reference, float measured);
 float PIDCascade(PID* pid1, PID* pid2, float reference, float measured);
 

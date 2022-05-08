@@ -18,20 +18,17 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFFER_LENGTH 2
+#define BUFFER_LENGTH 20
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,7 +44,7 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN PV */
-uint16_t ADC_values[BUFFER_LENGTH];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,6 +60,37 @@ static void MX_TIM6_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+//SET Direction
+
+
+//PID
+const PIDSaturation saturations = {
+	min: 0.2f,
+	max: 0.8f,
+};
+
+const PIDParameters parameters = {
+	p: 7.53f * 3.0f*3.0f,
+	i: 8.6f * 3.0f,
+	d: 1.4f * 1.5f,
+};
+
+const float sampleTime = 1.0f / 80000.0f;
+const float tau =1.0f / 14565.0f;
+PID pid;
+
+//CLUTCH
+const ClutchIndexes indexes = {
+	motorPotentiometer: 0,
+	lever: 1,
+	current: 2,
+};
+
+
+Clutch clutch;
+
+// ADC arrays
+uint16_t ADC_values[BUFFER_LENGTH];
 
 /* USER CODE END 0 */
 
@@ -73,8 +101,7 @@ static void MX_TIM6_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  uint16_t timer_val;
-  uint16_t timer_count;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -100,29 +127,31 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH);
+  pid = PIDInit(
+	saturations,
+	parameters,
+	sampleTime,
+	tau
+  );
+
+
+  clutch = clutchInit(
+		  indexes,
+		  ADC_values,
+		  BUFFER_LENGTH
+  );
+
+  // We initialise the two ADC buffers to zero
+  HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH); // Syntax error is NOT relevant!
 
   HAL_TIM_Base_Start(&htim2); // TIM2 Start
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // PWM Start on TIM2
   HAL_TIM_Base_Start_IT(&htim6); // PID Sampling timer start
-
-  timer_val = __HAL_TIM_GET_COUNTER(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-	timer_count = __HAL_TIM_GET_COUNTER(&htim6) - timer_val;
-
-	if(timer_count >= 10) {
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
-	  timer_val = __HAL_TIM_GET_COUNTER(&htim6);
-	}
-  }
+  while (1) {}
   /* USER CODE END 3 */
 }
 
@@ -139,7 +168,8 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -154,7 +184,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -163,8 +193,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
-  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV8;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
+  PeriphClkInit.Adc1ClockSelection = RCC_ADC1PLLCLK_DIV8;
+
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -183,7 +214,6 @@ static void MX_ADC1_Init(void)
 
   /* USER CODE END ADC1_Init 0 */
 
-  ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
@@ -211,14 +241,6 @@ static void MX_ADC1_Init(void)
     Error_Handler();
   }
 
-  /** Configure the ADC multi-mode
-  */
-  multimode.Mode = ADC_MODE_INDEPENDENT;
-  if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
   /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_1;
@@ -236,6 +258,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_2;
+  sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -265,9 +288,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 8 - 1;
+  htim2.Init.Prescaler = 8-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 100 - 1;
+  htim2.Init.Period = 100-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
@@ -313,9 +336,9 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 100 - 1;
+  htim6.Init.Prescaler = 100-1;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 100 - 1;
+  htim6.Init.Period = 10-1;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -359,17 +382,39 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(DIRECTION_B_GPIO_Port, DIRECTION_B_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PA8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(DIRECTION_A_GPIO_Port, DIRECTION_A_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(ENABLE_GPIO_Port, ENABLE_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin : DIRECTION_B_Pin */
+  GPIO_InitStruct.Pin = DIRECTION_B_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(DIRECTION_B_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : DIRECTION_A_Pin */
+  GPIO_InitStruct.Pin = DIRECTION_A_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(DIRECTION_A_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : ENABLE_Pin */
+  GPIO_InitStruct.Pin = ENABLE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(ENABLE_GPIO_Port, &GPIO_InitStruct);
 
 }
 
