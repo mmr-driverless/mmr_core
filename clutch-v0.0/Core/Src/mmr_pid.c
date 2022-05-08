@@ -42,9 +42,9 @@ float getIntegralTerm(PID* pid, float error) {
 	return _isLastOutputSaturated(pid)
 		? 0.0f
 		: pid->_terms.i + 
-			(pid->parameters.i) * 
+			pid->parameters.i * 
 			0.5f * 
-			(pid->sampleTime) * 
+			pid->sampleTime * 
 			(error + pid->_lastError);
 }
 
@@ -55,7 +55,7 @@ float getDerivativeTerm(PID* pid, float error) {
 		pid->_terms.d;
 }
  
-float compute(PID* pid, float reference, float measured){
+float PIDcompute(PID* pid, float reference, float measured) {
   float error = getError(reference, measured);
 	
 	_updateTerms(pid, getError(reference, measured));
@@ -69,7 +69,7 @@ float compute(PID* pid, float reference, float measured){
 	return output;
 }
 
-PID initPID(PIDSaturation saturations, PIDParameters parameters, float sampleTime, float tau) {
+PID PIDInit(PIDSaturation saturations, PIDParameters parameters, float sampleTime, float tau) {
 	PID pid = {
 		saturation: saturations,
 		parameters: parameters,
