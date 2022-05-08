@@ -28,7 +28,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFFER_LENGTH 20
+#define POT 0
+#define LEVER 1
+#define CURRENT 2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -81,16 +83,15 @@ PID pid;
 
 //CLUTCH
 const ClutchIndexes indexes = {
-	motorPotentiometer: 0,
-	lever: 1,
-	current: 2,
+	motorPotentiometer: POT,
+	lever: LEVER,
+	//current: CURRENT,
 };
-
 
 Clutch clutch;
 
 // ADC arrays
-uint16_t ADC_values[BUFFER_LENGTH];
+AdcValue ADC_values[BUFFER_LENGTH];
 
 /* USER CODE END 0 */
 
@@ -127,22 +128,16 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-  pid = PIDInit(
-	saturations,
-	parameters,
-	sampleTime,
-	tau
-  );
+	pid = PIDInit(
+		saturations,
+		parameters,
+		sampleTime,
+		tau
+	);
 
+	clutch = clutchInit(indexes, ADC_values);
 
-  clutch = clutchInit(
-		  indexes,
-		  ADC_values,
-		  BUFFER_LENGTH
-  );
-
-  // We initialise the two ADC buffers to zero
-  HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH); // Syntax error is NOT relevant!
+  HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH);
 
   HAL_TIM_Base_Start(&htim2); // TIM2 Start
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // PWM Start on TIM2

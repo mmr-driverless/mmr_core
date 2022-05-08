@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define INVERT_ERROR
+#define INTEGRAL_ANTI_WINDUP
+
 typedef struct PIDSaturation {
   float max;
   float min;
@@ -32,7 +35,7 @@ typedef struct PID {
 
 PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau);
 float PIDCompute(PID* pid, float reference, float measured);
-float PIDCascade(PID* pid1, PID* pid2, float reference, float measured);
+float PIDCascade(PID* pid1, PID* pid2, float reference, float measured, float measured2);
 
 float getProportionalTerm(PID* pid, float error);
 float getIntegralTerm(PID* pid, float error);

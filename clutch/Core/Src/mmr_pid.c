@@ -30,7 +30,11 @@ float getOutputInSaturationRange(PID* pid, float output) {
 }
 
 float getError(float reference, float measured) {
-  return measured - reference; //errore invertito
+	#ifdef INVERT_ERROR
+		return measured - reference;
+	#else
+		return reference - measured;
+	#endif
 }
 
 float getProportionalTerm(PID* pid, float error) {
@@ -38,14 +42,22 @@ float getProportionalTerm(PID* pid, float error) {
 }
 
 float getIntegralTerm(PID* pid, float error) {
-	//Integral term + Anti-windup clamping
-	return _isLastOutputSaturated(pid)
-		? 0.0f
-		: pid->_terms.i + 
+	#ifdef INTEGRAL_ANTI_WINDUP
+		//Integral term + Anti-windup clamping
+		return _isLastOutputSaturated(pid)
+			? 0.0f
+			: pid->_terms.i +
+				pid->parameters.i *
+				0.5f *
+				pid->sampleTime *
+				(error + pid->_lastError);
+	#else
+		return pid->_terms.i +
 			pid->parameters.i * 
 			0.5f * 
 			pid->sampleTime * 
 			(error + pid->_lastError);
+	#endif
 }
 
 float getDerivativeTerm(PID* pid, float error) {
@@ -56,7 +68,7 @@ float getDerivativeTerm(PID* pid, float error) {
 }
  
 float PIDCompute(PID* pid, float reference, float measured) {
-  float error = getError(reference, measured);
+	float error = getError(reference, measured);
 	
 	_updateTerms(pid, getError(reference, measured));
 	const float outputPresaturation = getOutput(pid);
@@ -67,6 +79,11 @@ float PIDCompute(PID* pid, float reference, float measured) {
 	pid->_lastOutputs.output = output;
 
 	return output;
+}
+
+float PIDCascade(PID* pid1, PID* pid2, float reference, float measured1, float measured2) {
+	const float pid1Result = PIDCompute(pid1, reference, measured1);
+	return PIDCompute(pid2, pid1Result, measured2);
 }
 
 PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau) {

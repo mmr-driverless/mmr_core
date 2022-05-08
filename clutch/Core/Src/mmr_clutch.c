@@ -1,26 +1,39 @@
 #include "mmr_clutch.h"
 
-Clutch clutchInit(ClutchIndexes indexes, uint16_t *adcValues, uint8_t bufferLength) {
+Clutch clutchInit(ClutchIndexes indexes, AdcValue *adcValues) {
   Clutch clutch = {
     indexes: indexes,
-    bufferLength: bufferLength,
-    measuredAngle: 0,
-    targetAngle: 0,
     _adcValues: adcValues,
   };
 
   return clutch;
 }
 
-float getMotorDutyCycle(Clutch *clutch, PID *pid) {
-  const float measuredAngle = getMeasuredAngle(clutch); 
-  const float targetAngle = getTargetAngle(clutch);
+#ifdef POSITION_ONLY
+	float getMotorDutyCycle(Clutch *clutch, PID *pid) {
+	  const float measuredAngle = getMeasuredAngle(clutch);
+	  const float targetAngle = getTargetAngle(clutch);
 
-  clutch->measuredAngle = measuredAngle;
-  clutch->targetAngle = targetAngle;
+	  clutch->measuredAngle = measuredAngle;
+	  clutch->targetAngle = targetAngle;
 
-  return PIDCompute(pid, targetAngle, measuredAngle);
-}
+	  return PIDCompute(pid, targetAngle, measuredAngle);
+	}
+#else
+	float getMotorDutyCycle(Clutch *clutch, PID *pid1, PID *pid2) {
+	  const float measuredAngle = getMeasuredAngle(clutch);
+	  const float targetAngle = getTargetAngle(clutch);
+	  const float current = getCurrent(clutch);
+
+	  clutch->measuredAngle = measuredAngle;
+	  clutch->targetAngle = targetAngle;
+	  clutch->current = current;
+
+	  return PIDCascade(pid1, pid2, targetAngle, measuredAngle, current);
+	}
+#endif
+
+
 
 float getMeasuredAngle(Clutch *clutch) {
   const float potValue = _getMotorPotentiomerValue(clutch);
@@ -29,6 +42,14 @@ float getMeasuredAngle(Clutch *clutch) {
     VOLTAGE_RATIO;
 
 	return (( measuredPosition - 0.25f ) / 4.5f) * 1.74f;
+}
+
+float _getMotorPotentiomerValue(Clutch *clutch) {
+	#ifdef ADC_AVERAGE
+	  return _getAvg(clutch, clutch->indexes.motorPotentiometer);
+	#else
+	  return clutch->_adcValues[clutch->indexes.motorPotentiometer];
+	#endif
 }
 
 float getTargetAngle(Clutch *clutch) {
@@ -48,14 +69,35 @@ float getTargetAngle(Clutch *clutch) {
   return targetPosition;
 }
 
-float _getMotorPotentiomerValue(Clutch *clutch) {
-  return clutch->_adcValues[clutch->indexes.motorPotentiometer];
-}
-
 float _getLeverValue(Clutch *clutch) {
+	#ifdef ADC_AVERAGE
+	  return _getAvg(clutch, clutch->indexes.lever);
+	#else
+	  return clutch->_adcValues[clutch->indexes.lever];
+	#endif
   return clutch->_adcValues[clutch->indexes.lever];
 }
 
-float _getCurrentValue(Clutch *clutch) {
-  return clutch->_adcValues[clutch->indexes.current];
+#ifndef POSITION_ONLY
+	float getCurrent(Clutch *clutch) {
+		return _getCurrentValue(clutch);
+	}
+
+	float _getCurrentValue(Clutch *clutch) {
+		#ifdef ADC_AVERAGE
+		  return _getAvg(clutch, clutch->indexes.current);
+		#else
+		  return clutch->_adcValues[clutch->indexes.current];
+		#endif
+	}
+#endif
+
+float _getAvg(Clutch *clutch, AdcIndex index) {
+	float averageValue = 0;
+
+	for(AdcIndex i = index; i < BUFFER_LENGTH; i += ADC_CHANNELS) {
+		averageValue += clutch->_adcValues[index];
+	}
+
+	return averageValue / (BUFFER_LENGTH / ADC_CHANNELS);
 }
