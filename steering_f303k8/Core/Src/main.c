@@ -48,18 +48,16 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+struct proportional_data{
+	uint32_t left_y, right_y;
+	float left_x, right_x;
+};
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define ADC_SIZE 40
-#define LEFT_X 0.0f		// [deg]
-#define LEFT_Y 500.0f 	// [PSC]
-#define RIGHT_X 20.0f 	// [deg]
-#define RIGHT_Y 200.0f	// [PSC]
 
-const float PROPORTIONAL_SLOPE = (LEFT_Y-RIGHT_Y)/(LEFT_X-RIGHT_X); // [PSC/deg]
 const float MAX_STEERING_ANGLE = 100.0f; // [deg]
 const float ADC_MAX_VALUE = 1024.0f;
 const float ADC_MAX_VOLTAGE = 3.6f; // [V]
@@ -85,6 +83,7 @@ TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN PV */
 //volatile float degrees;
+struct proportional_data p_data_angular_error, p_data_odometry_speed_1, p_data_odometry_speed_2;
 
 float target_angle=90; // [deg]
 float speed; // [m/s]
@@ -130,14 +129,15 @@ static void steerLeft() {
 #define matchMask(bitvect, mask) \
   (((sampleCount) & (mask)) == (mask))
 
-uint32_t Proportional(float error){
+uint32_t Proportional(float error, struct proportional_data p_data){
 	float absolute_error=fabsf(error);
-	if(absolute_error<LEFT_X){
-		return LEFT_Y;
-	} else if(absolute_error>RIGHT_X){
-		return RIGHT_Y;
+	if(absolute_error<p_data.left_x){
+		return p_data.left_y;
+	} else if(absolute_error>p_data.right_x){
+		return p_data.right_y;
 	} else{
-		return (PROPORTIONAL_SLOPE*absolute_error)+LEFT_Y+(PROPORTIONAL_SLOPE*LEFT_X);
+		float proportional_slope=(p_data.left_y-p_data.right_y)/(p_data.left_x-p_data.right_x);
+		return (proportional_slope*absolute_error)+p_data.left_y+(proportional_slope*p_data.left_x);
 	}
 }
 
@@ -183,11 +183,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     if (angular_error > TOLERANCE) {
       steerRight();
-      TIM2->PSC = Proportional(angular_error);
+      p_data_angular_error.left_y=Proportional(speed, p_data_odometry_speed_1);
+      p_data_angular_error.right_y=Proportional(speed, p_data_odometry_speed_2);
+      TIM2->PSC = Proportional(angular_error, p_data_angular_error);
     }
     else if (angular_error < -TOLERANCE) {
       steerLeft();
-      TIM2->PSC = Proportional(angular_error);
+      p_data_angular_error.left_y=Proportional(speed, p_data_odometry_speed_1);
+      p_data_angular_error.right_y=Proportional(speed, p_data_odometry_speed_2);
+      TIM2->PSC = Proportional(angular_error, p_data_angular_error);
     }
     else {
       TIM2->CCR1 = 0;
@@ -248,6 +252,22 @@ int main(void)
   MmrCanMessage message = {
     .store = buffer,
   };
+
+  // Definition of proportional parameters
+  p_data_angular_error.left_x=0.0f;
+  p_data_angular_error.left_y=500;
+  p_data_angular_error.right_x=20.0f;
+  p_data_angular_error.right_y=200;
+
+  p_data_odometry_speed_1.left_x=0.5f;
+  p_data_odometry_speed_1.left_y=4000;
+  p_data_odometry_speed_1.right_x=2.0f;
+  p_data_odometry_speed_1.right_y=500;
+
+  p_data_odometry_speed_2.left_x=0.5f;
+  p_data_odometry_speed_2.left_y=3000;
+  p_data_odometry_speed_2.right_x=2.0f;
+  p_data_odometry_speed_2.right_y=200;
 
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
   while (1)
