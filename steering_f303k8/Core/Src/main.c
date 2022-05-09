@@ -143,13 +143,6 @@ uint32_t Proportional(float error, struct proportional_data p_data){
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-//  static float lastTension = 0;
-//  static uint8_t samples = 0;
-//  static uint8_t counter = 0;
-
-//  target_angle = sin(counter * .01f) * 45 - 45;
-//  counter++;
-
   // Check which version of the timer triggered this callback
   if (htim == &htim3)
   {
@@ -163,23 +156,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     tension=tension/(ADC_SIZE/2);
     tension = ((adcValue / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 2.45f - 0.12f;
-//    float tAbs = fabs(fabs(lastTension) - fabs(tension));
-
-//    samples <<= 1;
-//    samples |= tAbs > .001f; // 0 if it doesn't cross the threshold
-//
-//    if (samples != 0xFF) // 8bit without changes -> do nothing
-//      return;
-
-//    lastTension = tension;
 
     current_angle = tension * DEGREES_PER_VOLT * 4.0f;
     angular_error = -(target_angle - current_angle); // We calculate the error compared to the target
-
-    /*if (current_angle > 15.0f) {
-      TIM1->CCR1 = 0;
-      return;
-    }*/
 
     if (angular_error > TOLERANCE) {
       steerRight();
