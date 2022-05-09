@@ -135,7 +135,11 @@ int main(void)
 		tau
 	);
 
-	clutch = clutchInit(indexes, ADC_values);
+	ClutchPID clutchPID = {
+		pid1: &pid,
+	};
+
+	clutch = clutchInit(indexes, clutchPID, ADC_values);
 
   HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH);
 

@@ -24,36 +24,33 @@ typedef uint16_t AdcValue;
 typedef struct ClutchIndexes {
 	AdcIndex motorPotentiometer;
 	AdcIndex lever;
-	#ifndef POSITION_ONLY
-		AdcIndex current;
-	#endif
+	AdcIndex current;
 } ClutchIndexes;
 
+typedef struct ClutchPID {
+	PID *pid1;
+	PID *pid2;
+} ClutchPID;
+
 typedef struct Clutch {
+	ClutchPID clutchPID;
 	ClutchIndexes indexes;
 	AdcValue *_adcValues;
     float measuredAngle;
     float targetAngle;
-	#ifndef POSITION_ONLY
-    	float current;
-	#endif
+	float current;
 } Clutch;
 
-Clutch clutchInit(ClutchIndexes indexes, AdcValue *adcValues);
+Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues);
 
 float getMeasuredAngle(Clutch *clutch);
 float getTargetAngle(Clutch *clutch);
 float getCurrent(Clutch *clutch);
 
-#ifdef POSITION_ONLY
-	float getMotorDutyCycle(Clutch *clutch, PID *pid);
-#else
-	float getMotorDutyCycle(Clutch *clutch, PID *pid1, PID *pid2);
-	float getCurrent(Clutch *clutch);
-	float _getCurrentValue(Clutch *Clutch);
-#endif
+float getMotorDutyCycle(Clutch *clutch);
 
 float _getMotorPotentiomerValue(Clutch *Clutch);
 float _getLeverValue(Clutch *Clutch);
+float _getCurrentValue(Clutch *Clutch);
 
 float _getAvg(Clutch *Clutch, AdcIndex index);

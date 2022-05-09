@@ -225,7 +225,7 @@ void TIM6_DAC_IRQHandler(void)
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
 	 //Direction_set(position_error);
 		  //position_error=fabsf(position_error);
-	dt = (uint32_t)((getMotorDutyCycle(&clutch, &pid)*TIM2->ARR));
+	dt = (uint32_t)((getMotorDutyCycle(&clutch)*TIM2->ARR));
 	error = pid._lastError;
 	TIM2->CCR1 = dt;
 

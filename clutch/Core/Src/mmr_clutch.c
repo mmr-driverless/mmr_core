@@ -1,7 +1,8 @@
 #include "mmr_clutch.h"
 
-Clutch clutchInit(ClutchIndexes indexes, AdcValue *adcValues) {
+Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues) {
   Clutch clutch = {
+	clutchPID: clutchPID,
     indexes: indexes,
     _adcValues: adcValues,
   };
@@ -9,30 +10,21 @@ Clutch clutchInit(ClutchIndexes indexes, AdcValue *adcValues) {
   return clutch;
 }
 
-#ifdef POSITION_ONLY
-	float getMotorDutyCycle(Clutch *clutch, PID *pid) {
-	  const float measuredAngle = getMeasuredAngle(clutch);
-	  const float targetAngle = getTargetAngle(clutch);
+float getMotorDutyCycle(Clutch *clutch) {
+  const float measuredAngle = getMeasuredAngle(clutch);
+  const float targetAngle = getTargetAngle(clutch);
+  const float current = getCurrent(clutch);
 
-	  clutch->measuredAngle = measuredAngle;
-	  clutch->targetAngle = targetAngle;
+  clutch->measuredAngle = measuredAngle;
+  clutch->targetAngle = targetAngle;
+  clutch->current = current;
 
-	  return PIDCompute(pid, targetAngle, measuredAngle);
-	}
-#else
-	float getMotorDutyCycle(Clutch *clutch, PID *pid1, PID *pid2) {
-	  const float measuredAngle = getMeasuredAngle(clutch);
-	  const float targetAngle = getTargetAngle(clutch);
-	  const float current = getCurrent(clutch);
-
-	  clutch->measuredAngle = measuredAngle;
-	  clutch->targetAngle = targetAngle;
-	  clutch->current = current;
-
-	  return PIDCascade(pid1, pid2, targetAngle, measuredAngle, current);
-	}
-#endif
-
+  #ifdef POSITION_ONLY
+  	  return PIDCompute(clutch->clutchPID.pid1, targetAngle, measuredAngle);
+  #else
+	  return PIDCascade(clutch->clutchPID.pid1, clutch->clutchPID.pid2, targetAngle, measuredAngle, current);
+  #endif
+}
 
 
 float getMeasuredAngle(Clutch *clutch) {
@@ -78,19 +70,17 @@ float _getLeverValue(Clutch *clutch) {
   return clutch->_adcValues[clutch->indexes.lever];
 }
 
-#ifndef POSITION_ONLY
-	float getCurrent(Clutch *clutch) {
-		return _getCurrentValue(clutch);
-	}
+float getCurrent(Clutch *clutch) {
+	return _getCurrentValue(clutch);
+}
 
-	float _getCurrentValue(Clutch *clutch) {
-		#ifdef ADC_AVERAGE
-		  return _getAvg(clutch, clutch->indexes.current);
-		#else
-		  return clutch->_adcValues[clutch->indexes.current];
-		#endif
-	}
-#endif
+float _getCurrentValue(Clutch *clutch) {
+	#ifdef ADC_AVERAGE
+	  return _getAvg(clutch, clutch->indexes.current);
+	#else
+	  return clutch->_adcValues[clutch->indexes.current];
+	#endif
+}
 
 float _getAvg(Clutch *clutch, AdcIndex index) {
 	float averageValue = 0;
