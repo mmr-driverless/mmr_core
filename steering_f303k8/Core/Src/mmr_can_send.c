@@ -14,7 +14,7 @@ typedef struct {
 } TransmissionParams;
 
 
-static TransmissionParams buildParams(CanHandle *hcan, MmrCanPacket packet);
+static TransmissionParams buildParams(CanHandle *hcan, MmrCanPacket *packet);
 static HalStatus send(TransmissionParams *tp);
 static HalStatus sendNormal(TransmissionParams *tp);
 static HalStatus sendMulti(TransmissionParams *tp);
@@ -23,14 +23,18 @@ static uint8_t computeFramesToSend(MmrCanPacket *packet);
 static uint8_t computeNextMessageLength(MmrCanPacket *packet);
 static void setMessageType(TransmissionParams *header, MmrCanMessageType type);
 static void syncHeaders(TransmissionParams *tp);
+static CanMailbox *getNextMailbox();
 
 
-static CanMailbox __mailbox;
+#define MAILBOXES_COUNT 3
+
+static CanMailbox __mailboxes[MAILBOXES_COUNT] = {};
+static uint8_t __currentMailbox = 0;
 
 
 HalStatus MMR_CAN_Send(CanHandle *hcan, MmrCanPacket packet) {
   TransmissionParams tp =
-    buildParams(hcan, packet);
+    buildParams(hcan, &packet);
 
   syncHeaders(&tp);
   return packet.length <= MMR_CAN_MAX_DATA_LENGTH
@@ -41,21 +45,21 @@ HalStatus MMR_CAN_Send(CanHandle *hcan, MmrCanPacket packet) {
 
 HalStatus MMR_CAN_SendNoTamper(CanHandle *hcan, MmrCanPacket packet) {
   TransmissionParams tp =
-    buildParams(hcan, packet);
+    buildParams(hcan, &packet);
 
   return send(&tp);
 }
 
 
-static TransmissionParams buildParams(CanHandle *hcan, MmrCanPacket packet) {
+static TransmissionParams buildParams(CanHandle *hcan, MmrCanPacket *packet) {
   return (TransmissionParams) {
     .handle = hcan,
-    .packet = &packet,
-    .headers.mmr = packet.header,
+    .packet = packet,
+    .headers.mmr = packet->header,
     .headers.tx = {
       .IDE = CAN_ID_EXT,
       .RTR = CAN_RTR_DATA,
-      .DLC = packet.length,
+      .DLC = packet->length,
       .TransmitGlobalTime = DISABLE,
     },
   };
@@ -108,8 +112,16 @@ static HalStatus send(TransmissionParams *tp) {
     tp->handle,
     &tp->headers.tx,
     tp->packet->data,
-    &__mailbox
+    getNextMailbox()
   );
+}
+
+
+static CanMailbox *getNextMailbox() {
+  __currentMailbox++;
+  __currentMailbox %= MAILBOXES_COUNT;
+
+  return __mailboxes + __currentMailbox;
 }
 
 

@@ -56,7 +56,7 @@ struct proportional_data{
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ADC_SIZE 40
+#define ADC_SIZE 50
 
 const float MAX_STEERING_ANGLE = 100.0f; // [deg]
 const float ADC_MAX_VALUE = 1024.0f;
@@ -85,14 +85,14 @@ TIM_HandleTypeDef htim3;
 //volatile float degrees;
 struct proportional_data p_data_angular_error, p_data_odometry_speed_1, p_data_odometry_speed_2;
 
-float target_angle=90; // [deg]
-float speed; // [m/s]
+float target_angle=-90; // [deg]
+float speed=10; // [m/s]
 
 float current_angle=0; // [deg]
 float tension=0; // [V]
 float angular_error=0; // [deg]
 uint16_t prescaler=100-1;
-uint32_t ADC2_Value[ADC_SIZE];
+uint16_t ADC2_Value[ADC_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,12 +123,6 @@ static void steerLeft() {
   steer(GPIO_PIN_RESET, GPIO_PIN_SET);
 }
 
-#define allHigh(bitvect) ((bitvect) == ~0u)
-#define allLow(bitvect) ((bitvect) == 0)
-
-#define matchMask(bitvect, mask) \
-  (((sampleCount) & (mask)) == (mask))
-
 uint32_t Proportional(float error, struct proportional_data p_data){
 	float absolute_error=fabsf(error);
 	if(absolute_error<p_data.left_x){
@@ -155,9 +149,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	tension+=ADC2_Value[i];
     }
     tension=tension/(ADC_SIZE/2);
-    tension = ((adcValue / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 2.45f - 0.12f;
+    tension = (((adcValue) / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 1.92f;
 
-    current_angle = tension * DEGREES_PER_VOLT * 4.0f;
+    current_angle = tension * DEGREES_PER_VOLT * 4.0f * 90.0f / 70.0f;
     angular_error = -(target_angle - current_angle); // We calculate the error compared to the target
 
     if (angular_error > TOLERANCE) {
@@ -212,15 +206,16 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC2_Init();
   MX_DMA_Init();
+  MX_ADC2_Init();
+
   MX_CAN_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   MMR_CAN_SetTickProvider(HAL_GetTick);
 
-  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2_Value, ADC_SIZE);
+  HAL_ADC_Start_DMA(&hadc2, (uint16_t*)ADC2_Value, ADC_SIZE);
   HAL_TIM_Base_Start_IT(&htim3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   /* USER CODE END 2 */
@@ -234,21 +229,21 @@ int main(void)
 
   // Definition of proportional parameters
   p_data_angular_error.left_x=0.0f;
-  p_data_angular_error.left_y=500;
+  p_data_angular_error.left_y=600;
   p_data_angular_error.right_x=20.0f;
-  p_data_angular_error.right_y=200;
+  p_data_angular_error.right_y=300;
 
   p_data_odometry_speed_1.left_x=0.5f;
   p_data_odometry_speed_1.left_y=4000;
   p_data_odometry_speed_1.right_x=2.0f;
-  p_data_odometry_speed_1.right_y=500;
+  p_data_odometry_speed_1.right_y=600;
 
   p_data_odometry_speed_2.left_x=0.5f;
   p_data_odometry_speed_2.left_y=3000;
   p_data_odometry_speed_2.right_x=2.0f;
-  p_data_odometry_speed_2.right_y=200;
+  p_data_odometry_speed_2.right_y=300;
 
-  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_RESET);
   while (1)
   {
 	    uint32_t pendingMessages =
@@ -271,8 +266,8 @@ int main(void)
 	    }
 	    if(target_angle>MAX_STEERING_ANGLE){
 	    	target_angle=MAX_STEERING_ANGLE;
-	    } else if(target_angle<-MAX_STEERING_ANGLE){
-	    	target_angle=-MAX_STEERING_ANGLE;
+	    } else if(target_angle < -MAX_STEERING_ANGLE){
+	    	target_angle = -MAX_STEERING_ANGLE;
 	    }
     /* USER CODE END WHILE */
 
@@ -294,13 +289,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL2;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -381,6 +375,7 @@ static void MX_ADC2_Init(void)
 
   /** Configure Regular Channel
   */
+  sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
@@ -559,11 +554,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, DIR_Pin|ENB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : DIR_Pin ENB_Pin */
   GPIO_InitStruct.Pin = DIR_Pin|ENB_Pin;
