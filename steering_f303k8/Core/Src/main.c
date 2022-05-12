@@ -93,6 +93,8 @@ float tension=0; // [V]
 float angular_error=0; // [deg]
 uint16_t prescaler=100-1;
 uint16_t ADC2_Value[ADC_SIZE];
+
+float flag=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -213,6 +215,9 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  if (MMR_CAN_BasicSetupAndStart(&hcan) != HAL_OK) {
+      Error_Handler();
+    }
   MMR_CAN_SetTickProvider(HAL_GetTick);
 
   HAL_ADC_Start_DMA(&hadc2, (uint16_t*)ADC2_Value, ADC_SIZE);
@@ -229,21 +234,21 @@ int main(void)
 
   // Definition of proportional parameters
   p_data_angular_error.left_x=0.0f;
-  p_data_angular_error.left_y=600;
+  p_data_angular_error.left_y=500;
   p_data_angular_error.right_x=20.0f;
-  p_data_angular_error.right_y=300;
+  p_data_angular_error.right_y=200;
 
   p_data_odometry_speed_1.left_x=0.5f;
   p_data_odometry_speed_1.left_y=4000;
-  p_data_odometry_speed_1.right_x=2.0f;
-  p_data_odometry_speed_1.right_y=600;
+  p_data_odometry_speed_1.right_x=1.0f;
+  p_data_odometry_speed_1.right_y=500;
 
   p_data_odometry_speed_2.left_x=0.5f;
   p_data_odometry_speed_2.left_y=3000;
-  p_data_odometry_speed_2.right_x=2.0f;
-  p_data_odometry_speed_2.right_y=300;
+  p_data_odometry_speed_2.right_x=1.0f;
+  p_data_odometry_speed_2.right_y=200;
 
-  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
   while (1)
   {
 	    uint32_t pendingMessages =
@@ -272,6 +277,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	    flag++;
   }
   /* USER CODE END 3 */
 }
