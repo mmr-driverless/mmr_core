@@ -52,6 +52,11 @@ struct proportional_data{
 	uint32_t left_y, right_y;
 	float left_x, right_x;
 };
+
+struct lowpass_data{
+	uint16_t  input, output;
+	float cutoff_frequency, dt;
+};
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -84,6 +89,7 @@ TIM_HandleTypeDef htim3;
 /* USER CODE BEGIN PV */
 //volatile float degrees;
 struct proportional_data p_data_angular_error, p_data_odometry_speed_1, p_data_odometry_speed_2;
+struct lowpass_data lowpass_data;
 
 float target_angle=-90; // [deg]
 float speed=10; // [m/s]
@@ -137,21 +143,17 @@ uint32_t Proportional(float error, struct proportional_data p_data){
 	}
 }
 
+uint16_t Lowpass(uint16_t input, struct lowpass_data *lp_data){
+	lp_data->input=input;
+	return lp_data->output += (lp_data->input - lp_data->output) * (1-exp(-lp_data->dt * lp_data->cutoff_frequency));
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   // Check which version of the timer triggered this callback
   if (htim == &htim3)
   {
-    float adcValue = ADC2_Value[0];
-    if (adcValue <= 0 || adcValue >= 4095)
-      return;
-
-    tension=0;
-    for (int i = 0; i<ADC_SIZE;i+=2){
-    	tension+=ADC2_Value[i];
-    }
-    tension=tension/(ADC_SIZE/2);
-    tension = (((adcValue) / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 1.92f;
+    tension = (((Lowpass(ADC2_Value[0], &lowpass_data)) / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 1.92f;
 
     current_angle = tension * DEGREES_PER_VOLT * 4.0f * 90.0f / 70.0f;
     angular_error = -(target_angle - current_angle); // We calculate the error compared to the target
@@ -247,6 +249,12 @@ int main(void)
   p_data_odometry_speed_2.left_y=3000;
   p_data_odometry_speed_2.right_x=1.0f;
   p_data_odometry_speed_2.right_y=200;
+
+  // Definition of lowpass parameters
+  lowpass_data.input=ADC2_Value[0];
+  lowpass_data.output=ADC2_Value[0];
+  lowpass_data.cutoff_frequency=10.0f; // [Hz]
+  lowpass_data.dt=0.0125f; // TIM3 time period
 
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
   while (1)
