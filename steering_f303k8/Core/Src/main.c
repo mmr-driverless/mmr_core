@@ -153,7 +153,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check which version of the timer triggered this callback
   if (htim == &htim3)
   {
-    tension = (((Lowpass(ADC2_Value[0], &lowpass_data)) / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 1.92f;
+    tension = (((Lowpass(ADC2_Value[0], &lowpass_data)) / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 1.87f;
 
     current_angle = tension * DEGREES_PER_VOLT * 4.0f * 90.0f / 70.0f;
     angular_error = -(target_angle - current_angle); // We calculate the error compared to the target
@@ -237,7 +237,7 @@ int main(void)
   // Definition of proportional parameters
   p_data_angular_error.left_x=0.0f;
   p_data_angular_error.left_y=500;
-  p_data_angular_error.right_x=20.0f;
+  p_data_angular_error.right_x=10.0f;
   p_data_angular_error.right_y=200;
 
   p_data_odometry_speed_1.left_x=0.5f;
@@ -253,7 +253,7 @@ int main(void)
   // Definition of lowpass parameters
   lowpass_data.input=ADC2_Value[0];
   lowpass_data.output=ADC2_Value[0];
-  lowpass_data.cutoff_frequency=10.0f; // [Hz]
+  lowpass_data.cutoff_frequency=20.0f; // [rad/s]
   lowpass_data.dt=0.0125f; // TIM3 time period
 
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
