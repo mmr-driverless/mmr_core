@@ -139,7 +139,7 @@ uint32_t Proportional(float error, struct proportional_data p_data){
 		return p_data.right_y;
 	} else{
 		float proportional_slope=(p_data.left_y-p_data.right_y)/(p_data.left_x-p_data.right_x);
-		return (proportional_slope*absolute_error)+p_data.left_y+(proportional_slope*p_data.left_x);
+		return (proportional_slope*absolute_error)+p_data.left_y-(proportional_slope*p_data.left_x);
 	}
 }
 
@@ -275,7 +275,42 @@ int main(void)
 	      case MMR_CAN_MESSAGE_ID_D_SPEED_ODOMETRY:
 	    	speed = (*(float*)buffer);
 	    	break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ERROR_LEFT_X:
+	    	  p_data_angular_error.left_x=(*(float*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ERROR_RIGHT_X:
+	    	  p_data_angular_error.right_x=(*(float*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_LEFT_X:
+	    	  p_data_odometry_speed_1.left_x=(*(float*)buffer);
+	    	  p_data_odometry_speed_2.left_x=(*(float*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_LEFT_Y:
+	    	  p_data_odometry_speed_1.left_y=(*(uint32_t*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_RIGHT_X:
+	    	  p_data_odometry_speed_1.right_x=(*(float*)buffer);
+	    	  p_data_odometry_speed_2.right_x=(*(float*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_RIGHT_Y:
+	    	  p_data_odometry_speed_1.right_y=(*(uint32_t*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MAX_SPEED_LEFT_Y:
+	    	  p_data_odometry_speed_2.left_y=(*(uint32_t*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MAX_SPEED_RIGHT_Y:
+	    	  p_data_odometry_speed_2.right_y=(*(uint32_t*)buffer);
+	    	  break;
 	      }
+
 	    }
 	    if(target_angle>MAX_STEERING_ANGLE){
 	    	target_angle=MAX_STEERING_ANGLE;
