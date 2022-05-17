@@ -21,7 +21,9 @@ void setTargetAngle(Clutch *clutch, float angle) {
 
 float getMotorDutyCycle(Clutch *clutch) {
   clutch->measuredAngle = getPotMotAngle(clutch);
-  //clutch->current = getCurrent(clutch);
+  #ifndef POSITION_ONLY
+  	  clutch->current = getCurrent(clutch);
+  #endif
 
   if(clutch->mode == MANUAL)
     clutch->targetAngle =  getLeverAngle(clutch);

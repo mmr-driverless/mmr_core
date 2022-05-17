@@ -79,18 +79,18 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-float autonomousTargetAngle = 0;
+float autonomousTargetAngle = 0.8f;
 DrivingMode mode = AUTONOMOUS;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-	min: -3.75f,
-	max: 3.75f,
+	min: 0.3f,
+	max: 0.7f,
 };
 
 const PIDParameters parameters1 = {
-	p: 7.53f * 6.0f,
-	i: 8.6f * 2.0f,
-	d: 1.4f * 0.5f,
+	p: 7.53f * 3.0f * 3.0f,
+	i: 8.6f * 3.0f,
+	d: 1.4f * 1.5f,
 };
 
 PID pid1;
@@ -111,7 +111,7 @@ const PIDParameters parameters2 = {
 PID pid2;
 
 const float sampleTime = 1.0f / 80000.0f;
-const float tau = 0.0f;
+const float tau = 1.0f/14565.0f;
 //CLUTCH
 const ClutchIndexes indexes = {
 	motorPotentiometer: POT,
@@ -177,17 +177,18 @@ int main(void)
 	);
 
 	ClutchPID clutchPID = {
-		pid1: &pid2,
+		pid1: &pid1,
 		//pid2: &pid2,
 	};
 
 	clutch = clutchInit(indexes, clutchPID, ADC_values);
 	setDrivingMode(&clutch, mode);
 
+  HAL_GPIO_WritePin(GPIOB, ENABLE_Pin, GPIO_PIN_SET); //ENABLE
   HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH);
 
-  HAL_TIM_Base_Start(&htim1); // TIM2 Start
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM Start on TIM2
+  HAL_TIM_Base_Start(&htim1); // TIM1 Start
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM Start on TIM1
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
   /* USER CODE END 2 */
 
@@ -296,7 +297,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -331,6 +332,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
@@ -339,12 +341,21 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 8-1;
+  htim1.Init.Prescaler = 5-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 100-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
@@ -407,7 +418,7 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 100 - 1;
+  htim7.Init.Prescaler = 25 - 1;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = 10 - 1;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -453,11 +464,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(ENABLE_GPIO_Port, ENABLE_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(ENABLE_GPIO_Port, ENABLE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : ENABLE_Pin */
   GPIO_InitStruct.Pin = ENABLE_Pin;
