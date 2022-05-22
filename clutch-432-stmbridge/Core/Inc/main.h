@@ -65,9 +65,9 @@ void Error_Handler(void);
 #define POT_MOT_GPIO_Port GPIOA
 #define PWM_Pin GPIO_PIN_8
 #define PWM_GPIO_Port GPIOA
-#define DIR_B_Pin GPIO_PIN_6
+#define DIR_B_Pin GPIO_PIN_4
 #define DIR_B_GPIO_Port GPIOB
-#define DIR_A_Pin GPIO_PIN_7
+#define DIR_A_Pin GPIO_PIN_5
 #define DIR_A_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 

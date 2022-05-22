@@ -31,8 +31,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define POT 0
-#define LEVER 1
+#define POT 1
+#define LEVER 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -76,12 +76,12 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-float autonomousTargetAngle = -0.8f;
-DrivingMode mode = AUTONOMOUS;
+float autonomousTargetAngle = 0.3f;
+DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-	min: -1.0f,
-	max: 1.0f,
+	min: -0.2f,
+	max: 0.2f,
 };
 
 const PIDParameters parameters1 = {
