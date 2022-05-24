@@ -251,8 +251,8 @@ void TIM7_IRQHandler(void)
 
 
 	//COMMENTATO PER I TEST DEL CAN
-
-	dt = (uint32_t)((getMotorDutyCycle(&clutch)*TIM1->ARR));
+	float a = getMotorDutyCycle(&clutch) / 10.0f;
+	dt = (uint32_t)((a * TIM1->ARR));
 	TIM1->CCR1 = dt;
 
 

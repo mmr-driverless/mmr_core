@@ -76,12 +76,12 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-float autonomousTargetAngle = 0.3f;
-DrivingMode mode = MANUAL;
+float autonomousTargetAngle = 0.7f;
+DrivingMode mode = AUTONOMOUS;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-	min: -0.2f,
-	max: 0.2f,
+	min: -2.0f,
+	max: 2.0f,
 };
 
 const PIDParameters parameters1 = {
@@ -141,19 +141,19 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-	pid1 = PIDInit(
-		saturations1,
-		parameters1,
-		sampleTime,
-		tau
-	);
+  pid1 = PIDInit(
+	  saturations1,
+	  parameters1,
+	  sampleTime,
+	  tau
+  );
 
-	ClutchPID clutchPID = {
-		pid1: &pid1,
-	};
+  ClutchPID clutchPID = {
+	  pid1: &pid1,
+  };
 
-	clutch = clutchInit(indexes, clutchPID, ADC_values);
-	setDrivingMode(&clutch, mode);
+  clutch = clutchInit(indexes, clutchPID, ADC_values);
+  setDrivingMode(&clutch, mode);
 
   HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH);
 
@@ -437,10 +437,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, DIR_B_Pin|DIR_A_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : DIR_B_Pin DIR_A_Pin */
-  GPIO_InitStruct.Pin = DIR_B_Pin|DIR_A_Pin;
+  /*Configure GPIO pins : PB4 PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
