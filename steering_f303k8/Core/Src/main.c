@@ -63,7 +63,7 @@ struct lowpass_data{
 /* USER CODE BEGIN PD */
 #define ADC_SIZE 50
 
-const float MAX_STEERING_ANGLE = 100.0f; // [deg]
+const float MAX_STEERING_ANGLE = 127.0f; // [deg]
 const float ADC_MAX_VALUE = 1024.0f;
 const float ADC_MAX_VOLTAGE = 3.6f; // [V]
 const float DEGREES_PER_VOLT = 20.0f; // [deg/V]
@@ -91,7 +91,7 @@ TIM_HandleTypeDef htim3;
 struct proportional_data p_data_angular_error, p_data_odometry_speed_1, p_data_odometry_speed_2;
 struct lowpass_data lowpass_data;
 
-float target_angle=-90; // [deg]
+float target_angle=0; // [deg]
 float speed=10; // [m/s]
 
 float current_angle=0; // [deg]
@@ -99,6 +99,7 @@ float tension=0; // [V]
 float angular_error=0; // [deg]
 uint16_t prescaler=100-1;
 uint16_t ADC2_Value[ADC_SIZE];
+uint16_t filtered_ADC = 0;
 
 float flag=0;
 /* USER CODE END PV */
@@ -153,9 +154,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check which version of the timer triggered this callback
   if (htim == &htim3)
   {
-    tension = (((Lowpass(ADC2_Value[0], &lowpass_data)) / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 1.87f;
+	filtered_ADC =Lowpass(ADC2_Value[0], &lowpass_data);
 
-    current_angle = tension * DEGREES_PER_VOLT * 4.0f * 90.0f / 70.0f;
+    tension = ((filtered_ADC / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 2.47f;
+
+    current_angle = tension * DEGREES_PER_VOLT * 4.0f;
+
+	//current_angle = 0.72f*filtered_ADC-284.4f;
     angular_error = -(target_angle - current_angle); // We calculate the error compared to the target
 
     if (angular_error > TOLERANCE) {
