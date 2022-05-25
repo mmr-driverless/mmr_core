@@ -126,6 +126,8 @@ static void steer(
 ) {
   if (HAL_GPIO_ReadPin(DIR_GPIO_Port, DIR_Pin) == dirPinExpected){
     HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, dirPinWrite);
+    target_psc=Proportional(speed, p_data_odometry_speed_1);
+    lowpass32_data.output=target_psc;
   }
 
   TIM2->CCR1 = 50;
@@ -192,9 +194,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       TIM2->PSC = Lowpass32(Proportional(angular_error, p_data_angular_error), &lowpass32_data);
     }
     else {
-      target_psc=500;
-      lowpass32_data.output=500;
-      TIM2->PSC=500;
+      target_psc=Proportional(speed, p_data_odometry_speed_1);
+      lowpass32_data.output=target_psc;
+      TIM2->PSC=target_psc;
       TIM2->CCR1 = 0;
     }
   }
