@@ -57,6 +57,11 @@ struct lowpass_data{
 	uint16_t  input, output;
 	float cutoff_frequency, dt;
 };
+
+struct lowpass32_data{
+	uint32_t  input, output;
+	float cutoff_frequency, dt;
+};
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -90,6 +95,7 @@ TIM_HandleTypeDef htim3;
 //volatile float degrees;
 struct proportional_data p_data_angular_error, p_data_odometry_speed_1, p_data_odometry_speed_2;
 struct lowpass_data lowpass_data;
+struct lowpass32_data lowpass32_data;
 
 float target_angle=0; // [deg]
 float speed=10; // [m/s]
@@ -100,6 +106,7 @@ float angular_error=0; // [deg]
 uint16_t prescaler=100-1;
 uint16_t ADC2_Value[ADC_SIZE];
 uint16_t filtered_ADC = 0;
+uint32_t target_psc = 500;
 
 float flag=0;
 /* USER CODE END PV */
@@ -149,6 +156,13 @@ uint16_t Lowpass(uint16_t input, struct lowpass_data *lp_data){
 	return lp_data->output += (lp_data->input - lp_data->output) * (1-exp(-lp_data->dt * lp_data->cutoff_frequency));
 }
 
+uint32_t Lowpass32(uint32_t input, struct lowpass32_data *lp32_data){
+	lp32_data->input=input;
+	float exp_portion=1.f-exp(-lp32_data->dt * lp32_data->cutoff_frequency);
+	float input_minus_output=(float)lp32_data->input - (float)lp32_data->output;
+	return lp32_data->output = (uint32_t)((float)lp32_data->output + (float)(input_minus_output * exp_portion));
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   // Check which version of the timer triggered this callback
@@ -167,15 +181,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       steerRight();
       p_data_angular_error.left_y=Proportional(speed, p_data_odometry_speed_1);
       p_data_angular_error.right_y=Proportional(speed, p_data_odometry_speed_2);
-      TIM2->PSC = Proportional(angular_error, p_data_angular_error);
+      target_psc=Proportional(angular_error, p_data_angular_error);
+      TIM2->PSC = Lowpass32(Proportional(angular_error, p_data_angular_error), &lowpass32_data);
     }
     else if (angular_error < -TOLERANCE) {
       steerLeft();
       p_data_angular_error.left_y=Proportional(speed, p_data_odometry_speed_1);
       p_data_angular_error.right_y=Proportional(speed, p_data_odometry_speed_2);
-      TIM2->PSC = Proportional(angular_error, p_data_angular_error);
+      target_psc=Proportional(angular_error, p_data_angular_error);
+      TIM2->PSC = Lowpass32(Proportional(angular_error, p_data_angular_error), &lowpass32_data);
     }
     else {
+      target_psc=500;
+      lowpass32_data.output=500;
+      TIM2->PSC=500;
       TIM2->CCR1 = 0;
     }
   }
@@ -261,6 +280,11 @@ int main(void)
   lowpass_data.cutoff_frequency=20.0f; // [rad/s]
   lowpass_data.dt=0.0125f; // TIM3 time period
 
+  lowpass32_data.input=500;
+  lowpass32_data.output=500;
+  lowpass32_data.cutoff_frequency=10.0f; // [rad/s]
+  lowpass32_data.dt=0.0125f; // TIM3 time period
+
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
   while (1)
   {
@@ -313,6 +337,10 @@ int main(void)
 
 	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MAX_SPEED_RIGHT_Y:
 	    	  p_data_odometry_speed_2.right_y=(*(uint32_t*)buffer);
+	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_RISE_CUTOFF_FREQUENCY:
+	    	  lowpass32_data.cutoff_frequency=(*(float*)buffer);
 	    	  break;
 	      }
 
