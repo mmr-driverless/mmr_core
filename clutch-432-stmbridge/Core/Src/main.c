@@ -76,12 +76,12 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-float autonomousTargetAngle = 0.7f;
-DrivingMode mode = AUTONOMOUS;
+float autonomousTargetAngle = 0.14f;//0.14f;
+DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-	min: -2.0f,
-	max: 2.0f,
+	min: -0.8f,
+	max: 0.8f,
 };
 
 const PIDParameters parameters1 = {
@@ -169,11 +169,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  potMot = clutch.measuredAngle;
-	  lever = clutch.targetAngle;
-
 	  if(mode == AUTONOMOUS)
 		  setTargetAngle(&clutch, autonomousTargetAngle);
+
+	  potMot = clutch.measuredAngle;
+	  lever = clutch.targetAngle;
   }
   /* USER CODE END 3 */
 }
@@ -264,7 +264,7 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_6;
+  sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;

@@ -4,9 +4,12 @@
 
 #define MAX_VOLTAGE 3.6f
 #define MAX_ADC_VALUE 4096.0f
-#define VOLTAGE_RATIO 5.0f/3.3f
-#define OPEN_CLUTCH_ANGLE 1.145f // [rad]
-#define ENGAGED_CLUTCH_ANGLE 0.60f // [rad]
+#define VOLTAGE_RATIO (5.0f/3.3f)
+#define OPEN_CLUTCH_ANGLE 0.14f // [rad]
+#define ENGAGED_CLUTCH_ANGLE 1.03f // [rad]
+
+#define OPEN_LEVER_ANGLE 2.3f // [rad]
+#define ENGAGED_LEVER_ANGLE 3.3f // [rad]
 
 #define ADC_CHANNELS 2//number of adc channels
 #define BUFFER_LENGTH 20

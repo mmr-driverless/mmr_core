@@ -38,21 +38,61 @@ float getPotMotAngle(Clutch *clutch) {
 	return (( measuredPosition - 0.25f ) / 4.5f) * 1.74f;
 }
 
+int step = 0;
+int dir = 0;
+float prev = 0;
 float getLeverAngle(Clutch *clutch) {
   const float leverValue = _getLeverValue(clutch);
   float targetPosition = (leverValue / MAX_ADC_VALUE) * 
     MAX_VOLTAGE * 
     VOLTAGE_RATIO;
 
-  targetPosition = (targetPosition * -0.545f) + 1.69f;
+  float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) /
+		    (ENGAGED_LEVER_ANGLE - OPEN_LEVER_ANGLE);
 
-  if(targetPosition < ENGAGED_CLUTCH_ANGLE)
-    return ENGAGED_CLUTCH_ANGLE;
+  float q = ENGAGED_CLUTCH_ANGLE - (m * ENGAGED_LEVER_ANGLE);
 
-  if(targetPosition > OPEN_CLUTCH_ANGLE)
-    return OPEN_CLUTCH_ANGLE;
+  if(targetPosition >= ENGAGED_LEVER_ANGLE)
+	  targetPosition = ENGAGED_LEVER_ANGLE;
 
+  if(targetPosition <= OPEN_LEVER_ANGLE)
+	  targetPosition = OPEN_LEVER_ANGLE;
+
+  targetPosition  = (targetPosition * m) + q;
   return targetPosition;
+/*
+  float pot = getPotMotAngle(clutch);
+  dir = prev < targetPosition
+		  ? 1
+		  : 0;
+
+  if(targetPosition >= pot - 0.2f && targetPosition <= pot + 0.2f)
+	  step = dir == 1
+	  	  ? step + 1
+	  	  : step - 1;
+
+  if(step > 4)
+	  step =  4;
+
+  if(step < 0)
+	  step = 0;
+
+  prev =  targetPosition;
+
+  switch(step) {
+    case 0:
+    	return ENGAGED_CLUTCH_ANGLE;
+    case 1:
+    	return 0.8f;
+    case 2:
+    	return 0.6f;
+    case  3:
+    	return 0.4f;
+    case 4:
+    	return OPEN_CLUTCH_ANGLE;
+  }
+
+  return ENGAGED_CLUTCH_ANGLE;*/
 }
 
 float _getMotorPotentiomerValue(Clutch *clutch) {

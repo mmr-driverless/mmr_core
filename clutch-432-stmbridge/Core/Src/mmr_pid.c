@@ -24,11 +24,11 @@ float getOutput(PID* pid) {
 }
 
 float getOutputInSaturationRange(PID* pid, float output) {
-	if (output >= pid->saturation.max)
-		return pid->saturation.max;
+	if (output >= pid->saturation.max * MAGIC_K)
+		return pid->saturation.max * MAGIC_K;
 
-	if (output <= pid->saturation.min)
-		return pid->saturation.min;
+	if (output <= pid->saturation.min * MAGIC_K)
+		return pid->saturation.min * MAGIC_K;
 
 	return output;
 }
@@ -85,13 +85,7 @@ float PIDCompute(PID* pid, float reference, float measured) {
 	pid->_lastOutputs.outputPresaturation = outputPresaturation;
 	pid->_lastOutputs.output = output;
 
-	return output;
-}
-
-float PIDCascade(PID* pid1, PID* pid2, float reference, float measured1, float measured2) {
-	const float pid1Result = PIDCompute(pid1, reference, measured1);
-	currentTarget = pid1Result;
-	return PIDCompute(pid2, pid1Result, measured2);
+	return output / MAGIC_K;
 }
 
 PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau) {

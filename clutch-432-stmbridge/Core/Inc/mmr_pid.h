@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "stm32l4xx_hal.h"
 
+#define MAGIC_K 10.0f
 
 #define INVERT_ERROR
 #define INTEGRAL_ANTI_WINDUP
@@ -37,7 +38,6 @@ typedef struct PID {
 
 PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau);
 float PIDCompute(PID* pid, float reference, float measured);
-float PIDCascade(PID* pid1, PID* pid2, float reference, float measured, float measured2);
 
 float getProportionalTerm(PID* pid, float error);
 float getIntegralTerm(PID* pid, float error);
