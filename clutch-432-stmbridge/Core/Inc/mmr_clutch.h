@@ -52,5 +52,7 @@ float getLeverAngle(Clutch *clutch);
 
 float getMotorDutyCycle(Clutch *clutch);
 
-float _getMotorPotentiomerValue(Clutch *Clutch);
-float _getLeverValue(Clutch *Clutch);
+AdcValue _getMotorPotentiomerValue(Clutch *Clutch);
+AdcValue _getLeverValue(Clutch *Clutch);
+float _getPotentiometerAngle(AdcValue value);
+

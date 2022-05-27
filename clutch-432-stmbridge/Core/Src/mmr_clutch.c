@@ -28,24 +28,14 @@ float getMotorDutyCycle(Clutch *clutch) {
   return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
 }
 
-
 float getPotMotAngle(Clutch *clutch) {
   const float potValue = _getMotorPotentiomerValue(clutch);
-  float measuredPosition = (potValue / MAX_ADC_VALUE) * 
-    MAX_VOLTAGE * 
-    VOLTAGE_RATIO;
-
-	return (( measuredPosition - 0.25f ) / 4.5f) * 1.74f;
+  return _getPotentiometerAngle(potValue);
 }
 
-int step = 0;
-int dir = 0;
-float prev = 0;
 float getLeverAngle(Clutch *clutch) {
   const float leverValue = _getLeverValue(clutch);
-  float targetPosition = (leverValue / MAX_ADC_VALUE) * 
-    MAX_VOLTAGE * 
-    VOLTAGE_RATIO;
+  float targetPosition = _getPotentiometerAngle(leverValue);
 
   float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) /
 		    (ENGAGED_LEVER_ANGLE - OPEN_LEVER_ANGLE);
@@ -58,14 +48,21 @@ float getLeverAngle(Clutch *clutch) {
   if(targetPosition <= OPEN_LEVER_ANGLE)
 	  targetPosition = OPEN_LEVER_ANGLE;
 
-  targetPosition  = (targetPosition * m) + q;
+  targetPosition = (targetPosition * m) + q;
   return targetPosition;
 }
 
-float _getMotorPotentiomerValue(Clutch *clutch) {
+float _getPotentiometerAngle(AdcValue value) {
+	const float voltage = ((float)value / MAX_ADC_VALUE) *
+		MAX_VOLTAGE *
+		VOLTAGE_RATIO;
+	return (( voltage - 0.25f ) / 4.5f) * 1.74f;
+}
+
+AdcValue _getMotorPotentiomerValue(Clutch *clutch) {
 	  return clutch->_adcValues[clutch->indexes.motorPotentiometer];
 }
 
-float _getLeverValue(Clutch *clutch) {
+AdcValue _getLeverValue(Clutch *clutch) {
 	  return clutch->_adcValues[clutch->indexes.lever];
 }
