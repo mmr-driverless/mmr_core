@@ -52,3 +52,4 @@ void _updateTerms(PID* pid, float error);
 void setDirection(float error);
 void setClockwise();
 void setCounterClockwise();
+void resetDir();

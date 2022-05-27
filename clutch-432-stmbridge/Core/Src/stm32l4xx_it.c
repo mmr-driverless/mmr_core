@@ -250,28 +250,14 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
-	/*  if(mode == AUTONOMOUS)
-		  setTargetAngle(&clutch, autonomousTargetAngle);
 
-*/
-/*
-	 float step = 0.00001f;
-	 if(autonomousTargetAngle >= 1.04f)
-		 dir = 1;
-
-	 if(autonomousTargetAngle <= 0.14f)
-		 dir = 0;
-
-	  autonomousTargetAngle = dir == 1
-			  ? autonomousTargetAngle - step
-			  : autonomousTargetAngle + step;
-
-	  setTargetAngle(&clutch, autonomousTargetAngle);
-
-*/
-	//COMMENTATO PER I TEST DEL CAN
 	float a = getMotorDutyCycle(&clutch);
 	dt = (uint32_t)((a * TIM1->ARR));
+	if(dt < 20) {
+		resetDir();
+		dt = 0;
+	}
+
 	TIM1->CCR1 = dt;
 
 

@@ -71,9 +71,17 @@ float getDerivativeTerm(PID* pid, float error) {
 		pid->_terms.d;
 }
  
+int c = 0;
 float PIDCompute(PID* pid, float reference, float measured) {
 	float error = getError(reference, measured);
+	if(c == 2000) {
+		c = 0;
+		if(fabs(error) > 0.5f)
+			resetDir(error);
+	}
 	setDirection(error);
+
+	c++;
 	error = fabs(error);
 	errorPos = error;
 	
@@ -127,4 +135,9 @@ void setClockwise() {
 void setCounterClockwise() {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET); //DIR A
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET); //DIR B
+}
+
+void resetDir() {
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET); //DIR A
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET); //DIR B
 }

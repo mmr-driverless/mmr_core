@@ -60,39 +60,6 @@ float getLeverAngle(Clutch *clutch) {
 
   targetPosition  = (targetPosition * m) + q;
   return targetPosition;
-/*
-  float pot = getPotMotAngle(clutch);
-  dir = prev < targetPosition
-		  ? 1
-		  : 0;
-
-  if(targetPosition >= pot - 0.2f && targetPosition <= pot + 0.2f)
-	  step = dir == 1
-	  	  ? step + 1
-	  	  : step - 1;
-
-  if(step > 4)
-	  step =  4;
-
-  if(step < 0)
-	  step = 0;
-
-  prev =  targetPosition;
-
-  switch(step) {
-    case 0:
-    	return ENGAGED_CLUTCH_ANGLE;
-    case 1:
-    	return 0.8f;
-    case 2:
-    	return 0.6f;
-    case  3:
-    	return 0.4f;
-    case 4:
-    	return OPEN_CLUTCH_ANGLE;
-  }
-
-  return ENGAGED_CLUTCH_ANGLE;*/
 }
 
 float _getMotorPotentiomerValue(Clutch *clutch) {
