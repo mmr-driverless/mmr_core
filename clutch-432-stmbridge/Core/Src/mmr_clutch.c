@@ -74,11 +74,12 @@ void openClutch(Clutch *clutch) {
 
 void engagedClutch(Clutch *clutch) {
 	static uint16_t count = 0;
-	clutch->_inProgress = clutch->measuredAngle < (ENGAGED_CLUTCH_ANGLE - 0.15f);
+	const uint16_t countLimit = 16000;
+	clutch->_inProgress = count > countLimit;
 
 	if(clutch->_inProgress) {
 		count++;
-		setTargetAngle(clutch, ENGAGED_CLUTCH_ANGLE / (16000.0f - (float)count));
+		setTargetAngle(clutch, ENGAGED_CLUTCH_ANGLE / (float)(countLimit - count));
 	}
 	else {
 		count = 0;
