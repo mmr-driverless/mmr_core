@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "mmr_can.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
@@ -79,8 +79,8 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-bool engaged = false;//0.14f;
-DrivingMode mode = MANUAL;
+bool engaged = true;//0.14f;
+DrivingMode mode = AUTONOMOUS;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
 	min: -0.8f,
@@ -116,7 +116,7 @@ AdcValue ADC_values[BUFFER_LENGTH];
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	lever = 0;
+ 	lever = 0;
 	potMot = 0;
 	errorPos = 0;
   /* USER CODE END 1 */

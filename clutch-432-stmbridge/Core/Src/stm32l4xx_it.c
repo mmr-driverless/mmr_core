@@ -258,12 +258,7 @@ void TIM7_IRQHandler(void)
 			openClutch(&clutch);
 	}
 
-	float a = getMotorDutyCycle(&clutch);
-	dt = (uint32_t)((a * TIM1->ARR));
-	if(dt < 20) {
-		resetDir();
-		dt = 0;
-	}
+	dt = (uint32_t)((getMotorDutyCycle(&clutch) * TIM1->ARR));
 
 	TIM1->CCR1 = dt;
 

@@ -37,10 +37,10 @@ float getLeverAngle(Clutch *clutch) {
   const float leverValue = _getLeverValue(clutch);
   float targetPosition = _getPotentiometerAngle(leverValue);
 
-  float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) /
+  const float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) /
 		    (ENGAGED_LEVER_ANGLE - OPEN_LEVER_ANGLE);
 
-  float q = ENGAGED_CLUTCH_ANGLE - (m * ENGAGED_LEVER_ANGLE);
+  const float q = ENGAGED_CLUTCH_ANGLE - (m * ENGAGED_LEVER_ANGLE);
 
   if(targetPosition >= ENGAGED_LEVER_ANGLE)
 	  targetPosition = ENGAGED_LEVER_ANGLE;
@@ -56,6 +56,7 @@ float _getPotentiometerAngle(AdcValue value) {
 	const float voltage = ((float)value / MAX_ADC_VALUE) *
 		MAX_VOLTAGE *
 		VOLTAGE_RATIO;
+
 	return (( voltage - 0.25f ) / 4.5f) * 1.74f;
 }
 
@@ -75,11 +76,15 @@ void openClutch(Clutch *clutch) {
 void engagedClutch(Clutch *clutch) {
 	static uint16_t count = 0;
 	const uint16_t countLimit = 16000;
-	clutch->_inProgress = count > countLimit;
+	const float clutchDelta = ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE;
+	clutch->_inProgress = count <= countLimit + 16000;
 
 	if(clutch->_inProgress) {
 		count++;
-		setTargetAngle(clutch, ENGAGED_CLUTCH_ANGLE / (float)(countLimit - count));
+		float c = count > countLimit ? countLimit : count;
+		float pos = (float)(countLimit - c) / countLimit;
+		float t = ENGAGED_CLUTCH_ANGLE - (clutchDelta * pos);
+		setTargetAngle(clutch, t);
 	}
 	else {
 		count = 0;
