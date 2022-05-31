@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "mmr_can.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
@@ -44,6 +44,8 @@
  ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+CAN_HandleTypeDef hcan1;
+
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim7;
 
@@ -58,6 +60,7 @@ static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_CAN1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -76,7 +79,7 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-float autonomousTargetAngle = 0.14f;//0.14f;
+bool engaged = false;//0.14f;
 DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
@@ -140,7 +143,12 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM1_Init();
   MX_TIM7_Init();
+  MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
+  if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
+    Error_Handler();
+  }
+
   pid1 = PIDInit(
 	  saturations1,
 	  parameters1,
@@ -169,9 +177,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(mode == AUTONOMOUS)
-		  setTargetAngle(&clutch, autonomousTargetAngle);
-
 	  potMot = clutch.measuredAngle;
 	  lever = clutch.targetAngle;
   }
@@ -286,6 +291,43 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief CAN1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CAN1_Init(void)
+{
+
+  /* USER CODE BEGIN CAN1_Init 0 */
+
+  /* USER CODE END CAN1_Init 0 */
+
+  /* USER CODE BEGIN CAN1_Init 1 */
+
+  /* USER CODE END CAN1_Init 1 */
+  hcan1.Instance = CAN1;
+  hcan1.Init.Prescaler = 16;
+  hcan1.Init.Mode = CAN_MODE_NORMAL;
+  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan1.Init.TimeTriggeredMode = DISABLE;
+  hcan1.Init.AutoBusOff = DISABLE;
+  hcan1.Init.AutoWakeUp = DISABLE;
+  hcan1.Init.AutoRetransmission = DISABLE;
+  hcan1.Init.ReceiveFifoLocked = DISABLE;
+  hcan1.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CAN1_Init 2 */
+
+  /* USER CODE END CAN1_Init 2 */
 
 }
 

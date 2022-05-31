@@ -5,11 +5,12 @@
 #define MAX_VOLTAGE 3.6f
 #define MAX_ADC_VALUE 4096.0f
 #define VOLTAGE_RATIO (5.0f/3.3f)
-#define OPEN_CLUTCH_ANGLE 0.14f // [rad]
-#define ENGAGED_CLUTCH_ANGLE 1.03f // [rad]
 
-#define OPEN_LEVER_ANGLE 2.3f // [rad]
-#define ENGAGED_LEVER_ANGLE 3.3f // [rad]
+#define OPEN_CLUTCH_ANGLE 0.57f // [rad]
+#define ENGAGED_CLUTCH_ANGLE 1.7f // [rad]
+
+#define OPEN_LEVER_ANGLE 0.65f // [rad]
+#define ENGAGED_LEVER_ANGLE 1.1f // [rad]
 
 #define ADC_CHANNELS 2//number of adc channels
 #define BUFFER_LENGTH 20
@@ -41,9 +42,13 @@ typedef struct Clutch {
     float measuredAngle;
     float targetAngle;
 	DrivingMode mode;
+	bool _inProgress;
 } Clutch;
 
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues);
+void openClutch(Clutch *clutch);
+void engagedClutch(Clutch *clutch);
+
 void setDrivingMode(Clutch *clutch, DrivingMode mode);
 void setTargetAngle(Clutch *clutch, float angle);
 

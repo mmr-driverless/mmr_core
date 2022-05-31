@@ -66,3 +66,21 @@ AdcValue _getMotorPotentiomerValue(Clutch *clutch) {
 AdcValue _getLeverValue(Clutch *clutch) {
 	  return clutch->_adcValues[clutch->indexes.lever];
 }
+
+void openClutch(Clutch *clutch) {
+	clutch->_inProgress = clutch->measuredAngle < (OPEN_CLUTCH_ANGLE - 0.15f);
+	setTargetAngle(clutch, OPEN_CLUTCH_ANGLE);
+}
+
+void engagedClutch(Clutch *clutch) {
+	static uint16_t count = 0;
+	clutch->_inProgress = clutch->measuredAngle < (ENGAGED_CLUTCH_ANGLE - 0.15f);
+
+	if(clutch->_inProgress) {
+		count++;
+		setTargetAngle(clutch, ENGAGED_CLUTCH_ANGLE / (16000.0f - (float)count));
+	}
+	else {
+		count = 0;
+	}
+}
