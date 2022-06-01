@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
+#include "mmr_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,7 +71,8 @@ static void MX_CAN1_Init(void);
 float lever;
 float potMot;
 float errorPos;
-
+int delay;
+int tick;
 
 /*
  * PER I TEST DEL CAN
@@ -79,7 +81,7 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-bool engaged = true;//0.14f;
+bool engage = true;
 DrivingMode mode = AUTONOMOUS;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
@@ -104,7 +106,7 @@ const ClutchIndexes indexes = {
 };
 
 Clutch clutch;
-
+int s;
 // ADC arrays
 AdcValue ADC_values[BUFFER_LENGTH];
 /* USER CODE END 0 */
@@ -116,9 +118,10 @@ AdcValue ADC_values[BUFFER_LENGTH];
 int main(void)
 {
   /* USER CODE BEGIN 1 */
- 	lever = 0;
+	lever = 0;
 	potMot = 0;
 	errorPos = 0;
+	tick = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -168,6 +171,18 @@ int main(void)
   HAL_TIM_Base_Start(&htim1); // TIM1 Start
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM Start on TIM1
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
+
+  uint8_t test = 8;
+
+  CanRxBuffer buffer = {};
+  MmrCanPacket packet = {
+		  .data = (uint8_t*)&test,
+		  .length = sizeof(test),
+		  .header.messageId = 432,
+  };
+  MmrCanMessage message = {
+		  .store = buffer
+  };
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -177,6 +192,24 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  /*
+	  delay = uwTick - tick;
+
+	  if(delay > 100) {
+		  MMR_CAN_Send(&hcan1, packet);
+		  tick = uwTick;
+	  }
+
+	  uint32_t messages = HAL_CAN_GetRxFifoFillLevel(&hcan1, MMR_CAN_RX_FIFO);
+
+	  if(messages > 0) {
+		  if(MMR_CAN_Receive(&hcan1, &message) != HAL_OK) {
+			  Error_Handler();
+		  }
+
+		  engage = (*(bool*) buffer);
+	  }*/
+
 	  potMot = clutch.measuredAngle;
 	  lever = clutch.targetAngle;
   }
@@ -202,7 +235,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
@@ -216,7 +251,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -310,10 +345,10 @@ static void MX_CAN1_Init(void)
 
   /* USER CODE END CAN1_Init 1 */
   hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = 16;
+  hcan1.Init.Prescaler = 8;
   hcan1.Init.Mode = CAN_MODE_NORMAL;
   hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
   hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
   hcan1.Init.TimeTriggeredMode = DISABLE;
   hcan1.Init.AutoBusOff = DISABLE;
@@ -352,7 +387,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 5-1;
+  htim1.Init.Prescaler = 20-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 100-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -429,7 +464,7 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 25 - 1;
+  htim7.Init.Prescaler = 100 - 1;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = 10 - 1;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

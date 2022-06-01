@@ -62,7 +62,7 @@ extern TIM_HandleTypeDef htim7;
 extern Clutch clutch;
 extern float autonomousTargetAngle;
 extern DrivingMode mode;
-extern bool engaged;
+extern bool engage;
 uint32_t dt = 0;
 /* USER CODE END EV */
 
@@ -252,7 +252,10 @@ void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
 	if(mode == AUTONOMOUS) {
-		if(engaged)
+		//setTargetAngle(&clutch, 0.5f);
+
+		//Se da problemi commenta l'if e usa setTargetAngle ho fatto una modifica stamattina abbastanza importante, ma non è testata
+		if(engage)
 			engagedClutch(&clutch);
 		else
 			openClutch(&clutch);

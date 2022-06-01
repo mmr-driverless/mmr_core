@@ -69,24 +69,46 @@ AdcValue _getLeverValue(Clutch *clutch) {
 }
 
 void openClutch(Clutch *clutch) {
-	clutch->_inProgress = clutch->measuredAngle < (OPEN_CLUTCH_ANGLE - 0.15f);
+	clutch->inProgress = clutch->measuredAngle < (OPEN_CLUTCH_ANGLE - 0.15f);
 	setTargetAngle(clutch, OPEN_CLUTCH_ANGLE);
 }
 
 void engagedClutch(Clutch *clutch) {
+	static uint8_t step = 0;
 	static uint16_t count = 0;
 	const uint16_t countLimit = 16000;
 	const float clutchDelta = ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE;
-	clutch->_inProgress = count <= countLimit + 16000;
 
-	if(clutch->_inProgress) {
-		count++;
-		float c = count > countLimit ? countLimit : count;
-		float pos = (float)(countLimit - c) / countLimit;
-		float t = ENGAGED_CLUTCH_ANGLE - (clutchDelta * pos);
-		setTargetAngle(clutch, t);
-	}
-	else {
-		count = 0;
+
+	switch(step) {
+		case 0:
+			if(clutch->measuredAngle <= clutch->targetAngle + 0.1f) {
+				clutch->inProgress = true;
+				count = 0;
+				step = 1;
+			}
+
+			break;
+
+		case 1:
+			if(count <= countLimit + 16000) {
+				count++;
+				float c = count > countLimit
+						? countLimit
+						: count;
+				float pos = (float)(countLimit - c) / countLimit;
+				float t = ENGAGED_CLUTCH_ANGLE - (clutchDelta * pos);
+				setTargetAngle(clutch, t);
+			}
+			else {
+				step = 2;
+			}
+			break;
+
+		case 2:
+			count = 0;
+			clutch->inProgress = false;
+			step = 0;
+			break;
 	}
 }

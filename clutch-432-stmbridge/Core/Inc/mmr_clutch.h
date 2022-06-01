@@ -42,7 +42,7 @@ typedef struct Clutch {
     float measuredAngle;
     float targetAngle;
 	DrivingMode mode;
-	bool _inProgress;
+	bool inProgress;
 } Clutch;
 
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues);
