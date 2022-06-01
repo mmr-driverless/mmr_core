@@ -4,3 +4,6 @@
 [submodule "brake/Drivers/MMR_CAN"]
 	path = brake/Drivers/MMR_CAN
 	url = https://github.com/mmr-driverless/mmr_can.git
+[submodule "clutch-432-stmbridge/Drivers/MMR_CAN"]
+	path = clutch-432-stmbridge/Drivers/MMR_CAN
+	url = https://github.com/mmr-driverless/mmr_can.git
