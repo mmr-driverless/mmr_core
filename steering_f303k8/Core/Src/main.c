@@ -67,14 +67,16 @@ struct lowpass32_data{
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define ADC_SIZE 50
+#define POSITION_SAMPLES_NUMBER 5
 
-const float MAX_STEERING_ANGLE = 127.0f; // [deg]
+const float MAX_STEERING_ANGLE = 17.0f*6.5625f; // [deg]
 const float ADC_MAX_VALUE = 1024.0f;
 const float ADC_MAX_VOLTAGE = 3.6f; // [V]
 const float DEGREES_PER_VOLT = 20.0f; // [deg/V]
 const float VOLTAGE_RATIO = 3.3f/5.0f;
 const float TOLERANCE = 5.0f; // [deg]
 const float STEERING_RATIO = 6.5625f;
+const float STD_DEVIATION_LIMIT = 2.5f;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -107,8 +109,12 @@ uint16_t prescaler=100-1;
 uint16_t ADC2_Value[ADC_SIZE];
 uint16_t filtered_ADC = 0;
 uint32_t target_psc = 500;
+uint16_t position_samples[POSITION_SAMPLES_NUMBER];
+uint16_t k=0;
 
 float flag=0;
+float sigma=0;
+float centerOffset=2.62f;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -120,6 +126,50 @@ static void MX_CAN_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
+void Autoset(){
+	centerOffset=((filtered_ADC / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO);
+	uint8_t empty = 0;
+	uint8_t *data = (uint8_t*)(&empty);
+
+	MmrCanPacket packet = {
+	  .data = data,
+	  .length = sizeof(*data),
+	  .header.messageId = MMR_CAN_MESSAGE_ID_D_STEERING_CENTER_AUTOSET_OK,
+	};
+
+	MMR_CAN_Send(&hcan, packet);
+}
+
+float Average(uint16_t p[], int length){
+    float avg=0;
+    for (int i =0; i<length; i++){
+        avg+=p[i];
+    }
+    return avg/(length);
+}
+
+float StandardDeviation(uint16_t p[], int length){
+    float avg=Average(p, length);
+    float sigma=0;
+    for (int i =0; i<length; i++){
+        sigma+=pow((float)(p[i]-avg), 2);
+    }
+    return sqrt(sigma/length);
+
+}
+
+uint32_t Proportional(float error, struct proportional_data p_data){
+	float absolute_error=fabsf(error);
+	if(absolute_error<p_data.left_x){
+		return p_data.left_y;
+	} else if(absolute_error>p_data.right_x){
+		return p_data.right_y;
+	} else{
+		float proportional_slope=(p_data.left_y-p_data.right_y)/(p_data.left_x-p_data.right_x);
+		return (proportional_slope*absolute_error)+p_data.left_y-(proportional_slope*p_data.left_x);
+	}
+}
+
 static void steer(
   GPIO_PinState dirPinExpected,
   GPIO_PinState dirPinWrite
@@ -141,18 +191,6 @@ static void steerLeft() {
   steer(GPIO_PIN_RESET, GPIO_PIN_SET);
 }
 
-uint32_t Proportional(float error, struct proportional_data p_data){
-	float absolute_error=fabsf(error);
-	if(absolute_error<p_data.left_x){
-		return p_data.left_y;
-	} else if(absolute_error>p_data.right_x){
-		return p_data.right_y;
-	} else{
-		float proportional_slope=(p_data.left_y-p_data.right_y)/(p_data.left_x-p_data.right_x);
-		return (proportional_slope*absolute_error)+p_data.left_y-(proportional_slope*p_data.left_x);
-	}
-}
-
 uint16_t Lowpass(uint16_t input, struct lowpass_data *lp_data){
 	lp_data->input=input;
 	return lp_data->output += (lp_data->input - lp_data->output) * (1-exp(-lp_data->dt * lp_data->cutoff_frequency));
@@ -172,12 +210,23 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
 	filtered_ADC =Lowpass(ADC2_Value[0], &lowpass_data);
 
-    tension = ((filtered_ADC / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - 2.47f;
+    tension = ((filtered_ADC / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO) - centerOffset;
 
     current_angle = tension * DEGREES_PER_VOLT * 4.0f;
 
 	//current_angle = 0.72f*filtered_ADC-284.4f;
     angular_error = -(target_angle - current_angle); // We calculate the error compared to the target
+
+    if(k>=POSITION_SAMPLES_NUMBER-1){
+    	k=0;
+    } else k++;
+    position_samples[k]=filtered_ADC;
+    sigma = StandardDeviation(position_samples, POSITION_SAMPLES_NUMBER);
+    if(sigma<STD_DEVIATION_LIMIT) {
+    	target_psc=Proportional(speed, p_data_odometry_speed_1);
+    	lowpass32_data.output=target_psc;
+    }
+
 
     if (angular_error > TOLERANCE) {
       steerRight();
@@ -199,6 +248,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
       TIM2->PSC=target_psc;
       TIM2->CCR1 = 0;
     }
+
+    // CAN LOGGING
+    float current_steering_angle=current_angle/STEERING_RATIO;
+    //uint8_t current_steering_angle = 8;
+    uint8_t *data = (uint8_t*)(&current_steering_angle);
+
+    MmrCanPacket packet = {
+      .data = data,
+      .length = sizeof(float),
+      .header.messageId = MMR_CAN_MESSAGE_ID_D_CURRENT_ANGLE,
+    };
+
+    MMR_CAN_Send(&hcan, packet);
+
   }
 }
 /* USER CODE END PFP */
@@ -284,8 +347,12 @@ int main(void)
 
   lowpass32_data.input=500;
   lowpass32_data.output=500;
-  lowpass32_data.cutoff_frequency=10.0f; // [rad/s]
+  lowpass32_data.cutoff_frequency=15.0f; // [rad/s]
   lowpass32_data.dt=0.0125f; // TIM3 time period
+
+  for (int i=0; i<POSITION_SAMPLES_NUMBER; i++){
+	  position_samples[i]=0;
+  }
 
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
   while (1)
@@ -344,6 +411,10 @@ int main(void)
 	      case MMR_CAN_MESSAGE_ID_D_RISE_CUTOFF_FREQUENCY:
 	    	  lowpass32_data.cutoff_frequency=(*(float*)buffer);
 	    	  break;
+
+	      case MMR_CAN_MESSAGE_ID_D_STEERING_CENTER_AUTOSET:
+	      	  Autoset();
+	      	  break;
 	      }
 
 	    }
@@ -352,6 +423,14 @@ int main(void)
 	    } else if(target_angle < -MAX_STEERING_ANGLE){
 	    	target_angle = -MAX_STEERING_ANGLE;
 	    }
+
+	    /*
+	    if(current_angle>120){
+	    	target_angle=-140;
+	    } else if (current_angle<-120){
+	    	target_angle=140;
+	    }
+	    */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -487,7 +566,7 @@ static void MX_CAN_Init(void)
 
   /* USER CODE END CAN_Init 1 */
   hcan.Instance = CAN;
-  hcan.Init.Prescaler = 18;
+  hcan.Init.Prescaler = 4;
   hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
   hcan.Init.TimeSeg1 = CAN_BS1_2TQ;
