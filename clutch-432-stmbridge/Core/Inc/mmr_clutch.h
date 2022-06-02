@@ -1,4 +1,5 @@
 #include "mmr_pid.h"
+#include "mmr_lowpass.h"
 
 #define ADC_AVERAGE
 
@@ -43,6 +44,7 @@ typedef struct Clutch {
     float targetAngle;
 	DrivingMode mode;
 	bool inProgress;
+	LowpassData _lpData;
 } Clutch;
 
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues);
@@ -59,5 +61,5 @@ float getMotorDutyCycle(Clutch *clutch);
 
 AdcValue _getMotorPotentiomerValue(Clutch *Clutch);
 AdcValue _getLeverValue(Clutch *Clutch);
-float _getPotentiometerAngle(AdcValue value);
+float _getPotentiometerAngle(Clutch *clutch, AdcValue value);
 

@@ -22,7 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-#include "mmr_can.h"
+//#include "mmr_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -148,9 +148,9 @@ int main(void)
   MX_TIM7_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-  if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
+  /*if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
     Error_Handler();
-  }
+  }*/
 
   pid1 = PIDInit(
 	  saturations1,
@@ -173,7 +173,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
 
   uint8_t test = 8;
-
+/*
   CanRxBuffer buffer = {};
   MmrCanPacket packet = {
 		  .data = (uint8_t*)&test,
@@ -182,7 +182,7 @@ int main(void)
   };
   MmrCanMessage message = {
 		  .store = buffer
-  };
+  };*/
   /* USER CODE END 2 */
 
   /* Infinite loop */

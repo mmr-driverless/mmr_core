@@ -1,11 +1,19 @@
 #include "mmr_clutch.h"
 
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues) {
+  LowpassData lpData = {
+		input: 500,
+		output: 500,
+		cutoffFrequency: 20.0f,
+		dt: 0.0125f
+  };
+
   Clutch clutch = {
 	clutchPID: clutchPID,
     indexes: indexes,
-    _adcValues: adcValues,
 	mode: MANUAL,
+    _adcValues: adcValues,
+	_lpData: lpData,
   };
 
   return clutch;
@@ -30,12 +38,12 @@ float getMotorDutyCycle(Clutch *clutch) {
 
 float getPotMotAngle(Clutch *clutch) {
   const float potValue = _getMotorPotentiomerValue(clutch);
-  return _getPotentiometerAngle(potValue);
+  return _getPotentiometerAngle(clutch, potValue);
 }
 
 float getLeverAngle(Clutch *clutch) {
   const float leverValue = _getLeverValue(clutch);
-  float targetPosition = _getPotentiometerAngle(leverValue);
+  float targetPosition = _getPotentiometerAngle(clutch, leverValue);
 
   const float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) /
 		    (ENGAGED_LEVER_ANGLE - OPEN_LEVER_ANGLE);
@@ -52,8 +60,10 @@ float getLeverAngle(Clutch *clutch) {
   return targetPosition;
 }
 
-float _getPotentiometerAngle(AdcValue value) {
-	const float voltage = ((float)value / MAX_ADC_VALUE) *
+float _getPotentiometerAngle(Clutch *clutch, AdcValue value) {
+	const uint16_t filteredValue = lowpassFilter(value, &clutch->_lpData);
+
+	const float voltage = ((float)filteredValue / MAX_ADC_VALUE) *
 		MAX_VOLTAGE *
 		VOLTAGE_RATIO;
 
