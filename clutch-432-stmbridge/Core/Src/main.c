@@ -22,7 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-#include "mmr_can.h"
+//#include "mmr_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,6 +34,7 @@
 /* USER CODE BEGIN PD */
 #define POT 1
 #define LEVER 0
+#define CURRENT 2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -85,8 +86,8 @@ bool engage = true;
 DrivingMode mode = AUTONOMOUS;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-	min: -0.8f,
-	max: 0.8f,
+	min: 0.4f,
+	max: 0.6f,
 };
 
 const PIDParameters parameters1 = {
@@ -99,10 +100,26 @@ PID pid1;
 
 const float sampleTime = 1.0f / 80000.0f;
 const float tau = 1.0f/14565.0f;
+
+
+
+const PIDSaturation saturations2 = {
+	min: 0.1f,
+	max: 0.9f,
+};
+
+const PIDParameters parameters2 = {
+	p: 7.53f * 3.0f * 3.0f,
+	i: 8.6f * 3.0f,
+	d: 1.4f * 1.5f,
+};
+
+PID pid2;
 //CLUTCH
 const ClutchIndexes indexes = {
 	motorPotentiometer: POT,
 	lever: LEVER,
+	current: CURRENT,
 };
 
 Clutch clutch;
@@ -148,9 +165,9 @@ int main(void)
   MX_TIM7_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-  if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
+  /*if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
     Error_Handler();
-  }
+  }*/
 
   pid1 = PIDInit(
 	  saturations1,
@@ -159,8 +176,16 @@ int main(void)
 	  tau
   );
 
+  pid2 = PIDInit(
+	  saturations2,
+	  parameters2,
+	  sampleTime,
+	  tau
+  );
+
   ClutchPID clutchPID = {
 	  pid1: &pid1,
+	  pid2: &pid2,
   };
 
   clutch = clutchInit(indexes, clutchPID, ADC_values);
@@ -173,7 +198,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
 
   uint8_t test = 8;
-
+/*
   CanRxBuffer buffer = {};
   MmrCanPacket packet = {
 		  .data = (uint8_t*)&test,
@@ -183,6 +208,8 @@ int main(void)
   MmrCanMessage message = {
 		  .store = buffer
   };
+*/
+  //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -235,12 +262,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
-  RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -283,7 +307,7 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV16;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;

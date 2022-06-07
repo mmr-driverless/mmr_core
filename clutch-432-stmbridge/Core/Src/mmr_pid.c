@@ -71,18 +71,8 @@ float getDerivativeTerm(PID* pid, float error) {
 		pid->_terms.d;
 }
  
-int c = 0;
 float PIDCompute(PID* pid, float reference, float measured) {
 	float error = getError(reference, measured);
-	if(c == 2000) {
-		c = 0;
-		if(fabs(error) > 0.5f)
-			resetDir(error);
-	}
-	setDirection(error);
-
-	c++;
-	error = fabs(error);
 	errorPos = error;
 	
 	_updateTerms(pid, error);
@@ -94,6 +84,12 @@ float PIDCompute(PID* pid, float reference, float measured) {
 	pid->_lastOutputs.output = output;
 
 	return output / MAGIC_K;
+}
+
+float PIDCascade(PID* pid1, PID* pid2, float reference, float measured1, float measured2) {
+	const float pid1Result = PIDCompute(pid1, reference, measured1);
+	//currentTarget = pid1Result;
+	return PIDCompute(pid2, pid1Result, measured2);
 }
 
 PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau) {

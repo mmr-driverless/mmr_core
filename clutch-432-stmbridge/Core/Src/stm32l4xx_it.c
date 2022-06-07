@@ -262,7 +262,6 @@ void TIM7_IRQHandler(void)
 	}
 
 	dt = (uint32_t)((getMotorDutyCycle(&clutch) * TIM1->ARR));
-
 	TIM1->CCR1 = dt;
 
 
