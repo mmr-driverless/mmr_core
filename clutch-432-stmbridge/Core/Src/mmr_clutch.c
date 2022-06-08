@@ -10,7 +10,6 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
   Clutch clutch = {
 	clutchPID: clutchPID,
     indexes: indexes,
-    _adcValues: adcValues,
 	mode: MANUAL,
 	_lpDataMeasured: lpDataMeasured,
   };
