@@ -69,7 +69,7 @@ struct lowpass32_data{
 #define ADC_SIZE 50
 #define POSITION_SAMPLES_NUMBER 5
 
-const float MAX_STEERING_ANGLE = 17.0f*6.5625f; // [deg]
+const float MAX_STEERING_ANGLE = 21.5f*6.5625f; // [deg]
 const float ADC_MAX_VALUE = 1024.0f;
 const float ADC_MAX_VOLTAGE = 3.6f; // [V]
 const float DEGREES_PER_VOLT = 20.0f; // [deg/V]
@@ -111,10 +111,11 @@ uint16_t filtered_ADC = 0;
 uint32_t target_psc = 500;
 uint16_t position_samples[POSITION_SAMPLES_NUMBER];
 uint16_t k=0;
+uint16_t cansendflag=0;
 
 float flag=0;
 float sigma=0;
-float centerOffset=2.62f;
+float centerOffset=2.62f-0.505f+0.4975f;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -250,17 +251,24 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 
     // CAN LOGGING
-    float current_steering_angle=current_angle/STEERING_RATIO;
-    //uint8_t current_steering_angle = 8;
-    uint8_t *data = (uint8_t*)(&current_steering_angle);
+    if (cansendflag=5){
+    	float current_steering_angle=current_angle/STEERING_RATIO;
+    	    //uint8_t current_steering_angle = 8;
+    	    uint8_t *data = (uint8_t*)(&current_steering_angle);
 
-    MmrCanPacket packet = {
-      .data = data,
-      .length = sizeof(float),
-      .header.messageId = MMR_CAN_MESSAGE_ID_D_CURRENT_ANGLE,
-    };
+    	    MmrCanPacket packet = {
+    	      .data = data,
+    	      .length = sizeof(float),
+    	      .header.messageId = MMR_CAN_MESSAGE_ID_D_CURRENT_ANGLE,
+    	    };
 
-    MMR_CAN_Send(&hcan, packet);
+    	    MMR_CAN_Send(&hcan, packet);
+
+    	    cansendflag=0;
+    } else {
+    	cansendflag++;
+    }
+
 
   }
 }
