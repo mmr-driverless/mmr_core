@@ -22,7 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-//#include "mmr_can.h"
+#include "mmr_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,11 +83,11 @@ int tick;
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
 bool engage = true;
-DrivingMode mode = AUTONOMOUS;
+DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-	min: 0.4f,
-	max: 0.6f,
+		min: -0.7f,
+		max: 0.7f,
 };
 
 const PIDParameters parameters1 = {
@@ -101,20 +101,6 @@ PID pid1;
 const float sampleTime = 1.0f / 80000.0f;
 const float tau = 1.0f/14565.0f;
 
-
-
-const PIDSaturation saturations2 = {
-	min: 0.1f,
-	max: 0.9f,
-};
-
-const PIDParameters parameters2 = {
-	p: 7.53f * 3.0f * 3.0f,
-	i: 8.6f * 3.0f,
-	d: 1.4f * 1.5f,
-};
-
-PID pid2;
 //CLUTCH
 const ClutchIndexes indexes = {
 	motorPotentiometer: POT,
@@ -165,9 +151,10 @@ int main(void)
   MX_TIM7_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-  /*if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
+
+  if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
     Error_Handler();
-  }*/
+  }
 
   pid1 = PIDInit(
 	  saturations1,
@@ -176,16 +163,8 @@ int main(void)
 	  tau
   );
 
-  pid2 = PIDInit(
-	  saturations2,
-	  parameters2,
-	  sampleTime,
-	  tau
-  );
-
   ClutchPID clutchPID = {
 	  pid1: &pid1,
-	  pid2: &pid2,
   };
 
   clutch = clutchInit(indexes, clutchPID, ADC_values);
@@ -197,18 +176,11 @@ int main(void)
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM Start on TIM1
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
 
-  uint8_t test = 8;
-/*
   CanRxBuffer buffer = {};
-  MmrCanPacket packet = {
-		  .data = (uint8_t*)&test,
-		  .length = sizeof(test),
-		  .header.messageId = 432,
-  };
   MmrCanMessage message = {
 		  .store = buffer
   };
-*/
+
   //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
@@ -219,12 +191,31 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  /*
-	  delay = uwTick - tick;
 
-	  if(delay > 100) {
-		  MMR_CAN_Send(&hcan1, packet);
-		  tick = uwTick;
+
+
+	  MmrCanPacket packetOpenClutch = {
+			  .header.messageId = MMR_CAN_MESSAGE_ID_AMC_MISSION_FINISHED,
+	  };
+
+	  MmrCanPacket packetEngagedClutch = {
+			  .header.messageId = MMR_CAN_MESSAGE_ID_AS_READY,
+	  };
+
+
+
+	  if(clutch.measuredAngle < OPEN_CLUTCH_ANGLE + 0.1f && clutch.inProgress && !engage) {
+		  if(clutch.mode == AUTONOMOUS) {
+			  MMR_CAN_Send(&hcan1, packetOpenClutch);
+			  clutch.inProgress = false;
+		  }
+	  }
+
+	  if(clutch.measuredAngle > ENGAGED_CLUTCH_ANGLE - 0.25f && clutch.inProgress && engage) {
+		  if(clutch.mode == AUTONOMOUS) {
+			  MMR_CAN_Send(&hcan1, packetEngagedClutch);
+			  clutch.inProgress = false;
+		  }
 	  }
 
 	  uint32_t messages = HAL_CAN_GetRxFifoFillLevel(&hcan1, MMR_CAN_RX_FIFO);
@@ -234,8 +225,26 @@ int main(void)
 			  Error_Handler();
 		  }
 
-		  engage = (*(bool*) buffer);
-	  }*/
+		  switch(message.header.messageId) {
+		  	  case MMR_CAN_MESSAGE_ID_S_CLUTCH:
+				  setDrivingMode(&clutch, AUTONOMOUS);
+				  engage = false;
+				  clutch.inProgress = true;
+		  		  break;
+
+		  	  case MMR_CAN_MESSAGE_ID_S_LV12:
+				  setDrivingMode(&clutch, AUTONOMOUS);
+				  engage = true;
+				  clutch.inProgress = true;
+		  		  break;
+
+		  	  case MMR_CAN_MESSAGE_ID_AMC_MISSION_FINISHED:
+				  setDrivingMode(&clutch, MANUAL);
+				  clutch.inProgress = false;
+		  		  break;
+		  }
+
+	  }
 
 	  potMot = clutch.measuredAngle;
 	  lever = clutch.targetAngle;

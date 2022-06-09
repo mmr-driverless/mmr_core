@@ -1,21 +1,20 @@
 #include "mmr_pid.h"
+#include "mmr_lowpass.h"
 
 #define ADC_AVERAGE
-#define POSITION_ONLY
 
 #define MAX_VOLTAGE 3.6f
 #define MAX_ADC_VALUE 4096.0f
-#define VOLTAGE_RATIO 5.0f/3.3f
-#define OPEN_CLUTCH_ANGLE 1.145f // [rad]
-#define ENGAGED_CLUTCH_ANGLE 0.60f // [rad]
+#define VOLTAGE_RATIO (5.0f/3.3f)
 
-#ifdef POSITION_ONLY
-	#define ADC_CHANNELS 2//number of adc channels
-	#define BUFFER_LENGTH 20
-#else
-	#define ADC_CHANNELS 3 //number of adc channels
-	#define BUFFER_LENGTH 21
-#endif
+#define OPEN_CLUTCH_ANGLE 0.57f // [rad]
+#define ENGAGED_CLUTCH_ANGLE 1.7f // [rad]
+
+#define OPEN_LEVER_ANGLE 0.65f // [rad]
+#define ENGAGED_LEVER_ANGLE 1.1f // [rad]
+
+#define ADC_CHANNELS 2//number of adc channels
+#define BUFFER_LENGTH 20
 
 enum DrivingMode {
 	MANUAL,
@@ -44,11 +43,16 @@ typedef struct Clutch {
 	AdcValue *_adcValues;
     float measuredAngle;
     float targetAngle;
-	float current;
+    float current;
 	DrivingMode mode;
+	bool inProgress;
+	LowpassData _lpDataMeasured;
 } Clutch;
 
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues);
+void openClutch(Clutch *clutch);
+void engagedClutch(Clutch *clutch);
+
 void setDrivingMode(Clutch *clutch, DrivingMode mode);
 void setTargetAngle(Clutch *clutch, float angle);
 
@@ -58,8 +62,7 @@ float getCurrent(Clutch *clutch);
 
 float getMotorDutyCycle(Clutch *clutch);
 
-float _getMotorPotentiomerValue(Clutch *Clutch);
-float _getLeverValue(Clutch *Clutch);
-float _getCurrentValue(Clutch *Clutch);
+AdcValue _getMotorPotentiomerValue(Clutch *Clutch);
+AdcValue _getLeverValue(Clutch *Clutch);
+float _getPotentiometerAngle(AdcValue value, Clutch *Clutch);
 
-float _getAvg(Clutch *Clutch, AdcIndex index);

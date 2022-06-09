@@ -251,10 +251,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
-	if(mode == AUTONOMOUS) {
-		//setTargetAngle(&clutch, 0.5f);
-
-		//Se da problemi commenta l'if e usa setTargetAngle ho fatto una modifica stamattina abbastanza importante, ma non è testata
+	if(clutch.mode == AUTONOMOUS) {
 		if(engage)
 			engagedClutch(&clutch);
 		else

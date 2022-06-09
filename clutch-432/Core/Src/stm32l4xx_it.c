@@ -60,6 +60,9 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim7;
 /* USER CODE BEGIN EV */
 extern Clutch clutch;
+extern float autonomousTargetAngle;
+extern DrivingMode mode;
+extern bool engage;
 uint32_t dt = 0;
 /* USER CODE END EV */
 
@@ -248,11 +251,14 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
+	if(clutch.mode == AUTONOMOUS) {
+		if(engage)
+			engagedClutch(&clutch);
+		else
+			openClutch(&clutch);
+	}
 
-
-	//COMMENTATO PER I TEST DEL CAN
-
-	dt = (uint32_t)((getMotorDutyCycle(&clutch)*TIM1->ARR));
+	dt = (uint32_t)((getMotorDutyCycle(&clutch) * TIM1->ARR));
 	TIM1->CCR1 = dt;
 
 

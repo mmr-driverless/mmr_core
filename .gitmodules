@@ -7,3 +7,6 @@
 [submodule "clutch-432-stmbridge/Drivers/MMR_CAN"]
 	path = clutch-432-stmbridge/Drivers/MMR_CAN
 	url = https://github.com/mmr-driverless/mmr_can.git
+[submodule "mmr_can"]
+	path = mmr_can
+	url = https://github.com/mmr-driverless/mmr_can

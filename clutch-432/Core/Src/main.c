@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
+#include "mmr_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,8 +32,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define POT 0
-#define LEVER 1
+#define POT 1
+#define LEVER 0
 #define CURRENT 2
 /* USER CODE END PD */
 
@@ -44,6 +45,8 @@
 /* Private variables ---------------------------------------------------------*/
  ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
+
+CAN_HandleTypeDef hcan1;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim7;
@@ -59,6 +62,7 @@ static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_CAN1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -67,10 +71,9 @@ static void MX_TIM7_Init(void);
 /* USER CODE BEGIN 0 */
 float lever;
 float potMot;
-float current;
-float currentTarget;
 float errorPos;
-
+int delay;
+int tick;
 
 /*
  * PER I TEST DEL CAN
@@ -79,12 +82,12 @@ float errorPos;
  * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
  *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
  */
-float autonomousTargetAngle = 0.8f;
-DrivingMode mode = AUTONOMOUS;
+bool engage = true;
+DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-	min: 0.3f,
-	max: 0.7f,
+	min: 0.4f,
+	max: 0.6f,
 };
 
 const PIDParameters parameters1 = {
@@ -95,23 +98,9 @@ const PIDParameters parameters1 = {
 
 PID pid1;
 
-/****/
-
-const PIDSaturation saturations2 = {
-	min: 0.0f,
-	max: 1.0f,
-};
-
-const PIDParameters parameters2 = {
-	p: 0.052f,
-	i: 0.052f * (6000.0f/5.88f),
-	d: 0.0f,
-};
-
-PID pid2;
-
 const float sampleTime = 1.0f / 80000.0f;
 const float tau = 1.0f/14565.0f;
+
 //CLUTCH
 const ClutchIndexes indexes = {
 	motorPotentiometer: POT,
@@ -120,7 +109,7 @@ const ClutchIndexes indexes = {
 };
 
 Clutch clutch;
-
+int s;
 // ADC arrays
 AdcValue ADC_values[BUFFER_LENGTH];
 /* USER CODE END 0 */
@@ -134,9 +123,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
 	lever = 0;
 	potMot = 0;
-	current = 0;
-	currentTarget = 0;
 	errorPos = 0;
+	tick = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -161,35 +149,39 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM1_Init();
   MX_TIM7_Init();
+  MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-	pid1 = PIDInit(
-		saturations1,
-		parameters1,
-		sampleTime,
-		tau
-	);
 
-	pid2 = PIDInit(
-		saturations2,
-		parameters2,
-		sampleTime,
-		tau
-	);
+  if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
+    Error_Handler();
+  }
 
-	ClutchPID clutchPID = {
-		pid1: &pid1,
-		//pid2: &pid2,
-	};
+  pid1 = PIDInit(
+	  saturations1,
+	  parameters1,
+	  sampleTime,
+	  tau
+  );
 
-	clutch = clutchInit(indexes, clutchPID, ADC_values);
-	setDrivingMode(&clutch, mode);
+  ClutchPID clutchPID = {
+	  pid1: &pid1,
+  };
 
-  HAL_GPIO_WritePin(GPIOB, ENABLE_Pin, GPIO_PIN_SET); //ENABLE
+  clutch = clutchInit(indexes, clutchPID, ADC_values);
+  setDrivingMode(&clutch, mode);
+
   HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH);
 
   HAL_TIM_Base_Start(&htim1); // TIM1 Start
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM Start on TIM1
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
+
+  CanRxBuffer buffer = {};
+  MmrCanMessage message = {
+		  .store = buffer
+  };
+
+  //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -199,12 +191,63 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+
+
+	  MmrCanPacket packetOpenClutch = {
+			  .header.messageId = MMR_CAN_MESSAGE_ID_AMC_MISSION_FINISHED,
+	  };
+
+	  MmrCanPacket packetEngagedClutch = {
+			  .header.messageId = MMR_CAN_MESSAGE_ID_AS_READY,
+	  };
+
+
+
+	  if(clutch.measuredAngle < OPEN_CLUTCH_ANGLE + 0.1f && clutch.inProgress && !engage) {
+		  if(clutch.mode == AUTONOMOUS) {
+			  MMR_CAN_Send(&hcan1, packetOpenClutch);
+			  clutch.inProgress = false;
+		  }
+	  }
+
+	  if(clutch.measuredAngle > ENGAGED_CLUTCH_ANGLE - 0.25f && clutch.inProgress && engage) {
+		  if(clutch.mode == AUTONOMOUS) {
+			  MMR_CAN_Send(&hcan1, packetEngagedClutch);
+			  clutch.inProgress = false;
+		  }
+	  }
+
+	  uint32_t messages = HAL_CAN_GetRxFifoFillLevel(&hcan1, MMR_CAN_RX_FIFO);
+
+	  if(messages > 0) {
+		  if(MMR_CAN_Receive(&hcan1, &message) != HAL_OK) {
+			  Error_Handler();
+		  }
+
+		  switch(message.header.messageId) {
+		  	  case MMR_CAN_MESSAGE_ID_S_CLUTCH:
+				  setDrivingMode(&clutch, AUTONOMOUS);
+				  engage = false;
+				  clutch.inProgress = true;
+		  		  break;
+
+		  	  case MMR_CAN_MESSAGE_ID_S_LV12:
+				  setDrivingMode(&clutch, AUTONOMOUS);
+				  engage = true;
+				  clutch.inProgress = true;
+		  		  break;
+
+		  	  case MMR_CAN_MESSAGE_ID_AMC_MISSION_FINISHED:
+				  setDrivingMode(&clutch, MANUAL);
+				  clutch.inProgress = false;
+		  		  break;
+		  }
+
+	  }
+
 	  potMot = clutch.measuredAngle;
 	  lever = clutch.targetAngle;
-	  current = clutch.current;
-
-	  if(mode == AUTONOMOUS)
-		  setTargetAngle(&clutch, autonomousTargetAngle);
   }
   /* USER CODE END 3 */
 }
@@ -228,10 +271,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
-  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
-  RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -242,7 +284,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -274,7 +316,7 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV16;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
@@ -295,7 +337,7 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_6;
+  sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
@@ -321,6 +363,43 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+  * @brief CAN1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CAN1_Init(void)
+{
+
+  /* USER CODE BEGIN CAN1_Init 0 */
+
+  /* USER CODE END CAN1_Init 0 */
+
+  /* USER CODE BEGIN CAN1_Init 1 */
+
+  /* USER CODE END CAN1_Init 1 */
+  hcan1.Instance = CAN1;
+  hcan1.Init.Prescaler = 8;
+  hcan1.Init.Mode = CAN_MODE_NORMAL;
+  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan1.Init.TimeTriggeredMode = DISABLE;
+  hcan1.Init.AutoBusOff = DISABLE;
+  hcan1.Init.AutoWakeUp = DISABLE;
+  hcan1.Init.AutoRetransmission = DISABLE;
+  hcan1.Init.ReceiveFifoLocked = DISABLE;
+  hcan1.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CAN1_Init 2 */
+
+  /* USER CODE END CAN1_Init 2 */
+
+}
+
+/**
   * @brief TIM1 Initialization Function
   * @param None
   * @retval None
@@ -341,7 +420,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 5-1;
+  htim1.Init.Prescaler = 20-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 100-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -418,7 +497,7 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 25 - 1;
+  htim7.Init.Prescaler = 100 - 1;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = 10 - 1;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -468,14 +547,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(ENABLE_GPIO_Port, ENABLE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : ENABLE_Pin */
-  GPIO_InitStruct.Pin = ENABLE_Pin;
+  /*Configure GPIO pins : PB4 PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(ENABLE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 

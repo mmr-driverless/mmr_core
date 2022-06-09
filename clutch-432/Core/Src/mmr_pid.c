@@ -1,4 +1,6 @@
 #include "mmr_pid.h"
+#include "stm32l4xx_hal.h"
+
 extern float currentTarget;
 extern float errorPos;
 
@@ -22,11 +24,11 @@ float getOutput(PID* pid) {
 }
 
 float getOutputInSaturationRange(PID* pid, float output) {
-	if (output >= pid->saturation.max)
-		return pid->saturation.max;
+	if (output >= pid->saturation.max * MAGIC_K)
+		return pid->saturation.max * MAGIC_K;
 
-	if (output <= pid->saturation.min)
-		return pid->saturation.min;
+	if (output <= pid->saturation.min * MAGIC_K)
+		return pid->saturation.min * MAGIC_K;
 
 	return output;
 }
@@ -71,8 +73,6 @@ float getDerivativeTerm(PID* pid, float error) {
  
 float PIDCompute(PID* pid, float reference, float measured) {
 	float error = getError(reference, measured);
-	//setDirection(error);
-	//error = abs(error);
 	errorPos = error;
 	
 	_updateTerms(pid, error);
@@ -83,12 +83,12 @@ float PIDCompute(PID* pid, float reference, float measured) {
 	pid->_lastOutputs.outputPresaturation = outputPresaturation;
 	pid->_lastOutputs.output = output;
 
-	return output;
+	return output / MAGIC_K;
 }
 
 float PIDCascade(PID* pid1, PID* pid2, float reference, float measured1, float measured2) {
 	const float pid1Result = PIDCompute(pid1, reference, measured1);
-	currentTarget = pid1Result;
+	//currentTarget = pid1Result;
 	return PIDCompute(pid2, pid1Result, measured2);
 }
 
@@ -124,11 +124,16 @@ void setDirection(float error){
 }
 
 void setClockwise() {
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET); //DIR A
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_RESET); //DIR B
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET); //DIR A
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET); //DIR B
 }
 
 void setCounterClockwise() {
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET); //DIR A
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET); //DIR B
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET); //DIR A
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET); //DIR B
+}
+
+void resetDir() {
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET); //DIR A
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET); //DIR B
 }

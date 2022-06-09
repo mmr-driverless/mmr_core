@@ -11,6 +11,7 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
 	clutchPID: clutchPID,
     indexes: indexes,
 	mode: MANUAL,
+	_adcValues: adcValues,
 	_lpDataMeasured: lpDataMeasured,
   };
 
@@ -30,8 +31,8 @@ float getMotorDutyCycle(Clutch *clutch) {
   //clutch->targetAngle = 0.8f;
   //clutch->current = getCurrent(clutch);
 
-  /*if(clutch->mode == MANUAL)
-    clutch->targetAngle =  getLeverAngle(clutch);*/
+  if(clutch->mode == MANUAL)
+    clutch->targetAngle =  getLeverAngle(clutch);
 
   return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
   /*return PIDCascade(
@@ -93,7 +94,6 @@ AdcValue _getLeverValue(Clutch *clutch) {
 }
 
 void openClutch(Clutch *clutch) {
-	clutch->inProgress = clutch->measuredAngle < (OPEN_CLUTCH_ANGLE - 0.15f);
 	setTargetAngle(clutch, OPEN_CLUTCH_ANGLE);
 }
 

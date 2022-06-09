@@ -71,8 +71,18 @@ float getDerivativeTerm(PID* pid, float error) {
 		pid->_terms.d;
 }
  
+int c = 0;
 float PIDCompute(PID* pid, float reference, float measured) {
 	float error = getError(reference, measured);
+	if(c == 2000) {
+		c = 0;
+		if(fabs(error) > 0.5f)
+			resetDir(error);
+	}
+	setDirection(error);
+
+	c++;
+	error = fabs(error);
 	errorPos = error;
 	
 	_updateTerms(pid, error);
