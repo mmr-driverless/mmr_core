@@ -74,17 +74,21 @@ float getDerivativeTerm(PID* pid, float error) {
 int c = 0;
 float PIDCompute(PID* pid, float reference, float measured) {
 	float error = getError(reference, measured);
-	if(c == 2000) {
-		c = 0;
-		if(fabs(error) > 0.5f)
-			resetDir(error);
+	c++;
+
+	if(c > 4000) {
+		resetDir(error);
+
+		if(c == 4050) {
+			c = 0;
+		}
 	}
+
 	setDirection(error);
 
-	c++;
 	error = fabs(error);
 	errorPos = error;
-	
+
 	_updateTerms(pid, error);
 	const float outputPresaturation = getOutput(pid);
 	const float output = getOutputInSaturationRange(pid, outputPresaturation);

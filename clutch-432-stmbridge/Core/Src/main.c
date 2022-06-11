@@ -75,19 +75,13 @@ float errorPos;
 int delay;
 int tick;
 
-/*
- * PER I TEST DEL CAN
- * - INSERIRE ANGOLO NELLA VARIABILE autonomousTargetAngle
- * - LASCIARE LA MODALITA' DI GUIDA IN AUTONOMOUS
- * - TUTTO LA LOGICA CHE CALCOLA IL PID E I VALORI DEI
- *   VARI POTENZIOMETRI E' STATA COMMENTATA SI TROVA NELL'INTERRUPT DEL TIM7 NEL FILE stm32l4xx_it.c
- */
-bool engage = true;
+
+bool engage = false;
 DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-		min: -0.7f,
-		max: 0.7f,
+		min: -0.8f,
+		max: 0.8f,
 };
 
 const PIDParameters parameters1 = {

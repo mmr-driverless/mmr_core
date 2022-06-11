@@ -100,9 +100,12 @@ void openClutch(Clutch *clutch) {
 void engagedClutch(Clutch *clutch) {
 	static uint8_t step = 0;
 	static int countRamp = 0;
-	const int countLimit = 32000;
-	const float clutchDelta = ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE;
 
+	const int countLimit1 = 8000;
+	const int countLimit2 = 32000;
+
+	const float clutchDelta1 = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) * 0.7;
+	const float clutchDelta2 = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) - clutchDelta1;
 
 	switch(step) {
 		case 0:
@@ -113,9 +116,20 @@ void engagedClutch(Clutch *clutch) {
 
 			break;
 		case 1:
-			if(countRamp < countLimit) {
+			if(countRamp < countLimit1) {
 				countRamp = countRamp + 1;
-				float t = ((clutchDelta / countLimit) * countRamp) + OPEN_CLUTCH_ANGLE;
+				float t = ((clutchDelta1 / countLimit1) * countRamp) + OPEN_CLUTCH_ANGLE;
+				setTargetAngle(clutch, t);
+			}
+			else {
+				step = 2;
+			}
+
+			break;
+		case 2:
+			if(countRamp < countLimit2) {
+				countRamp = countRamp + 1;
+				float t = (clutchDelta1 + (clutchDelta2 / countLimit2) * (countRamp - countLimit1)) + OPEN_CLUTCH_ANGLE;
 				setTargetAngle(clutch, t);
 			}
 			else {
