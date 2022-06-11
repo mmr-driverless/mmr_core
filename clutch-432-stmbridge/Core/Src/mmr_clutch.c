@@ -107,10 +107,13 @@ void engagedClutch(Clutch *clutch) {
 	switch(step) {
 		case 0:
 			countRamp = 0;
-			step = 1;
+
+			if(clutch->measuredAngle < ENGAGED_CLUTCH_ANGLE - 0.2f)
+				step = 1;
+
 			break;
 		case 1:
-			if(countRamp < countLimit && clutch->measuredAngle < ENGAGED_CLUTCH_ANGLE - 0.2f) {
+			if(countRamp < countLimit) {
 				countRamp = countRamp + 1;
 				float t = ((clutchDelta / countLimit) * countRamp) + OPEN_CLUTCH_ANGLE;
 				setTargetAngle(clutch, t);
@@ -120,5 +123,6 @@ void engagedClutch(Clutch *clutch) {
 			}
 
 			break;
+
 	}
 }

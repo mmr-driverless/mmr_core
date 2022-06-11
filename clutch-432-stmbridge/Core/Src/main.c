@@ -180,6 +180,7 @@ int main(void)
   MmrCanMessage message = {
 		  .store = buffer
   };
+  uint32_t start = uwTick;
 
   //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
   /* USER CODE END 2 */
@@ -188,6 +189,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  /*uint8_t pendingMessages = HAL_CAN_GetRxFifoFillLevel(&hcan1, MMR_CAN_RX_FIFO);
+
+	  if (pendingMessages <= 0) {
+		  continue;
+	  }
+
+	  if (MMR_CAN_Receive(&hcan1, &message) != HAL_OK) {
+		  ;
+	  }
+
+	  volatile int id = message.header.messageId;
+
+	  continue;*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -195,13 +209,12 @@ int main(void)
 
 
 	  MmrCanPacket packetOpenClutch = {
-			  .header.messageId = MMR_CAN_MESSAGE_ID_AMC_MISSION_FINISHED,
+			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL_OK,
 	  };
 
 	  MmrCanPacket packetEngagedClutch = {
-			  .header.messageId = MMR_CAN_MESSAGE_ID_AS_READY,
+			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK,
 	  };
-
 
 
 	  if(clutch.measuredAngle < OPEN_CLUTCH_ANGLE + 0.1f && clutch.inProgress && !engage) {
@@ -226,19 +239,19 @@ int main(void)
 		  }
 
 		  switch(message.header.messageId) {
-		  	  case MMR_CAN_MESSAGE_ID_S_CLUTCH:
+		  	  case MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL:
 				  setDrivingMode(&clutch, AUTONOMOUS);
 				  engage = false;
 				  clutch.inProgress = true;
 		  		  break;
 
-		  	  case MMR_CAN_MESSAGE_ID_S_LV12:
+		  	  case MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE:
 				  setDrivingMode(&clutch, AUTONOMOUS);
 				  engage = true;
 				  clutch.inProgress = true;
 		  		  break;
 
-		  	  case MMR_CAN_MESSAGE_ID_AMC_MISSION_FINISHED:
+		  	  case MMR_CAN_MESSAGE_ID_CS_CLUTCH_SET_MANUAL:
 				  setDrivingMode(&clutch, MANUAL);
 				  clutch.inProgress = false;
 		  		  break;
@@ -378,7 +391,7 @@ static void MX_CAN1_Init(void)
 
   /* USER CODE END CAN1_Init 1 */
   hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = 8;
+  hcan1.Init.Prescaler = 4;
   hcan1.Init.Mode = CAN_MODE_NORMAL;
   hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
   hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
