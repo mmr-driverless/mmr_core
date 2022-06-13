@@ -4,8 +4,9 @@
 #include "stm32l4xx_hal.h"
 
 #define MAGIC_K 10.0f
+#define TOLERANCE 0.2f
 
-//#define INVERT_ERROR
+#define INVERT_ERROR
 #define INTEGRAL_ANTI_WINDUP
 
 typedef struct PIDSaturation {

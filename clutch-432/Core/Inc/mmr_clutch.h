@@ -6,6 +6,7 @@
 #define MAX_VOLTAGE 3.6f
 #define MAX_ADC_VALUE 4096.0f
 #define VOLTAGE_RATIO (5.0f/3.3f)
+#define SENSITIVITY 0.1f
 
 #define OPEN_CLUTCH_ANGLE 0.57f // [rad]
 #define ENGAGED_CLUTCH_ANGLE 1.7f // [rad]

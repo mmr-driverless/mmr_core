@@ -71,11 +71,30 @@ float getDerivativeTerm(PID* pid, float error) {
 		pid->_terms.d;
 }
  
+int c = 0;
 float PIDCompute(PID* pid, float reference, float measured) {
 	float error = getError(reference, measured);
-	errorPos = error;
-	
+	/*c++;
+
+	if(c > 4000) {
+		resetDir(error);
+
+		if(c == 4050) {
+			c = 0;
+		}
+	}*/
+
+	//setDirection(error);
+
+	//error = fabs(error);
+	//errorPos = error;
+
 	_updateTerms(pid, error);
+
+	if(fabs(error) < 0.2f) {
+		return 0.5f;
+	}
+
 	const float outputPresaturation = getOutput(pid);
 	const float output = getOutputInSaturationRange(pid, outputPresaturation);
 
@@ -87,9 +106,7 @@ float PIDCompute(PID* pid, float reference, float measured) {
 }
 
 float PIDCascade(PID* pid1, PID* pid2, float reference, float measured1, float measured2) {
-	const float pid1Result = PIDCompute(pid1, reference, measured1);
-	//currentTarget = pid1Result;
-	return PIDCompute(pid2, pid1Result, measured2);
+	return PIDCompute(pid2, PIDCompute(pid1, reference, measured1), measured2);
 }
 
 PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau) {

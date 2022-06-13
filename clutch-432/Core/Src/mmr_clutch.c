@@ -28,27 +28,27 @@ void setTargetAngle(Clutch *clutch, float angle) {
 
 float getMotorDutyCycle(Clutch *clutch) {
   clutch->measuredAngle = getPotMotAngle(clutch);//lowpassFilter(getPotMotAngle(clutch), &clutch->_lpDataMeasured);
+  clutch->current = getCurrent(clutch);
   //clutch->targetAngle = 0.8f;
-  //clutch->current = getCurrent(clutch);
 
   if(clutch->mode == MANUAL)
     clutch->targetAngle =  getLeverAngle(clutch);
 
-  return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
-  /*return PIDCascade(
+  //return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
+  return PIDCascade(
 		  clutch->clutchPID.pid1,
 		  clutch->clutchPID.pid2,
 		  clutch->targetAngle,
 		  clutch->measuredAngle,
 		  clutch->current
-  );*/
+  );
 }
 
 float getCurrent(Clutch *clutch) {
   const float value = clutch->_adcValues[clutch->indexes.current];
-  float current = (((value / MAX_ADC_VALUE) *
-	5.0f) - 2.57f) *
-	0.1f;//COSTANTE K
+  float current = ((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
+		VOLTAGE_RATIO *
+		SENSITIVITY;
 
   return current;
 }
@@ -97,13 +97,15 @@ void openClutch(Clutch *clutch) {
 	setTargetAngle(clutch, OPEN_CLUTCH_ANGLE);
 }
 
-
 void engagedClutch(Clutch *clutch) {
 	static uint8_t step = 0;
 	static int countRamp = 0;
-	const int countLimit = 32000;
-	const float clutchDelta = ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE;
 
+	const int countLimit1 = 8000;
+	const int countLimit2 = 32000;
+
+	const float clutchDelta1 = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) * 0.7;
+	const float clutchDelta2 = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) - clutchDelta1;
 
 	switch(step) {
 		case 0:
@@ -114,9 +116,20 @@ void engagedClutch(Clutch *clutch) {
 
 			break;
 		case 1:
-			if(countRamp < countLimit) {
+			if(countRamp < countLimit1) {
 				countRamp = countRamp + 1;
-				float t = ((clutchDelta / countLimit) * countRamp) + OPEN_CLUTCH_ANGLE;
+				float t = ((clutchDelta1 / countLimit1) * countRamp) + OPEN_CLUTCH_ANGLE;
+				setTargetAngle(clutch, t);
+			}
+			else {
+				step = 2;
+			}
+
+			break;
+		case 2:
+			if(countRamp < countLimit2) {
+				countRamp = countRamp + 1;
+				float t = (clutchDelta1 + (clutchDelta2 / countLimit2) * (countRamp - countLimit1)) + OPEN_CLUTCH_ANGLE;
 				setTargetAngle(clutch, t);
 			}
 			else {
