@@ -1,3 +1,4 @@
+
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -35,6 +36,7 @@
 #define POT 1
 #define LEVER 0
 #define CURRENT 2
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -80,19 +82,32 @@ bool engage = false;
 DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-		min: -0.8f,
-		max: 0.8f,
+		min: -3.75f,
+		max: 3.75f,
 };
 
 const PIDParameters parameters1 = {
-	p: 7.53f * 3.0f * 3.0f,
-	i: 8.6f * 3.0f,
-	d: 1.4f * 1.5f,
+	p: 7.53f * 6.0f,
+	i: 8.6f * 2.0f,
+	d: 1.4f * 0.5f,
 };
 
 PID pid1;
 
-const float sampleTime = 1.0f / 80000.0f;
+const PIDSaturation saturations2 = {
+		min: 0.4f,
+		max: 0.6f,
+};
+
+const PIDParameters parameters2 = {
+	p: 0.052f,
+	i: (0.052 * 6000.0f) / 5.88f,
+	d: 0.0f,
+};
+
+PID pid2;
+
+const float sampleTime = 1.0f / 16000.0f;
 const float tau = 1.0f/14565.0f;
 
 //CLUTCH
@@ -157,8 +172,16 @@ int main(void)
 	  tau
   );
 
+  pid2 = PIDInit(
+	  saturations2,
+	  parameters2,
+	  sampleTime,
+	  tau
+  );
+
   ClutchPID clutchPID = {
 	  pid1: &pid1,
+	  pid2: &pid2,
   };
 
   clutch = clutchInit(indexes, clutchPID, ADC_values);
