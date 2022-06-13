@@ -211,6 +211,8 @@ int main(void)
 	  };
 
 
+	  //AUTONOMOUS
+
 	  if(clutch.measuredAngle < OPEN_CLUTCH_ANGLE + 0.1f && clutch.inProgress && !engage) {
 		  if(clutch.mode == AUTONOMOUS) {
 			  MMR_CAN_Send(&hcan1, packetOpenClutch);
@@ -222,6 +224,22 @@ int main(void)
 		  if(clutch.mode == AUTONOMOUS) {
 			  MMR_CAN_Send(&hcan1, packetEngagedClutch);
 			  clutch.inProgress = false;
+		  }
+	  }
+
+	  //MANUAL
+
+	  if(clutch.measuredAngle < OPEN_CLUTCH_ANGLE + 0.1f && uwTick - start >= 100) {
+		  start = uwTick;
+		  if(clutch.mode == MANUAL) {
+			  MMR_CAN_Send(&hcan1, packetOpenClutch);
+		  }
+	  }
+
+	  if(clutch.measuredAngle > ENGAGED_CLUTCH_ANGLE - 0.25f && uwTick - start >= 100) {
+		  start = uwTick;
+		  if(clutch.mode == MANUAL) {
+			  MMR_CAN_Send(&hcan1, packetEngagedClutch);
 		  }
 	  }
 
@@ -344,7 +362,7 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
