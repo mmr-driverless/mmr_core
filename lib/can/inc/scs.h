@@ -8,7 +8,7 @@
 #ifndef INC_MMR_CAN_SCS_H_
 #define INC_MMR_CAN_SCS_H_
 
-#include "mmr_can.h"
+#include "can.h"
 
 
 /**

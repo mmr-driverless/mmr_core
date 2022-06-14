@@ -12,9 +12,9 @@
 #define INC_MMR_CAN_HEADER_H_
 
 #include <stdbool.h>
-#include "mmr_can_util.h"
-#include "mmr_can_binary_literals.h"
-#include "mmr_can_message_id.h"
+#include "../../util/inc/util.h"
+#include "../../util/inc/binary_literals.h"
+#include "message_id.h"
 
 /**
  * @brief

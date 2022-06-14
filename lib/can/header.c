@@ -1,6 +1,5 @@
-#include "header.h"
-#include "optimize.h"
-#include "util/inc/util.h"
+#include "inc/header.h"
+#include "inc/optimize.h"
 
 uint32_t MMR_CAN_HeaderToBits(MmrCanHeader header) {
   return 0

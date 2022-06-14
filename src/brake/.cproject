@@ -47,7 +47,8 @@
 									<listOptionValue builtIn="false" value="../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F3xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../Drivers/MMR_CAN/Inc"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/lib/can/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/lib/util/inc}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.156157886" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -76,6 +77,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Lib"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -163,15 +165,6 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.879540426;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.879540426.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1500484578;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.156157886">
-			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.1855409557;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.1855409557.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.552748123;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1011297370">
-			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/brake-test-v01"/>
@@ -179,5 +172,11 @@
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/brake-test-v01"/>
 		</configuration>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.879540426;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.879540426.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1500484578;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.156157886">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

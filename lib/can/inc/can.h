@@ -9,12 +9,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "mmr_can_includes.h"
-#include "mmr_can_header.h"
-#include "mmr_can_types.h"
-#include "mmr_can_optimize.h"
-#include "mmr_can_binary_literals.h"
-#include "mmr_can_scs.h"
+#include "../../util/inc/binary_literals.h"
+#include "header.h"
+#include "types.h"
+#include "optimize.h"
+#include "scs.h"
 
 #ifndef MMR_CAN_RX_FIFO
 #define MMR_CAN_RX_FIFO CAN_RX_FIFO0

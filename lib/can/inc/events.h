@@ -12,8 +12,8 @@
 #ifndef INC_MMR_CAN_EVENTS_H_
 #define INC_MMR_CAN_EVENTS_H_
 
-#include "mmr_can.h"
-#include "mmr_can_util.h"
+#include "../../util/inc/util.h"
+#include "can.h"
 
 typedef void (*MmrCanEventHandler)(const MmrCanMessage *event);
 

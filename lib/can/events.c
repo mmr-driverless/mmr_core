@@ -1,5 +1,5 @@
-#include "mmr_can.h"
-#include "mmr_can_events.h"
+#include "inc/can.h"
+#include "inc/events.h"
 
 
 static const MmrCanEventList *_rxEvents = NULL;

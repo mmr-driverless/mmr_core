@@ -1,6 +1,6 @@
 #include <stdbool.h>
-#include "mmr_can.h"
-#include "mmr_can_util.h"
+#include "inc/can.h"
+#include "../util/inc/util.h"
 
 
 typedef struct {

@@ -1,4 +1,4 @@
-#include "mmr_can_scs.h"
+#include "inc/scs.h"
 
 #define EMPTY_HEADER ((MmrCanHeader){})
 #define EMPTY_ENTRY ((MmrCanScsEntry){})

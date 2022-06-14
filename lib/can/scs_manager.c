@@ -1,4 +1,4 @@
-#include "mmr_can_scs.h"
+#include "inc/scs.h"
 
 static void maybeIncrementRtr(MmrCanScsEntry *entry);
 static HalStatus sendScs(CanHandle *hcan, MmrCanHeader header);

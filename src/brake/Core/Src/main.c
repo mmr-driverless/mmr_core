@@ -22,8 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <math.h>
-#include "mmr_can.h"
-#include "mmr_can_msg_conversions.h"
+#include "can.h"
+#include "msg_conversions.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
