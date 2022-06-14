@@ -3,20 +3,20 @@
 
 uint32_t MMR_CAN_HeaderToBits(MmrCanHeader header) {
   return 0
-    | ((uint32_t)header.priority << 26)
-    | ((uint32_t)header.messageId << 16)
-    | ((uint32_t)header.senderId << 6)
-    | ((uint32_t)header.seqNumber << 3)
-    | ((uint32_t)header.messageType);
+    | ((uint32_t)header.messageType << 26)
+    | ((uint32_t)header.priority << 23)
+    | ((uint32_t)header.seqNumber << 20)
+    | ((uint32_t)header.senderId << 10)
+    | ((uint32_t)header.messageId);
 }
 
 MmrCanHeader MMR_CAN_HeaderFromBits(uint32_t bits) {
   return (MmrCanHeader) {
-    .priority = bits >> 26,
-    .messageId = bits >> 16,
-    .senderId = bits >> 6,
-    .seqNumber = bits >> 3,
-    .messageType = bits,
+    .messageType = bits >> 26,
+    .priority = bits >> 23,
+    .seqNumber = bits >> 20,
+    .senderId = bits >> 10,
+    .messageId = bits,
   };
 }
 
