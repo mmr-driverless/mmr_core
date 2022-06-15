@@ -74,6 +74,7 @@ float potMot;
 float errorPos;
 int delay;
 int tick;
+int releaseFlag;
 
 
 bool engage = false;
@@ -119,6 +120,7 @@ int main(void)
 	potMot = 0;
 	errorPos = 0;
 	tick = 0;
+	releaseFlag = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -210,8 +212,12 @@ int main(void)
 			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK,
 	  };
 
+	  /*
+	  MmrCanPacket packetPulledLever = {
+			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_LEVER_PULLED,
+	  };
+	  */
 
-	  //AUTONOMOUS
 
 	  if(clutch.measuredAngle < OPEN_CLUTCH_ANGLE + 0.1f && clutch.inProgress && !engage) {
 		  if(clutch.mode == AUTONOMOUS) {
@@ -220,28 +226,33 @@ int main(void)
 		  }
 	  }
 
-	  if(clutch.measuredAngle > ENGAGED_CLUTCH_ANGLE - 0.25f && clutch.inProgress && engage) {
-		  if(clutch.mode == AUTONOMOUS) {
-			  MMR_CAN_Send(&hcan1, packetEngagedClutch);
-			  clutch.inProgress = false;
+	  if(clutch.measuredAngle > ENGAGED_CLUTCH_ANGLE - 0.1f /*&& clutch.inProgress && engage*/) {
+		  if(/*clutch.mode == AUTONOMOUS*/1) {
+			  if(releaseFlag<10000){
+				  releaseFlag++;
+			  } else{
+				  MMR_CAN_Send(&hcan1, packetEngagedClutch);
+				  clutch.inProgress = false;
+				  releaseFlag = 0;
+			  }
+
 		  }
 	  }
 
-	  //MANUAL
-
-	  if(clutch.measuredAngle < OPEN_CLUTCH_ANGLE + 0.1f && uwTick - start >= 100) {
-		  start = uwTick;
-		  if(clutch.mode == MANUAL) {
-			  MMR_CAN_Send(&hcan1, packetOpenClutch);
+	  /*
+	  if(clutch.mode == MANUAL){
+		  if(clutch.targetAngle < (OPEN_CLUTCH_ANGLE + ENGAGED_CLUTCH_ANGLE)/2.0f){
+			  packetPulledLever.data=(uint8_t*)1;
+			  packetPulledLever.length = sizeof((uint8_t*)1);
+			  MMR_CAN_Send(&hcan1, packetPulledLever);
+		  } else {
+			  packetPulledLever.data=(uint8_t*)0;
+			  packetPulledLever.length = sizeof((uint8_t*)0);
+			  MMR_CAN_Send(&hcan1, packetPulledLever);
 		  }
-	  }
 
-	  if(clutch.measuredAngle > ENGAGED_CLUTCH_ANGLE - 0.25f && uwTick - start >= 100) {
-		  start = uwTick;
-		  if(clutch.mode == MANUAL) {
-			  MMR_CAN_Send(&hcan1, packetEngagedClutch);
-		  }
 	  }
+	  */
 
 	  uint32_t messages = HAL_CAN_GetRxFifoFillLevel(&hcan1, MMR_CAN_RX_FIFO);
 

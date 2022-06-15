@@ -101,10 +101,10 @@ void engagedClutch(Clutch *clutch) {
 	static uint8_t step = 0;
 	static int countRamp = 0;
 
-	const int countLimit1 = 8000;
-	const int countLimit2 = 32000;
+	const int countLimit1 = 32000*2;
+	const int countLimit2 = 32000*2;
 
-	const float clutchDelta1 = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) * 0.7;
+	const float clutchDelta1 = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) * 0.3;
 	const float clutchDelta2 = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) - clutchDelta1;
 
 	switch(step) {
