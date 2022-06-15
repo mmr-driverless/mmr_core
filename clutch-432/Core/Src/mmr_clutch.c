@@ -1,10 +1,14 @@
 #include "mmr_clutch.h"
 
+#define BUFFER_DIM 40
+
+float bufferCurr[BUFFER_DIM];
+
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues) {
   LowpassData lpDataMeasured = {
 		input: 500,
 		output: 500,
-		cutoffFrequency: 10.0f,
+		cutoffFrequency: 120.0f,
   };
 
   Clutch clutch = {
@@ -14,6 +18,10 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
 	_adcValues: adcValues,
 	_lpDataMeasured: lpDataMeasured,
   };
+
+  for(int i = 0; i < BUFFER_DIM; i++) {
+	  bufferCurr[i] = 0;
+  }
 
   return clutch;
 }
@@ -47,11 +55,31 @@ float getMotorDutyCycle(Clutch *clutch) {
   );
 }
 
+
 float getCurrent(Clutch *clutch) {
-  const float value = clutch->_adcValues[clutch->indexes.current];
-  float current = ((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
+  float avg = 0;
+
+  for(int i = 2; i < 21; i += 3) {
+	  int index = i;
+	  avg += lowpassFilter(clutch->_adcValues[index], &clutch->_lpDataMeasured);
+  }
+
+  for(int i = 0; i < BUFFER_DIM - 1; i++) {
+	  bufferCurr[i] = bufferCurr[i + 1];
+  }
+
+  bufferCurr[BUFFER_DIM - 1] = avg / 7.0f;
+
+  avg = 0;
+  for(int i = 0; i < BUFFER_DIM; i ++) {
+	  avg += bufferCurr[i];
+  }
+
+  float value = avg / BUFFER_DIM;
+  float current = 11.76f * ((value / MAX_ADC_VALUE) * 3.3f) - 18.8f;
+  /*float current = (((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
 		VOLTAGE_RATIO /
-		SENSITIVITY;
+		SENSITIVITY) - 25.0f;*/
 
   return current;
 }

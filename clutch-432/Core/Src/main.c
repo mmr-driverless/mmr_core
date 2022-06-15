@@ -72,6 +72,7 @@ static void MX_CAN1_Init(void);
 /* USER CODE BEGIN 0 */
 float lever;
 float potMot;
+float current;
 float errorPos;
 int delay;
 int tick;
@@ -219,6 +220,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 
+/*
 
 	  MmrCanPacket packetOpenClutch = {
 			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL_OK,
@@ -287,10 +289,11 @@ int main(void)
 		  		  break;
 		  }
 
-	  }
+	  }*/
 
 	  potMot = clutch.measuredAngle;
 	  lever = clutch.targetAngle;
+	  current = clutch.current;
   }
   /* USER CODE END 3 */
 }
