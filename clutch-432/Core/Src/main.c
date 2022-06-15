@@ -1,4 +1,3 @@
-
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -161,9 +160,9 @@ int main(void)
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
 
-  if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
+  /*if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
     Error_Handler();
-  }
+  }*/
 
   pid1 = PIDInit(
 	  saturations1,
@@ -207,17 +206,13 @@ int main(void)
   while (1)
   {
 	  /*uint8_t pendingMessages = HAL_CAN_GetRxFifoFillLevel(&hcan1, MMR_CAN_RX_FIFO);
-
 	  if (pendingMessages <= 0) {
 		  continue;
 	  }
-
 	  if (MMR_CAN_Receive(&hcan1, &message) != HAL_OK) {
 		  ;
 	  }
-
 	  volatile int id = message.header.messageId;
-
 	  continue;*/
     /* USER CODE END WHILE */
 
@@ -371,7 +366,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
-  hadc1.Init.NbrOfConversion = 2;
+  hadc1.Init.NbrOfConversion = 3;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -400,6 +395,15 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_10;
   sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_15;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();

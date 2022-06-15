@@ -63,6 +63,8 @@ void Error_Handler(void);
 #define LEVER_GPIO_Port GPIOA
 #define POT_MOT_Pin GPIO_PIN_5
 #define POT_MOT_GPIO_Port GPIOA
+#define CURRENT_SENSE_Pin GPIO_PIN_0
+#define CURRENT_SENSE_GPIO_Port GPIOB
 #define PWM_Pin GPIO_PIN_8
 #define PWM_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */

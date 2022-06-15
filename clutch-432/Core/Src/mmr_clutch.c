@@ -31,8 +31,11 @@ float getMotorDutyCycle(Clutch *clutch) {
   clutch->current = getCurrent(clutch);
   //clutch->targetAngle = 0.8f;
 
-  if(clutch->mode == MANUAL)
-    clutch->targetAngle =  getLeverAngle(clutch);
+  if(clutch->mode == MANUAL){
+	    //clutch->targetAngle =  getLeverAngle(clutch);
+	  clutch->targetAngle = 0.5f;
+  }
+
 
   //return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
   return PIDCascade(
@@ -47,7 +50,7 @@ float getMotorDutyCycle(Clutch *clutch) {
 float getCurrent(Clutch *clutch) {
   const float value = clutch->_adcValues[clutch->indexes.current];
   float current = ((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
-		VOLTAGE_RATIO *
+		VOLTAGE_RATIO /
 		SENSITIVITY;
 
   return current;
