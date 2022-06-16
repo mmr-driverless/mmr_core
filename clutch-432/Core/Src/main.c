@@ -77,7 +77,6 @@ float errorPos;
 int delay;
 int tick;
 
-
 bool engage = false;
 DrivingMode mode = MANUAL;
 //PID POSIZIONE

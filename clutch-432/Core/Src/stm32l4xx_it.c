@@ -259,7 +259,8 @@ void TIM7_IRQHandler(void)
 	}
 
 	clutch.current = getCurrent(&clutch);
-	dt = (uint32_t)((/*getMotorDutyCycle(&clutch)*/0.6f * TIM1->ARR));
+
+	dt = (uint32_t)((getMotorDutyCycle(&clutch) * TIM1->ARR));
 	TIM1->CCR1 = dt;
 
 

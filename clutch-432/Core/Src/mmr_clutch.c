@@ -8,7 +8,7 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
   LowpassData lpDataMeasured = {
 		input: 500,
 		output: 500,
-		cutoffFrequency: 120.0f,
+		cutoffFrequency: 100.0f,
   };
 
   Clutch clutch = {
@@ -45,19 +45,20 @@ float getMotorDutyCycle(Clutch *clutch) {
   }
 
 
-  //return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
-  return PIDCascade(
+  return PIDCompute(clutch->clutchPID.pid2, /*clutch->targetAngle*/0.5f, /*clutch->measuredAngle*/ clutch->current);
+  /*return PIDCascade(
 		  clutch->clutchPID.pid1,
 		  clutch->clutchPID.pid2,
 		  clutch->targetAngle,
 		  clutch->measuredAngle,
 		  clutch->current
-  );
+  );*/
 }
 
 
 float getCurrent(Clutch *clutch) {
   float avg = 0;
+  float FattoreCorrettivo = 1.0f;
 
   for(int i = 2; i < 21; i += 3) {
 	  avg += clutch->_adcValues[i];//lowpassFilter(clutch->_adcValues[index], &clutch->_lpDataMeasured);
@@ -83,11 +84,12 @@ float getCurrent(Clutch *clutch) {
   }
 
   avg = (max + min) / 2.0f;
-  float value = avg / BUFFER_DIM;
-  float current = 11.76f * ((value / MAX_ADC_VALUE) * 3.3f) - 18.8f;
+  float value = avg;
+  float current = FattoreCorrettivo*10.0f * ((value / MAX_ADC_VALUE) * 3.6f) - 16.8f;
   /*float current = (((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
 		VOLTAGE_RATIO /
 		SENSITIVITY) - 25.0f;*/
+  current = lowpassFilter(current, &clutch->_lpDataMeasured);
 
   return current;
 }
