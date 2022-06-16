@@ -243,6 +243,22 @@ int main(void)
 		  }
 	  }
 
+	  /*
+	  //LEVER
+	  if(clutch.targetAngle < OPEN_CLUTCH_ANGLE + 0.1f && uwTick - start >= 100) {
+		  start = uwTick;
+		  if(clutch.mode == MANUAL) {
+			  MMR_CAN_Send(&hcan1, packetOpenClutch);
+		  }
+	  }
+
+	  if(clutch.targetAngle > ENGAGED_CLUTCH_ANGLE - 0.25f && uwTick - start >= 100) {
+		  start = uwTick;
+		  if(clutch.mode == MANUAL) {
+			  MMR_CAN_Send(&hcan1, packetEngagedClutch);
+		  }
+	  }*/
+
 	  uint32_t messages = HAL_CAN_GetRxFifoFillLevel(&hcan1, MMR_CAN_RX_FIFO);
 
 	  if(messages > 0) {
