@@ -68,126 +68,14 @@ static void MX_DAC_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
-typedef enum ClutchState {
-  START,
-  PULL,
-  PULLED,
-  GEAR_NOT_SET,
-  GEAR_CHANGING,
-  GEAR_CHANGED,
-  GEAR_NOT_CHANGED,
-  LAUNCH_CONTROL_SET,
-  APPS_30,
-  RELEASE,
-  RELEASED,
-  DONE,
-} ClutchState;
-
-typedef enum GearN {
-  GEAR_N_OFF = GPIO_PIN_RESET,
-  GEAR_N_ON = GPIO_PIN_SET,
-} GearN;
-
-ClutchState state = START;
-HalStatus status = HAL_OK;
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static bool changeGearStop = false;
-static bool sendLaunch = false;
-static bool sendLaunchM = false;
-static bool isManual = true;
-int debounce = 0;
-static bool firstrun=0;
-
-static uint8_t changeGear(bool reset) {
-  static int start = 0;
-  if (reset)
-    start = uwTick;
-
-  if (changeGearStop || gear) {
-    HAL_GPIO_WritePin(GEAR_CHANGE_GPIO_Port, GEAR_CHANGE_Pin, GEAR_N_OFF);
-    return true;
-  }
-
-  bool isWithin50ms = uwTick - start < 350;
-  uint8_t out = isWithin50ms
-    ? GEAR_N_ON
-    : GEAR_N_OFF;
-
-  HAL_GPIO_WritePin(GEAR_CHANGE_GPIO_Port, GEAR_CHANGE_Pin, out);
-  return out == GEAR_N_ON;
-}
 
 
-static bool waitMs(bool reset, int ms) {
-  static int start = 0;
-  if (reset) {
-    start = uwTick;
-  }
 
-  return uwTick - start >= ms;
-}
-
-static uint16_t readGear(CanRxBuffer buffer) {
-  return buffer[5] << 8 | buffer[4];
-}
-
-static uint16_t readRPM(CanRxBuffer buffer) {
-  return buffer[1] << 8 | buffer[0];
-}
-
-
-typedef enum ButtonState {
-  BTN_PRESSED,
-  BTN_JUST_PRESSED,
-  BTN_RELEASED,
-  BTN_JUST_RELEASED,
-} ButtonState;
-
-
-static ButtonState readButton() {
-  int samples = 0;
-  //static tick = 0;
-  static ButtonState state = BTN_RELEASED;
-  static int preValue = 0;
-
-  if (HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin) == 0 && debounce == 0) {
-	  if (preValue == 0) {
-		  preValue = 1;
-		  samples = 1;
-	  } else {
-		  preValue = 0;
-		  samples = 0;
-	  }
-
-	  debounce++;
-  }
-
-//  samples <<= 1;
-//  samples = HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin);
-
-//  if (samples == 0xFF) {
-//    state = state != BTN_RELEASED
-//      ? BTN_JUST_RELEASED
-//      : BTN_RELEASED;
-//  }
-//  else if (samples == 0x00) {
-//    state = state != BTN_PRESSED
-//      ? BTN_JUST_PRESSED
-//      : BTN_PRESSED;
-//  }
-
-  if (samples == 1) {
-	  state = BTN_JUST_PRESSED;
-  } else {
-	  state = BTN_JUST_RELEASED;
-  }
-
-  return state;
-}
 /* USER CODE END 0 */
 
 /**

@@ -7,6 +7,7 @@ struct MmrDelay {
   Tick start;
 };
 
+
 MmrDelay MMR_Delay(uint32_t ms) {
   return (MmrDelay) {
     .ms = ms,
