@@ -57,7 +57,7 @@ static TransmissionParams buildParams(CanHandle *hcan, MmrCanPacket *packet) {
     .packet = packet,
     .headers.mmr = packet->header,
     .headers.tx = {
-      .IDE = CAN_ID_EXT,
+      .IDE = packet->noExtId ? CAN_ID_STD : CAN_ID_EXT,
       .RTR = CAN_RTR_DATA,
       .DLC = packet->length,
       .TransmitGlobalTime = DISABLE,

@@ -64,6 +64,7 @@ typedef struct MmrCanPacket {
   MmrCanHeader header;
   uint8_t *data;
   uint8_t length;
+  bool noExtId;
 } MmrCanPacket;
 
 
