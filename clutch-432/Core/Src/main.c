@@ -22,7 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-#include "mmr_can.h"
+//#include "mmr_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -193,10 +193,11 @@ int main(void)
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM Start on TIM1
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
 
+  /*
   CanRxBuffer buffer = {};
   MmrCanMessage message = {
 		  .store = buffer
-  };
+  };*/
   uint32_t start = uwTick;
 
   //HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);

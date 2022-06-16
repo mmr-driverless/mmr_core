@@ -60,8 +60,7 @@ float getCurrent(Clutch *clutch) {
   float avg = 0;
 
   for(int i = 2; i < 21; i += 3) {
-	  int index = i;
-	  avg += lowpassFilter(clutch->_adcValues[index], &clutch->_lpDataMeasured);
+	  avg += clutch->_adcValues[i];//lowpassFilter(clutch->_adcValues[index], &clutch->_lpDataMeasured);
   }
 
   for(int i = 0; i < BUFFER_DIM - 1; i++) {
@@ -70,11 +69,20 @@ float getCurrent(Clutch *clutch) {
 
   bufferCurr[BUFFER_DIM - 1] = avg / 7.0f;
 
-  avg = 0;
-  for(int i = 0; i < BUFFER_DIM; i ++) {
-	  avg += bufferCurr[i];
+  float min = bufferCurr[0];
+  float max = bufferCurr[0];
+
+  for(int i = 1; i < BUFFER_DIM; i ++) {
+      if(min > bufferCurr[i]) {
+		  min = bufferCurr[i];
+      }
+
+      if(max < bufferCurr[i]) {
+		  max = bufferCurr[i];
+      }
   }
 
+  avg = (max + min) / 2.0f;
   float value = avg / BUFFER_DIM;
   float current = 11.76f * ((value / MAX_ADC_VALUE) * 3.3f) - 18.8f;
   /*float current = (((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
