@@ -12,42 +12,17 @@
 
 /**
  * @brief
- * Returns the size of the given array.
+ * Returns the size of a given array.
  *
  * This only works on static arrays declared
  * within the current scope, that is:
  * int main() {
  *   int arr[] = {1, 2, 3};
- *   int len = sizeofarray(arr);
+ *   int len = arraylen(arr);
  * }
  */
-#define sizeofarray(array) \
+#define arraylen(array) \
   (sizeof(array) / sizeof(*(array)))
-
-/**
- * @brief
- * Returns the length of a statically, non const ptr, declared
- * string.
- * That is:
- * int main() {
- *   char str[] = "abc";
- *   int len = stringArrayLength(str);
- * }
- */
-#define stringArrayLength(array) \
-  stringBufferLength((array), sizeofarray(array))
-
-/**
- * @brief
- * Returns the length of a string buffer.
- * Its format must be in bytes, so it could be:
- *   const char*
- *   char*
- *   uint8_t*
- *   etc...
- */
-#define stringBufferLength(pbuffer, maxLen) \
-  strnlen((const char*)(pbuffer), maxLen)
 
 /**
  * @brief
@@ -57,9 +32,8 @@
  */
 #define min(a, b) ((a) < (b) ? a : b)
 #define mask(value, bits) (value & bits)
-#define convertTo(resultType, lvalue) (*interpretAs(resultType*, &(lvalue)))
-#define interpretAs(resultType, lvalue) ((resultType)(lvalue))
-
+#define allLow(bits) (bits == 0)
+#define allHigh(bits) (bits == ~0)
 
 /**
  * @brief
@@ -73,10 +47,13 @@
  *
  * Asynchronous logic can be easily implemented using State Machines
  */
-typedef enum MmrResult {
-  MMR_RESULT_ERROR,
-  MMR_RESULT_PENDING,
-  MMR_RESULT_COMPLETED,
-} MmrResult;
+typedef enum MmrTaskResult {
+  MMR_TASK_ERROR,
+  MMR_TASK_PENDING,
+  MMR_TASK_COMPLETED,
+} MmrTaskResult;
+
+
+typedef uint8_t MmrBitVector8b;
 
 #endif

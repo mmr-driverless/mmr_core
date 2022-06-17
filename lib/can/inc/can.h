@@ -88,7 +88,7 @@ HalStatus MMR_CAN_FilterConfig(CanHandle *hcan, MmrCanFilterSettings settings);
 MmrCanFilterSettings MMR_CAN_GetDefaultFilterSettings();
 HalStatus MMR_CAN_Send(CanHandle *hcan, MmrCanPacket packet);
 HalStatus MMR_CAN_SendNoTamper(CanHandle *hcan, MmrCanPacket packet);
-MmrResult MMR_CAN_TryReceive(CanHandle *hcan, MmrCanMessage *result);
+MmrTaskResult MMR_CAN_TryReceive(CanHandle *hcan, MmrCanMessage *result);
 HalStatus MMR_CAN_Receive(CanHandle *hcan, MmrCanMessage *result);
 
 #endif /* INC_MMR_CAN_H_ */

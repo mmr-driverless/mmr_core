@@ -20,17 +20,17 @@ static HalStatus receiveAll(ReceptionParams *rp);
 static bool headerIsMultiFrame(MmrCanHeader header, CanId targetId);
 
 
-MmrResult MMR_CAN_TryReceive(CanHandle *hcan, MmrCanMessage *result) {
+MmrTaskResult MMR_CAN_TryReceive(CanHandle *hcan, MmrCanMessage *result) {
   size_t pendingMessages =
     HAL_CAN_GetRxFifoFillLevel(hcan, MMR_CAN_RX_FIFO);
 
   if (pendingMessages > 0) {
     return MMR_CAN_Receive(hcan, result) != HAL_OK
-      ? MMR_RESULT_COMPLETED
-      : MMR_RESULT_ERROR;
+      ? MMR_TASK_COMPLETED
+      : MMR_TASK_ERROR;
   }
 
-  return MMR_RESULT_PENDING;
+  return MMR_TASK_PENDING;
 }
 
 

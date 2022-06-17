@@ -3,7 +3,7 @@
 
 #include "pin.h"
 
-typedef enum MmrButton MmrButton;
+typedef struct MmrButton MmrButton;
 
 typedef enum MmrButtonState {
   MMR_BUTTON_RELEASED,

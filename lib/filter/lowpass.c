@@ -1,11 +1,16 @@
 #include "inc/lowpass.h"
 
+static void updateLastOutput(MmrLowPass *obj, uint32_t output);
+static float computeExpPortion(MmrLowPass *obj);
+
+
 // Object definition
-typedef struct {
+struct MmrLowPass {
     float cutoff_freq;
     float time_period;
     uint32_t last_output;
-} MmrLowPass;
+    uint32_t output;
+};
 
 // Object constructor
 MmrLowPass MMR_LowPass(float cutoff_freq, float time_period) {
@@ -41,6 +46,7 @@ static void updateLastOutput(MmrLowPass *obj, uint32_t output) {
 }
 
 static float computeExpPortion(MmrLowPass *obj) {
-    // TODO
+  // TODO
+  return 0;
 }
 
