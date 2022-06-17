@@ -15,12 +15,12 @@ MmrDelay MMR_Delay(uint32_t ms) {
 }
 
 
-void MMR_DelayChange(MmrDelay *delay, uint32_t delayMs) {
+void MMR_DELAY_Change(MmrDelay *delay, uint32_t delayMs) {
   delay->ms = delayMs;
 }
 
 
-bool MMR_WaitAsync(MmrDelay *delay) {
+bool MMR_DELAY_WaitAsync(MmrDelay *delay) {
   Tick tick = MMR_GetTick();
   if (delay->start == 0) {
     delay->start = tick;
