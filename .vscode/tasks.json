@@ -1,0 +1,17 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "MMR build active project",
+            "command": "make",
+            "options": {
+                "cwd": "${fileDirname}/../.."  // Src/Inc -> Core -> project folder
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
