@@ -8,13 +8,13 @@ typedef struct MmrLowPass MmrLowPass;
 /**
  * @brief build a new low-pass filter object
  * 
- * @param cutoff_freq rad/s
- * @param time_period time period
+ * @param cutoffFreq [rad/s]
+ * @param timePeriod [s]
  * @return MmrLowPass freshly built object
  */
-MmrLowPass MMR_LowPass(float cutoff_freq, float time_period);
+MmrLowPass MMR_LowPass(float cutoffFreq, float timePeriod);
 
-void MMR_LOWPASS_SetCutoffFreq(MmrLowPass *obj, float cutoff_freq);
+void MMR_LOWPASS_SetCutoffFreq(MmrLowPass *obj, float cutoffFreq);
 void MMR_LOWPASS_SetTimePeriod(MmrLowPass *obj, float time_period);
 
 /**
