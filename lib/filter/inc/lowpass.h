@@ -2,6 +2,7 @@
 #define LIB_FILTER_INC_LOWPASS_H_
 
 #include <stdint.h>
+#include "filter.h"
 
 typedef struct MmrLowPass MmrLowPass;
 
@@ -12,7 +13,7 @@ typedef struct MmrLowPass MmrLowPass;
  * @param timePeriod [s]
  * @return MmrLowPass freshly built object
  */
-MmrLowPass MMR_LowPass(float cutoffFreq, float timePeriod);
+MmrLowPass MMR_LowPass(float cutoffFreq, float timePeriod, MmrFilterBits bitNumber);
 
 void MMR_LOWPASS_SetCutoffFreq(MmrLowPass *obj, float cutoffFreq);
 void MMR_LOWPASS_SetTimePeriod(MmrLowPass *obj, float time_period);
