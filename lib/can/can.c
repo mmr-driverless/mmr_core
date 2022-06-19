@@ -22,7 +22,7 @@ MmrCan MMR_Can(
 
 
 bool MMR_CAN_Send(MmrCan *can, MmrCanMessage *message) {
-  return can->__trySend(&message);
+  return can->__trySend(message);
 }
 
 bool MMR_CAN_Receive(MmrCan *can, MmrCanMessage *result) {
