@@ -25,6 +25,7 @@ void MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode);
 void MMR_LAUNCH_CONTROL_SetClutchState(MmrClutchState state);
 
 uint8_t MMR_LAUNCH_CONTROL_GetNmot();
+uint8_t MMR_LAUNCH_CONTROL_Getspeed();
 MmrClutchState MMR_LAUNCH_CONTROL_GetClutchState();
 
 #endif // !APP_LAUNCH_CONTROL_INC_LAUNCH_CONTROL_H_

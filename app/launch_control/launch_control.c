@@ -5,6 +5,7 @@
 struct MmrLaunchControl {
   uint16_t gear;
   uint8_t nmot;
+  uuint8_t speed;
   MmrClutchState clutch;
   MmrLaunchControlState launchControl;
 } __state = {};
@@ -37,3 +38,6 @@ uint8_t MMR_LAUNCH_CONTROL_GetNmot() {
   return __state.nmot;
 }
 
+uint8_t MMR_LAUNCH_CONTROL_Getspeed() {
+  return __state.speed;
+}
