@@ -7,6 +7,7 @@ MmrCanMessage MMR_CAN_OutMessage(MmrCanHeader header) {
   MmrCanMessage result = {};
   MMR_CAN_MESSAGE_SetHeader(&result, header);
   MMR_CAN_MESSAGE_SetStandardId(&result, false);
+  return result;
 }
 
 

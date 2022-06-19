@@ -17,22 +17,22 @@ float MMR_BUFFER_ReadFloat(uint8_t *buffer, uint8_t offset, MmrEncoding encoding
 
 
 static uint16_t readTwo(uint8_t *buffer, uint8_t offset, MmrEncoding encoding) {
-  uint8_t first = offset + (encoding == MMR_ENCODING_BIG_ENDIAN ? 0 : 1);
-  uint8_t second = offset + (encoding == MMR_ENCODING_BIG_ENDIAN ? 1 : 0);
+  uint16_t first = offset + (encoding == MMR_ENCODING_BIG_ENDIAN ? 0 : 1);
+  uint16_t second = offset + (encoding == MMR_ENCODING_BIG_ENDIAN ? 1 : 0);
 
   return buffer[first] << 8 | buffer[second];
 }
 
 static uint32_t readFour(uint8_t *buffer, uint8_t offset, MmrEncoding encoding) {
-  uint16_t first = readTwo(buffer, offset, encoding);
-  uint16_t second = readTwo(buffer, offset + 2, encoding);
+  uint32_t first = readTwo(buffer, offset, encoding);
+  uint32_t second = readTwo(buffer, offset + 2, encoding);
 
   return first << 16 | second;
 }
 
 static uint64_t readEight(uint8_t *buffer, uint8_t offset, MmrEncoding encoding) {
-  uint32_t first = readFour(buffer, offset, encoding);
-  uint32_t second = readFour(buffer, offset + 2, encoding);
+  uint64_t first = readFour(buffer, offset, encoding);
+  uint64_t second = readFour(buffer, offset + 2, encoding);
 
   return first << 32 | second;
 }

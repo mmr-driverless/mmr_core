@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <timing.h>
+#include "timing.h"
 
 typedef struct MmrDelay {
   uint32_t ms;

@@ -11,7 +11,7 @@
 
 typedef bool (*MmrCanTrySendFn)(MmrCanMessage *message);
 typedef bool (*MmrCanTryReceiveFn)(MmrCanMessage *message);
-typedef bool (*MmrCanGetPendingMessagesFn)();
+typedef uint8_t (*MmrCanGetPendingMessagesFn)();
 
 
 typedef struct MmrCan {

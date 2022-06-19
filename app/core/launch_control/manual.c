@@ -1,6 +1,6 @@
 #include "inc/manual.h"
 #include "inc/launch_control.h"
-#include "delay.h"
+#include <delay.h>
 #include "message_id.h"
 
 #include <stdint.h>
@@ -66,14 +66,14 @@ static MmrManualState stopLaunchControl(MmrManualState state) {
   MMR_CAN_MESSAGE_SetStandardId(&unsetLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&unsetLaunchMsg, buffer, 8);
 
-  bool rpmOk = MMR_LAUNCH_CONTROL_GetRpm() >= 1000;
-  bool launchSet = MMR_LAUNCH_CONTROL_GetLaunchControlState() == MMR_LAUNCH_CONTROL_SET;
+  bool rpmOk = MMR_LAUNCH_CONTROL_GetRpm() >= 6000;
+  bool launchUnset = MMR_LAUNCH_CONTROL_GetLaunchControlState() == MMR_LAUNCH_CONTROL_NOT_SET;
 
-  if (rpmOk && !launchSet && MMR_DELAY_WaitAsync(&delay)) {
+  if (rpmOk && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &unsetLaunchMsg);
   }
 
-  if (launchSet) {
+  if (launchUnset) {
     return MMR_MANUAL_DONE;
   }
 

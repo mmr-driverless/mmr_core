@@ -6,7 +6,8 @@
 
 #include <stdbool.h>
 
-const uint8_t MMR_CAN_MAX_DATA_LENGTH = 8;
+#define MMR_CAN_MAX_DATA_LENGTH 8
+
 typedef uint8_t MmrCanBuffer[MMR_CAN_MAX_DATA_LENGTH];
 
 typedef struct MmrCanMessage {
