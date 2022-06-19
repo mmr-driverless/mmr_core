@@ -1,7 +1,6 @@
 #include "inc/header.h"
-#include "inc/optimize.h"
 
-uint32_t MMR_CAN_HeaderToBits(MmrCanHeader header) {
+uint32_t MMR_CAN_HEADER_ToBits(MmrCanHeader header) {
   return 0
     | ((uint32_t)header.messageType << 26)
     | ((uint32_t)header.priority << 23)
@@ -10,7 +9,7 @@ uint32_t MMR_CAN_HeaderToBits(MmrCanHeader header) {
     | ((uint32_t)header.messageId);
 }
 
-MmrCanHeader MMR_CAN_HeaderFromBits(uint32_t bits) {
+MmrCanHeader MMR_CAN_HEADER_FromBits(uint32_t bits) {
   return (MmrCanHeader) {
     .messageType = bits >> 26,
     .priority = bits >> 23,
@@ -18,17 +17,4 @@ MmrCanHeader MMR_CAN_HeaderFromBits(uint32_t bits) {
     .senderId = bits >> 10,
     .messageId = bits,
   };
-}
-
-
-bool MMR_CAN_IsHeaderScs(MmrCanHeader header) {
-  return header.messageType == MMR_CAN_MESSAGE_TYPE_SCS;
-}
-
-bool MMR_CAN_IsMultiFrame(MmrCanHeader header) {
-  return header.messageType == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME;
-}
-
-bool MMR_CAN_IsMultiFrameEnd(MmrCanHeader header) {
-  return header.messageType == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME_END;
 }

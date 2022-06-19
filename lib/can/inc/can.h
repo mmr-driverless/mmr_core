@@ -7,88 +7,42 @@
 #ifndef INC_MMR_CAN_H_
 #define INC_MMR_CAN_H_
 
+#include "message.h"
+#include "header.h"
+#include "scs.h"
+#include "packet.h"
+
+#include <binary_literals.h>
+#include <util.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../../util/inc/binary_literals.h"
-#include "header.h"
-#include "types.h"
-#include "optimize.h"
-#include "scs.h"
-
-#ifndef MMR_CAN_RX_FIFO
-#define MMR_CAN_RX_FIFO CAN_RX_FIFO0
-#endif
-
-#if MMR_CAN_RX_FIFO == CAN_RX_FIFO0
-#define MMR_CAN_FILTER_FIFO CAN_FILTER_FIFO0
-#else
-#define MMR_CAN_FILTER_FIFO CAN_FILTER_FIFO1
-#endif
-
-#if MMR_CAN_RX_FIFO == CAN_RX_FIFO0
-#define MMR_CAN_RX_INTERRUPT CAN_IT_RX_FIFO0_MSG_PENDING
-#else
-#define MMR_CAN_RX_INTERRUPT CAN_IT_RX_FIFO1_MSG_PENDING
-#endif
-
-#ifndef MMR_CAN_MAX_DATA_LENGTH
-#define MMR_CAN_MAX_DATA_LENGTH 8
-#endif
 
 
-typedef uint32_t (*MmrCanTickProvider)();
+typedef bool (*MmrCanTrySendFn)(MmrCanPacket packet);
+typedef bool (*MmrCanTryReceiveFn)(MmrCanMessage *message);
+typedef bool (*MmrCanGetPendingMessagesFn)();
 
 
-/**
- * @brief
- * A buffer large enough to hold a CAN payload.
- */
-typedef uint8_t CanRxBuffer[MMR_CAN_MAX_DATA_LENGTH];
+typedef struct MmrCan MmrCan;
 
 
-typedef struct Can {
-  bool (*trySend)(uint8_t *buffer, int len);
-} Can;
+MmrCan MMR_Can(
+  MmrCanTrySendFn trySend,
+  MmrCanTryReceiveFn tryReceive,
+  MmrCanGetPendingMessagesFn getPendingMessages
+);
 
+bool MMR_CAN_Send(MmrCan *can, MmrCanPacket packet);
+bool MMR_CAN_SendId(MmrCan *can, uint32_t id);
+bool MMR_CAN_SendBool(MmrCan *can, bool value);
+bool MMR_CAN_SendByte(MmrCan *can, uint8_t value);
+bool MMR_CAN_SendString(MmrCan *can, const char *value);
+bool MMR_CAN_SendInt32(MmrCan *can, int32_t value);
+bool MMR_CAN_SendUInt32(MmrCan *can, uint32_t value);
+bool MMR_CAN_SendFloat(MmrCan *can, float value);
 
-typedef struct MmrCanFilterSettings {
-  bool enabled;
-  CanFilterFifo fifo;
-  CanFilterBank bank;
-  CanFilterBank slaveBankStart;
-  CanFilterMask idMask;
-} MmrCanFilterSettings;
-
-
-typedef struct MmrCanPacket {
-  MmrCanHeader header;
-  uint8_t *data;
-  uint8_t length;
-  bool noExtId;
-} MmrCanPacket;
-
-
-typedef struct MmrCanMessage {
-  MmrCanHeader header;
-  void *store;
-} MmrCanMessage;
-
-
-#define MMR_CAN_FilterConfigDefault(phcan) \
-  MMR_CAN_FilterConfig(phcan, MMR_CAN_GetDefaultFilterSettings())
-
-
-extern MmrCanTickProvider __mmr_can_tickProvider;
-
-
-void MMR_CAN_SetTickProvider(MmrCanTickProvider tickProvider);
-uint32_t MMR_CAN_GetCurrentTick();
-HalStatus MMR_CAN_BasicSetupAndStart(CanHandle *hcan);
-HalStatus MMR_CAN_FilterConfig(CanHandle *hcan, MmrCanFilterSettings settings);
-MmrCanFilterSettings MMR_CAN_GetDefaultFilterSettings();
-HalStatus MMR_CAN_Send(CanHandle *hcan, MmrCanPacket packet);
-HalStatus MMR_CAN_SendNoTamper(CanHandle *hcan, MmrCanPacket packet);
-MmrTaskResult MMR_CAN_TryReceive(CanHandle *hcan, MmrCanMessage *result);
-HalStatus MMR_CAN_Receive(CanHandle *hcan, MmrCanMessage *result);
+uint8_t MMR_CAN_GetPendingMessages(MmrCan *can);
+bool MMR_CAN_Receive(MmrCan *can, MmrCanMessage *result);
+MmrTaskResult MMR_CAN_ReceiveAsync(MmrCan *can, MmrCanMessage *result);
 
 #endif /* INC_MMR_CAN_H_ */

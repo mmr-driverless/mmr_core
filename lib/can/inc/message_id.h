@@ -21,66 +21,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../../util/inc/binary_literals.h"
+#include <binary_literals.h>
 
-/**
- * @brief
- * Message ids are 10 bits wide
- * The first 5 bits determine the message id type, while
- * the other 5 determine the subtype.
- * 
- * Ids scheme:
- *
- *   id                        | type  | subtype
- * ----------------------------|-------|---------
- *  SENSING                    | 00000 | xxxxx
- *  AUTONOMOUS_STATE           | 00001 |
- *  MANUAL_MISSION             | 00010 |
- *  AUTONOMOUS_MISSION         | 00011 |
- *  AUTONOMOUS_MISSION_CONTROL | 00100 |
- *  DRIVE                      | 00101 |
- *  ECU_BOSCH                  | 00110 |
- */
-typedef enum MmrCanMessageId MmrCanMessageId;
-
-typedef enum MmrCanMessageIdType {
-  MMR_CAN_MESSAGE_ID_TYPE_SENSING,
-  MMR_CAN_MESSAGE_ID_TYPE_AUTONOMOUS_STATE,
-  MMR_CAN_MESSAGE_ID_TYPE_MANUAL_MISSION,
-  MMR_CAN_MESSAGE_ID_TYPE_AUTONOMOUS_MISSION,
-  MMR_CAN_MESSAGE_ID_TYPE_AUTONOMOUS_MISSION_CONTROL,
-  MMR_CAN_MESSAGE_ID_TYPE_DRIVE,
-  MMR_CAN_MESSAGE_ID_TYPE_ECU_BOSCH,
-} MmrCanMessageIdType;
-
-
-/**
- * @brief
- * Returns the 3 bits representing
- * the MmrCanMessageIdType.
- */
-uint8_t MMR_CAN_GetMessageIdType(MmrCanMessageId msgId);
-
-/**
- * @brief
- * Returns the 7 bits representing
- * the message id's subtype.
- */
-uint8_t MMR_CAN_GetMessageIdSubtype(MmrCanMessageId msgId);
-
-/**
- * @brief
- * Tells wether the provided message
- * is of the given id type.
- *
- * E.g. if a message is an SCS.
- */
-bool MMR_CAN_IsMessageIdOfType(MmrCanMessageId msgId, MmrCanMessageIdType type);
-
-
-enum MmrCanMessageId {
+typedef enum MmrCanMessageId {
 // SENSING
-  MMR_CAN_MESSAGE_ID_S_PPA = 0x0,
+  MMR_CAN_MESSAGE_ID_S_PPA = 0,
   MMR_CAN_MESSAGE_ID_S_LV12,
   MMR_CAN_MESSAGE_ID_S_LV24,
   MMR_CAN_MESSAGE_ID_S_PF,
@@ -151,6 +96,6 @@ enum MmrCanMessageId {
   MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MAX_SPEED_LEFT_Y,
   MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MAX_SPEED_RIGHT_Y,
 // !STEERING
-};
+} MmrCanMessageId;
 
 #endif // !INC_MMR_CAN_MESSAGE_ID_H_
