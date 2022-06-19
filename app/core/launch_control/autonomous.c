@@ -75,11 +75,11 @@ static MmrAutonomousState pullClutch(MmrAutonomousState state) {
 
 
 static MmrAutonomousState setLaunchControl(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 25};
+  static MmrDelay delay = { .ms = 250 };
   static MmrCanBuffer buffer = { 0x8 };
 
-  MmrCanHeader header = MMR_CAN_HEADER_FromBits(0x628);
-  MmrCanMessage setLaunchMsg = MMR_CAN_OutMessage(header);
+  MmrCanMessage setLaunchMsg = {};
+  MMR_CAN_MESSAGE_SetId(&setLaunchMsg, 0x628);
   MMR_CAN_MESSAGE_SetStandardId(&setLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&setLaunchMsg, buffer, 8);
 

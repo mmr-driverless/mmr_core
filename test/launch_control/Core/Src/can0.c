@@ -24,6 +24,13 @@ static bool can0Send(MmrCanMessage *message) {
     .TransmitGlobalTime = DISABLE,
   };
 
+  if (message->isStandardId) {
+    tx.StdId = message->id;
+  }
+  else {
+    tx.ExtId = message->id;
+  }
+
   HAL_StatusTypeDef status =
     HAL_CAN_AddTxMessage(&hcan1, &tx, message->payload, getNextMailbox());
 
@@ -37,7 +44,7 @@ static bool can0Receive(MmrCanMessage *message) {
 
   message->length = rx.DLC;
   MMR_CAN_MESSAGE_SetId(message, rx.ExtId);
-  return status;
+  return status == HAL_OK;
 }
 
 static uint8_t can0PendingMessages() {

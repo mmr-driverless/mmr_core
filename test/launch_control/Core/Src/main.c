@@ -115,12 +115,26 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc1, ADC_value, sizeof(ADC_value) / sizeof(*ADC_value));
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dacValue, 1, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim2);
-  HAL_CAN_Start(&hcan1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MMR_LAUNCH_CONTROL_Init(&can0, gearDown);
+  CAN_FilterTypeDef filter = {
+    .FilterActivation = CAN_FILTER_ENABLE,
+    .FilterFIFOAssignment = CAN_FILTER_FIFO0,
+    .FilterBank = 0,
+    .SlaveStartFilterBank = 10,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+  };
+
+  HAL_CAN_ConfigFilter(&hcan1, &filter);
+  if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+    Error_Handler();
+  }
+
+  MMR_SetTickProvider(HAL_GetTick);
+  MMR_LAUNCH_CONTROL_Init(&can0, gearDown, &dacValue);
 
   while (1) {
     MMR_LAUNCH_CONTROL_Run(MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS);
