@@ -1,4 +1,4 @@
-#include <can.h>
+#include "inc/can.h"
 #include <util.h>
 
 struct MmrCan {
@@ -21,8 +21,8 @@ MmrCan MMR_Can(
 }
 
 
-bool MMR_CAN_Send(MmrCan *can, MmrCanPacket packet) {
-  return can->__trySend(packet);
+bool MMR_CAN_Send(MmrCan *can, MmrCanMessage *message) {
+  return can->__trySend(&message);
 }
 
 bool MMR_CAN_Receive(MmrCan *can, MmrCanMessage *result) {

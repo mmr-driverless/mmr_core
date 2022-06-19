@@ -15,7 +15,7 @@
 
 #include <stdbool.h>
 #include <util.h>
-#include <binary_literals.h>
+#include "../../util/inc/binary_literals.h"
 
 
 typedef enum MmrCanMessageType {
@@ -42,6 +42,9 @@ typedef struct MmrCanHeader {
   MmrCanMessageType messageType : 3;
 } MmrCanHeader;
 
+
+MmrCanHeader MMR_CAN_NormalHeader(MmrCanMessageId id);
+MmrCanHeader MMR_CAN_ScsHeader(MmrCanMessageId id);
 
 uint32_t MMR_CAN_HEADER_ToBits(MmrCanHeader header);
 MmrCanHeader MMR_CAN_HEADER_FromBits(uint32_t bits);
