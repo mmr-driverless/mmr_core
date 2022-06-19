@@ -1,52 +1,60 @@
 #include "inc/lowpass.h"
+#include <math.h>
 
+static uint32_t getLastOutput(MmrLowPass *obj);
 static void updateLastOutput(MmrLowPass *obj, uint32_t output);
 static float computeExpPortion(MmrLowPass *obj);
 
-
-// Object definition
 struct MmrLowPass {
-    float cutoff_freq;
-    float time_period;
-    uint32_t last_output;
-    uint32_t output;
+  float cutoffFreq;
+  float timePeriod;
+  MmrFilterBits bitNumber;
+  union {
+    uint16_t lastOutput16;
+    uint32_t lastOutput32;
+  };
 };
 
-// Object constructor
-MmrLowPass MMR_LowPass(float cutoff_freq, float time_period) {
-    return (MmrLowPass) {
-        .cutoff_freq    = cutoff_freq,
-        .time_period    = time_period,
-        .output         = 0U
-    };
+MmrLowPass MMR_LowPass(float cutoffFreq, float timePeriod, MmrFilterBits bitNumber) {
+  return (MmrLowPass) {
+    .cutoffFreq = cutoffFreq,
+    .timePeriod = timePeriod,
+    .bitNumber = bitNumber,
+    .lastOutput32 = 0U
+  };
 }
 
-// Object Setters
-void MMR_LOWPASS_SetCutoffFreq(MmrLowPass *obj, float cutoff_freq) {
-    obj->cutoff_freq = cutoff_freq;
+void MMR_LOWPASS_SetCutoffFreq(MmrLowPass *obj, float cutoffFreq) {
+  obj->cutoffFreq = cutoffFreq;
 }
 
-void MMR_LOWPASS_SetTimePeriod(MmrLowPass *obj, float time_period) {
-    obj->time_period = time_period;
+void MMR_LOWPASS_SetTimePeriod(MmrLowPass *obj, float timePeriod) {
+  obj->timePeriod = timePeriod;
 }
 
-// Object methods
 uint32_t MMR_LOWPASS_Filter(MmrLowPass *obj, uint32_t input) {
-    // TODO: implement, check diffs between lowpass16 and lowpass32
-    uint32_t output =
-        obj->last_output +
-        computeExpPortion(obj) * (input - obj->last_output);
-    updateLastOutput(obj, output);
-    return output;
+  uint32_t output =
+    (float) getLastOutput(obj) +
+    computeExpPortion(obj) * (float) (input - obj->lastOutput32);
+
+  updateLastOutput(obj, output);
+  return output;
 }
 
-// Helper functions
+static uint32_t getLastOutput(MmrLowPass *obj) {
+  if (obj->bitNumber == MMR_FILTER_16)
+    return obj->lastOutput16;
+  if (obj->bitNumber == MMR_FILTER_32)
+    return obj->lastOutput32;
+}
+
 static void updateLastOutput(MmrLowPass *obj, uint32_t output) {
-    obj->last_output = output;
+  if (obj->bitNumber == MMR_FILTER_16)
+    obj->lastOutput16 = (uint16_t) output;
+  if (obj->bitNumber == MMR_FILTER_32)
+    obj->lastOutput32 = output;
 }
 
 static float computeExpPortion(MmrLowPass *obj) {
-  // TODO
-  return 0;
+  return (1.0 - exp(-(obj->timePeriod) * obj->cutoffFreq));
 }
-

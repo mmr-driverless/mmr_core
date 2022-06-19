@@ -1,0 +1,6 @@
+#ifndef LIB_FILTER_INC_FILTER_H_
+#define LIB_FILTER_INC_FILTER_H_
+
+typedef enum {MMR_FILTER_16, MMR_FILTER_32} MmrFilterBits;
+
+#endif  // !LIB_FILTER_INC_FILTER_H_
