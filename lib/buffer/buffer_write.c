@@ -1,5 +1,4 @@
 #include "buffer.h"
-#include <binary_literals.h>
 
 static void writeTwoBytes(uint8_t *buffer, uint8_t *bytes, uint8_t offset, MmrEncoding encoding);
 static void writeFourBytes(uint8_t *buffer, uint8_t *bytes, uint8_t offset, MmrEncoding encoding);
