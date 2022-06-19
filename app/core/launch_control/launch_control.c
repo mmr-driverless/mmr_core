@@ -44,6 +44,6 @@ uint16_t MMR_LAUNCH_CONTROL_GetRpm() {
   return __state.rpm;
 }
 
-uint8_t MMR_LAUNCH_CONTROL_Getspeed() {
+uint8_t MMR_LAUNCH_CONTROL_GetSpeed() {
   return __state.speed;
 }

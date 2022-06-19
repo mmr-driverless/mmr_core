@@ -15,7 +15,7 @@ static MmrAutonomousState setLaunchControl(MmrAutonomousState state);
 static MmrAutonomousState changeGear(MmrAutonomousState state);
 static MmrAutonomousState accelerate(MmrAutonomousState state);
 static MmrAutonomousState releaseClutch(MmrAutonomousState state);
-static MmrAutonomousState start(MmrAutonomousState state);
+static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state);
 static MmrAutonomousState clutchSetManual(MmrAutonomousState state);
 static MmrAutonomousState done(MmrAutonomousState state);
 
@@ -40,7 +40,7 @@ MmrAutonomousState MMR_AUTONOMOUS_Run(MmrAutonomousState state) {
   case MMR_AUTONOMOUS_CHANGE_GEAR: return changeGear(state);
   case MMR_AUTONOMOUS_ACCELERATE: return accelerate(state);
   case MMR_AUTONOMOUS_RELEASE_CLUTCH: return releaseClutch(state);
-  case MMR_AUTONOMOUS_START: return start(state);
+  case MMR_AUTONOMOUS_START: return unsetLaunchControl(state);
   case MMR_AUTONOMOUS_CLUTCH_SET_MANUAL: return clutchSetManual(state);
   case MMR_AUTONOMOUS_DONE: return done(state);
   default: return state;
@@ -97,36 +97,40 @@ static MmrAutonomousState setLaunchControl(MmrAutonomousState state) {
   return state;
 }
 
-static MmrAutonomousState setGear(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 5 };
+static MmrAutonomousState changeGear(MmrAutonomousState state) {
+  static MmrDelay gearNotChangedDelay = { .ms = 2000 };
+  static MmrDelay gearChangingDelay = { .ms = 350 };
+  static bool changingGear = false;
 
   bool isGearSet = MMR_LAUNCH_CONTROL_GetGear() == 1;
-  if (isGearSet) {
-    changeGear(true);
+  if (isGearSet && !changingGear) {
     MMR_PIN_Write(__gearDown, MMR_PIN_LOW);
-   //GEAR_CHANGED;
-   waitMs(true, 1000);
+    return MMR_AUTONOMOUS_ACCELERATE;
   }
 
-  if (!isGearSet || !changeGear(false)) {
-    waitMs(true, 2000);
-    // GEAR_NOT_CHANGED;
-    if (waitMs(false, 2000)) {
-      MMR_PIN_Write(__gearDown, MMR_PIN_LOW);
-      // GEAR_NOT_SET;
-    }
-    return;
+  if (!changingGear && !isGearSet && MMR_DELAY_WaitAsync(&gearNotChangedDelay)) {
+    MMR_DELAY_Reset(&gearChangingDelay);
+    changingGear = true;
   }
 
-  return  MMR_AUTONOMOUS_ACCELERATE;
+  if (MMR_DELAY_WaitAsync(&gearChangingDelay)) {
+    MMR_PIN_Write(__gearDown, MMR_PIN_HIGH);
+  }
+  else {
+    MMR_PIN_Write(__gearDown, MMR_PIN_LOW);
+    MMR_DELAY_Reset(&gearNotChangedDelay);
+    changingGear = false;
+  }
+
+  return state;
 }
 
 static MmrAutonomousState accelerate(MmrAutonomousState state) {
-  const MmrDelay delay = { .ms = 1000 };
-  const uint16_t DAC_30 = 865;
+  static const uint16_t DAC_30 = 865;
+  static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    __apps = DAC_30;
+    *__apps = DAC_30;
     return MMR_AUTONOMOUS_RELEASE_CLUTCH;
   }
 
@@ -134,6 +138,7 @@ static MmrAutonomousState accelerate(MmrAutonomousState state) {
 }
 
 static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
+  static const uint16_t DAC_0 = 500;
   static MmrDelay delay = { .ms = 1 };
   
   MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE);
@@ -147,6 +152,7 @@ static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
   bool rpmOk = MMR_LAUNCH_CONTROL_GetRpm() >= 6000;
 
   if (isClutchReleased && rpmOk) {
+    *__apps = DAC_0;
     return MMR_AUTONOMOUS_START;
   }
 
@@ -154,7 +160,7 @@ static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
 }
 
 
-static MmrAutonomousState start(MmrAutonomousState state){
+static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
   static MmrDelay delay = { .ms = 25};
   static MmrCanBuffer buffer = { 0x8 };
 

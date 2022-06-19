@@ -9,6 +9,11 @@ MmrDelay MMR_Delay(uint32_t delayMs) {
 }
 
 
+void MMR_DELAY_Reset(MmrDelay *delay) {
+  delay->start = MMR_GetTick();
+}
+
+
 void MMR_DELAY_Change(MmrDelay *delay, uint32_t delayMs) {
   delay->ms = delayMs;
 }
@@ -21,7 +26,7 @@ bool MMR_DELAY_WaitAsync(MmrDelay *delay) {
   }
 
   if (tick - delay->start >= delay->ms) {
-    delay->start = tick;
+    MMR_DELAY_Reset(delay);
     return true;
   }
 

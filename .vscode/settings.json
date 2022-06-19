@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "locale": "c",
+    "bitset": "c",
+    "cstdlib": "c",
+    "mutex": "c"
+  }
+}
