@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "can.h"
+#include <can.h>
 #include"apps.h"
 /* USER CODE END Includes */
 
@@ -197,8 +197,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  CanRxBuffer buffer = {};
-  MmrCanMessage msg = { .store = buffer };
+  MmrCanRxBuffer buffer = {};
+  MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL);
+  MmrCanMessage msg = MMR_CAN_OutMessage(header);
 
 
   MmrCanPacket clutchPull = { .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL };
