@@ -7,12 +7,16 @@
 #include <stdbool.h>
 
 const uint8_t MMR_CAN_MAX_DATA_LENGTH = 8;
-typedef uint8_t MmrCanRxBuffer[MMR_CAN_MAX_DATA_LENGTH];
+typedef uint8_t MmrCanBuffer[MMR_CAN_MAX_DATA_LENGTH];
 
-typedef struct MmrCanMessage MmrCanMessage;
+typedef struct MmrCanMessage {
+  uint32_t id;
+  bool isStandardId;
+  uint8_t *payload;
+  uint8_t length;
+} MmrCanMessage;
 
 
-MmrCanMessage MMR_CAN_Message();
 MmrCanMessage MMR_CAN_OutMessage(MmrCanHeader header);
 
 void MMR_CAN_MESSAGE_SetId(MmrCanMessage *message, uint32_t id);

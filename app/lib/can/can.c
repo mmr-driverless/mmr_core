@@ -1,12 +1,6 @@
 #include "inc/can.h"
 #include <util.h>
 
-struct MmrCan {
-  MmrCanTrySendFn __trySend;
-  MmrCanTryReceiveFn __tryReceive;
-  MmrCanGetPendingMessagesFn __getPendingMessages;
-};
-
 
 MmrCan MMR_Can(
   MmrCanTrySendFn trySend,

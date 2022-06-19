@@ -1,9 +1,9 @@
 #ifndef LIB_GPIO_INC_BUTTON_H_
 #define LIB_GPIO_INC_BUTTON_H_
 
-#include "pin.h"
+#include <util.h>
+#include <pin.h>
 
-typedef struct MmrButton MmrButton;
 
 typedef enum MmrButtonState {
   MMR_BUTTON_RELEASED,
@@ -11,6 +11,12 @@ typedef enum MmrButtonState {
   MMR_BUTTON_JUST_RELEASED,
   MMR_BUTTON_JUST_PRESSED,
 } MmrButtonState;
+
+typedef struct MmrButton {
+  MmrPin *pin;
+  MmrBitVector8b readings;
+  MmrButtonState state;
+} MmrButton;
 
 
 MmrButton MMR_Button(MmrPin *pin);

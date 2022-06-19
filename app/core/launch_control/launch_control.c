@@ -4,19 +4,21 @@
 
 struct MmrLaunchControl {
   uint16_t gear;
-  uint8_t nmot;
-  uuint8_t speed;
+  uint16_t rpm;
+  uint16_t speed;
   MmrClutchState clutch;
   MmrLaunchControlState launchControl;
 } __state = {};
 
 
 static MmrCan *__can;
+static MmrPin *__gearDown;
 
 
-void MMR_LAUNCH_CONTROL_Init(MmrCan *can) {
+void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown) {
   __can = can;
-  __state = {};
+  __gearDown = gearDown;
+  __state = (struct MmrLaunchControl){};
 }
 
 void MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
@@ -26,16 +28,20 @@ void MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
 }
 
 
-void MMR_LAUNCH_CONTROL_SetClutchState(MmrClutchState state) {
-  __state.clutch = state;
-}
-
 MmrClutchState MMR_LAUNCH_CONTROL_GetClutchState() {
   return __state.clutch;
 }
 
-uint8_t MMR_LAUNCH_CONTROL_GetNmot() {
-  return __state.nmot;
+MmrLaunchControlState MMR_LAUNCH_CONTROL_GetLaunchControlState() {
+  return __state.launchControl;
+}
+
+uint16_t MMR_LAUNCH_CONTROL_GetGear() {
+  return __state.gear;
+}
+
+uint16_t MMR_LAUNCH_CONTROL_GetRpm() {
+  return __state.rpm;
 }
 
 uint8_t MMR_LAUNCH_CONTROL_Getspeed() {

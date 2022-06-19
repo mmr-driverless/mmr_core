@@ -14,7 +14,11 @@ typedef bool (*MmrCanTryReceiveFn)(MmrCanMessage *message);
 typedef bool (*MmrCanGetPendingMessagesFn)();
 
 
-typedef struct MmrCan MmrCan;
+typedef struct MmrCan {
+  MmrCanTrySendFn __trySend;
+  MmrCanTryReceiveFn __tryReceive;
+  MmrCanGetPendingMessagesFn __getPendingMessages;
+} MmrCan;
 
 
 MmrCan MMR_Can(

@@ -197,7 +197,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MmrCanRxBuffer buffer = {};
+  MmrCanBuffer buffer = {};
   MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL);
   MmrCanMessage msg = MMR_CAN_OutMessage(header);
 

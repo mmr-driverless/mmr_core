@@ -2,15 +2,9 @@
 #include "inc/timing.h"
 
 
-struct MmrDelay {
-  uint32_t ms;
-  Tick start;
-};
-
-
-MmrDelay MMR_Delay(uint32_t ms) {
+MmrDelay MMR_Delay(uint32_t delayMs) {
   return (MmrDelay) {
-    .ms = ms,
+    .ms = delayMs,
   };
 }
 

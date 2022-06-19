@@ -2,17 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct MmrCanMessage {
-  uint32_t id;
-  bool isStandardId;
-  uint8_t *payload;
-  uint8_t length;
-};
-
-
-MmrCanMessage MMR_CAN_Message() {
-  return (MmrCanMessage){};
-}
 
 MmrCanMessage MMR_CAN_OutMessage(MmrCanHeader header) {
   MmrCanMessage result = {};

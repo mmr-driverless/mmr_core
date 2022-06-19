@@ -5,13 +5,6 @@ static void updateReadings(MmrButton *button);
 static void updateState(MmrButton *button);
 
 
-struct MmrButton {
-  MmrPin *pin;
-  MmrBitVector8b readings;
-  MmrButtonState state;
-};
-
-
 MmrButton MMR_Button(MmrPin *pin) {
   return (MmrButton) {
     .pin = pin,
