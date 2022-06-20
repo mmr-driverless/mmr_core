@@ -1,10 +1,16 @@
-#ifndef LIB_FILTER_INC_LOWPASS_H_
-#define LIB_FILTER_INC_LOWPASS_H_
+#ifndef APP_LIB_FILTER_INC_LOWPASS_H_
+#define APP_LIB_FILTER_INC_LOWPASS_H_
 
 #include <stdint.h>
 #include "filter.h"
 
-typedef struct MmrLowPass MmrLowPass;
+typedef struct MmrLowPass {
+  float cutoffFreq;
+  float timePeriod;
+  MmrFilterBits bitNumber;
+  uint32_t lastOutput;
+  float expCache;
+} MmrLowPass;
 
 /**
  * @brief build a new low-pass filter object
@@ -27,4 +33,4 @@ void MMR_LOWPASS_SetTimePeriod(MmrLowPass *obj, float time_period);
  */
 uint32_t MMR_LOWPASS_Filter(MmrLowPass *obj, uint32_t input);
 
-#endif  // !LIB_FILTER_INC_LOWPASS_H_
+#endif // !APP_LIB_FILTER_INC_LOWPASS_H_
