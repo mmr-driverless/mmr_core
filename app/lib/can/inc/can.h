@@ -3,7 +3,6 @@
 
 #include "message.h"
 #include "header.h"
-#include "packet.h"
 
 #include "../../util/inc/util.h"
 #include <stdint.h>
