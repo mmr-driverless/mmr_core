@@ -31,12 +31,12 @@ static void updateState(MmrButton *button) {
   MmrBitVector8b readings = button->readings;
   MmrButtonState *state = &(button->state);
 
-  if (allHigh(readings)) {
+  if (readings == 0xFF) {
     *state = *state != MMR_BUTTON_RELEASED
       ? MMR_BUTTON_JUST_RELEASED
       : MMR_BUTTON_RELEASED;
   }
-  else if (allLow(readings)) {
+  else if (readings == 0x00) {
     *state = *state != MMR_BUTTON_PRESSED
       ? MMR_BUTTON_JUST_PRESSED
       : MMR_BUTTON_PRESSED;
