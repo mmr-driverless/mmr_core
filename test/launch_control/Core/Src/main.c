@@ -136,8 +136,9 @@ int main(void)
   MMR_SetTickProvider(HAL_GetTick);
   MMR_LAUNCH_CONTROL_Init(&can0, gearDown, changeMode, &dacValue);
 
+  MmrLaunchControlMode mode = MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
   while (1) {
-    MMR_LAUNCH_CONTROL_Run(MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS);
+    mode = MMR_LAUNCH_CONTROL_Run(mode);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
