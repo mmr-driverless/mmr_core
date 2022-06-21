@@ -16,6 +16,23 @@ static uint32_t *__mmr_can0_getNextMailbox() {
 }
 
 
+static bool __mmr_can0_trySetFilter(MmrCanFilter *filter) {
+  CAN_FilterTypeDef filter = {
+    .FilterActivation = CAN_FILTER_ENABLE,
+    .FilterFIFOAssignment = CAN_FILTER_FIFO0,
+    .FilterBank = 0,
+    .FilterIdHigh = filter->id,
+    .FilterIdLow = filter->id,
+    .FilterMaskIdHigh = filter->mask,
+    .FilterMaskIdLow = filter->mask,
+    .SlaveStartFilterBank = 10,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+  };
+
+  return HAL_CAN_ConfigFilter(&hcan1, &filter) == HAL_OK;
+}
+
 static bool __mmr_can0_send(MmrCanMessage *message) {
   CAN_TxHeaderTypeDef tx = {
     .IDE = message->isStandardId ? CAN_ID_STD : CAN_ID_EXT,
@@ -54,8 +71,10 @@ static uint8_t __mmr_can0_pendingMessages() {
 }
 
 
+
 MmrCan can0 = {
   .__trySend = __mmr_can0_send,
   .__tryReceive = __mmr_can0_receive,
+  .__trySetFilter = __mmr_can0_trySetFilter,
   .__getPendingMessages = __mmr_can0_pendingMessages,
 };

@@ -16,7 +16,6 @@ extern MmrCan can0;
   #define CAN_RX_FIFO1 (0x00000001U)  /*!< CAN receive FIFO 1 */
 
   typedef struct CAN_HandleTypeDef CAN_HandleTypeDef;
-  typedef struct CAN_FilterTypeDef CAN_FilterTypeDef;
 
   typedef enum {
     DISABLE = 0U,
@@ -48,6 +47,19 @@ extern MmrCan can0;
     HAL_BUSY     = 0x02U,
     HAL_TIMEOUT  = 0x03
   } HAL_StatusTypeDef;
+
+  typedef struct {
+    uint32_t FilterIdHigh;
+    uint32_t FilterIdLow;
+    uint32_t FilterMaskIdHigh;
+    uint32_t FilterMaskIdLow;
+    uint32_t FilterFIFOAssignment;
+    uint32_t FilterBank;
+    uint32_t FilterMode;
+    uint32_t FilterScale;
+    uint32_t FilterActivation;
+    uint32_t SlaveStartFilterBank;
+  } CAN_FilterTypeDef;
 
 
   HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox);

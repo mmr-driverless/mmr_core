@@ -2,18 +2,9 @@
 #include <util.h>
 
 
-MmrCan MMR_Can(
-  MmrCanTrySendFn trySend,
-  MmrCanTryReceiveFn tryReceive,
-  MmrCanGetPendingMessagesFn getPendingMessages
-) {
-  return (MmrCan) {
-    .__trySend = trySend,
-    .__tryReceive = tryReceive,
-    .__getPendingMessages = getPendingMessages,
-  };
+bool MMR_CAN_SetFilter(MmrCan *can, MmrCanFilter *filter) {
+  return can->__trySetFilter(filter);
 }
-
 
 bool MMR_CAN_Send(MmrCan *can, MmrCanMessage *message) {
   return can->__trySend(message);
