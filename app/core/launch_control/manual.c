@@ -34,7 +34,7 @@ static MmrManualState waiting(MmrManualState state) {
 }
 
 static MmrManualState setLaunchControl(MmrManualState state) {
-  static MmrDelay delay = { .ms = 25};
+  static MmrDelay delay = { .ms = 25 };
   static MmrCanBuffer buffer = { 0x8 };
 
   MmrCanHeader header = MMR_CAN_HEADER_FromBits(0x628);
