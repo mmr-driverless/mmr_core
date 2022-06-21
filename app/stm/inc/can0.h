@@ -14,6 +14,14 @@ extern MmrCan can0;
   #define CAN_RTR_REMOTE (0x00000002U)  /*!< Remote frame */
   #define CAN_RX_FIFO0 (0x00000000U)  /*!< CAN receive FIFO 0 */
   #define CAN_RX_FIFO1 (0x00000001U)  /*!< CAN receive FIFO 1 */
+  #define CAN_FILTER_DISABLE (0x00000000U)  /*!< Disable filter */
+  #define CAN_FILTER_ENABLE (0x00000001U)  /*!< Enable filter  */
+  #define CAN_FILTERMODE_IDMASK (0x00000000U)  /*!< Identifier mask mode */
+  #define CAN_FILTERMODE_IDLIST (0x00000001U)  /*!< Identifier list mode */
+  #define CAN_FILTER_FIFO0 (0x00000000U)  /*!< Filter FIFO 0 assignment for filter x */
+  #define CAN_FILTER_FIFO1 (0x00000001U)  /*!< Filter FIFO 1 assignment for filter x */
+  #define CAN_FILTERSCALE_16BIT (0x00000000U)  /*!< Two 16-bit filters */
+  #define CAN_FILTERSCALE_32BIT (0x00000001U)  /*!< One 32-bit filter  */
 
   typedef struct CAN_HandleTypeDef CAN_HandleTypeDef;
 

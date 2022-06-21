@@ -17,7 +17,7 @@ static uint32_t *__mmr_can0_getNextMailbox() {
 
 
 static bool __mmr_can0_trySetFilter(MmrCanFilter *filter) {
-  CAN_FilterTypeDef filter = {
+  CAN_FilterTypeDef f = {
     .FilterActivation = CAN_FILTER_ENABLE,
     .FilterFIFOAssignment = CAN_FILTER_FIFO0,
     .FilterBank = 0,
@@ -30,7 +30,7 @@ static bool __mmr_can0_trySetFilter(MmrCanFilter *filter) {
     .FilterScale = CAN_FILTERSCALE_32BIT,
   };
 
-  return HAL_CAN_ConfigFilter(&hcan1, &filter) == HAL_OK;
+  return HAL_CAN_ConfigFilter(&hcan1, &f) == HAL_OK;
 }
 
 static bool __mmr_can0_send(MmrCanMessage *message) {
