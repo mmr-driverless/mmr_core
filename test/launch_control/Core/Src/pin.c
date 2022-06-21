@@ -1,4 +1,4 @@
-#include <pin.h>
+#include <pin_out.h>
 #include "main.h"
 
 struct MmrPin {

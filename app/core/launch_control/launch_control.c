@@ -3,6 +3,7 @@
 #include "inc/manual.h"
 #include <button.h>
 #include <buffer.h>
+#include <delay.h>
 #include <can.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -92,7 +93,7 @@ static bool handlePreStart(MmrLaunchControlMode *mode) {
     waitForStart = true;
     MMR_DELAY_Reset(&waitForStartDelay);
 
-    *mode == MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS
+    *mode = *mode == MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS
       ? MMR_LAUNCH_CONTROL_MODE_MANUAL
       : MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
 

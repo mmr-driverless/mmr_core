@@ -24,6 +24,7 @@
 #include <can.h>
 #include <timing.h>
 #include <launch_control.h>
+#include "pin_out.h"
 #include"apps.h"
 #include "can0.h"
 /* USER CODE END Includes */
@@ -56,8 +57,6 @@ TIM_HandleTypeDef htim2;
 /* USER CODE BEGIN PV */
 uint32_t ADC_value[2];
 uint32_t dacValue;
-
-extern MmrPin *gearDown;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
