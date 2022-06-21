@@ -23,8 +23,10 @@
 /* USER CODE BEGIN Includes */
 #include <can.h>
 #include <launch_control.h>
+#include <timing.h>
+#include <can0.h>
+#include <stm_pin.h>
 #include"apps.h"
-#include "can0.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -119,22 +121,25 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  CAN_FilterTypeDef filter = {
-    .FilterActivation = CAN_FILTER_ENABLE,
-    .FilterFIFOAssignment = CAN_FILTER_FIFO0,
-    .FilterBank = 0,
-    .SlaveStartFilterBank = 10,
-    .FilterMode = CAN_FILTERMODE_IDMASK,
-    .FilterScale = CAN_FILTERSCALE_32BIT,
+  MmrPin gearDown = {
+    .port = GEAR_CHANGE_GPIO_Port,
+    .pin = GEAR_CHANGE_Pin,
   };
 
-  HAL_CAN_ConfigFilter(&hcan1, &filter);
+
+  MmrCanFilter filter = {
+    .id = 0,
+    .mask = 0,
+  };
+
+  MMR_CAN_SetFilter(&can0, &filter);
+
   if (HAL_CAN_Start(&hcan1) != HAL_OK) {
     Error_Handler();
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_LAUNCH_CONTROL_Init(&can0, gearDown, &dacValue);
+  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &dacValue);
 
   while (1) {
     MMR_LAUNCH_CONTROL_Run(MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS);
