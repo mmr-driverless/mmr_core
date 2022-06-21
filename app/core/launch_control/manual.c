@@ -43,13 +43,14 @@ static MmrManualState setLaunchControl(MmrManualState state) {
   MMR_CAN_MESSAGE_SetPayload(&setLaunchMsg, buffer, 8);
 
   bool rpmOk = MMR_LAUNCH_CONTROL_GetRpm() >= 1000;
-  bool launchSet = MMR_LAUNCH_CONTROL_GetLaunchControlState() == MMR_LAUNCH_CONTROL_SET;
+  bool isLaunchSet = MMR_LAUNCH_CONTROL_GetLaunchControlState() == MMR_LAUNCH_CONTROL_SET;
+  bool isInFirstGear = MMR_LAUNCH_CONTROL_GetGear() == 1;
 
-  if (rpmOk && !launchSet && MMR_DELAY_WaitAsync(&delay)) {
+  if (rpmOk && isInFirstGear && !isLaunchSet && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &setLaunchMsg);
   }
 
-  if (launchSet) {
+  if (isLaunchSet) {
     return MMR_MANUAL_STOP_LAUNCH;
   }
 
