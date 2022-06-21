@@ -130,6 +130,7 @@ int main(void)
     .pin = BUTTON_Pin,
   };
 
+  
   MmrCanFilter filter = {
     .id = 0,
     .mask = 0,
