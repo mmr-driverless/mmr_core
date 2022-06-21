@@ -125,6 +125,10 @@ int main(void)
     .pin = GEAR_CHANGE_Pin,
   };
 
+  MmrPin changeMode = {
+    .port = BUTTON_GPIO_Port,
+    .pin = BUTTON_Pin,
+  };
 
   MmrCanFilter filter = {
     .id = 0,
@@ -138,7 +142,7 @@ int main(void)
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, changeMode, &dacValue);
+  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &changeMode, &dacValue);
 
   MmrLaunchControlMode mode = MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
   while (1) {
