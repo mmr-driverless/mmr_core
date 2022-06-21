@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <can.h>
+#include <timing.h>
 #include <launch_control.h>
 #include"apps.h"
 #include "can0.h"
@@ -134,7 +135,7 @@ int main(void)
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_LAUNCH_CONTROL_Init(&can0, gearDown, &dacValue);
+  MMR_LAUNCH_CONTROL_Init(&can0, gearDown, changeMode, &dacValue);
 
   while (1) {
     MMR_LAUNCH_CONTROL_Run(MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS);

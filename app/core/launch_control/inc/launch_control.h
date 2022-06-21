@@ -26,8 +26,8 @@ typedef enum MmrLaunchControlState {
 } MmrLaunchControlState;
 
 
-void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, uint32_t *apps);
-void MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode);
+void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, uint32_t *apps);
+MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode);
 
 uint16_t MMR_LAUNCH_CONTROL_GetRpm();
 uint16_t MMR_LAUNCH_CONTROL_GetGear();
