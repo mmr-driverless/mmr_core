@@ -5,43 +5,56 @@
 #include "../../lib/can/inc/message.h"
 
 
+extern MmrCan can0;
+
+#if !defined(CAN)
+  #define CAN_ID_STD (0x00000000U)  /*!< Standard Id */
+  #define CAN_ID_EXT (0x00000004U)  /*!< Extended Id */
+  #define CAN_RTR_DATA (0x00000000U)  /*!< Data frame   */
+  #define CAN_RTR_REMOTE (0x00000002U)  /*!< Remote frame */
+  #define CAN_RX_FIFO0 (0x00000000U)  /*!< CAN receive FIFO 0 */
+  #define CAN_RX_FIFO1 (0x00000001U)  /*!< CAN receive FIFO 1 */
+
+  typedef struct CAN_HandleTypeDef CAN_HandleTypeDef;
+  typedef struct CAN_FilterTypeDef CAN_FilterTypeDef;
+
+  typedef enum {
+    DISABLE = 0U,
+    ENABLE = !DISABLE
+  } FunctionalState;
+
+  typedef struct {
+    uint32_t StdId;
+    uint32_t ExtId;
+    uint32_t IDE;
+    uint32_t RTR;
+    uint32_t DLC;
+    FunctionalState TransmitGlobalTime;
+  } CAN_TxHeaderTypeDef;
+
+  typedef struct {
+    uint32_t StdId;
+    uint32_t ExtId;
+    uint32_t IDE;
+    uint32_t RTR;
+    uint32_t DLC;
+    uint32_t Timestamp;
+    uint32_t FilterMatchIndex;
+  } CAN_RxHeaderTypeDef;
+
+  typedef enum {
+    HAL_OK       = 0x00U,
+    HAL_ERROR    = 0x01U,
+    HAL_BUSY     = 0x02U,
+    HAL_TIMEOUT  = 0x03
+  } HAL_StatusTypeDef;
 
 
-HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox);;
+  HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan, CAN_TxHeaderTypeDef *pHeader, uint8_t aData[], uint32_t *pTxMailbox);
+  HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[]);
+  HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef *sFilterConfig);
+  uint32_t HAL_CAN_GetRxFifoFillLevel(CAN_HandleTypeDef *hcan, uint32_t RxFifo);
 
-//typedef struct {
-//  uint32_t Prescaler;
-//  uint32_t Mode;
-//  uint32_t SyncJumpWidth;
-//  uint32_t TimeSeg1;
-//  uint32_t TimeSeg2;
-//  FunctionalState TimeTriggeredMode;
-//  FunctionalState AutoBusOff;
-//  FunctionalState AutoWakeUp;
-//  FunctionalState AutoRetransmission;
-//  FunctionalState ReceiveFifoLocked;
-//  FunctionalState TransmitFifoPriority;
-//} CAN_InitTypeDef;
-//
-//
-//typedef struct {
-//  uint32_t StdId;
-//  uint32_t ExtId;
-//  uint32_t IDE;
-//  uint32_t RTR;
-//  uint32_t DLC;
-//  FunctionalState TransmitGlobalTime;
-//} CAN_TxHeaderTypeDef;
-//
-//
-//typedef struct {
-//  uint32_t StdId;
-//  uint32_t ExtId;
-//  uint32_t IDE;
-//  uint32_t RTR;
-//  uint32_t DLC;
-//  uint32_t Timestamp;
-//  uint32_t FilterMatchIndex;
-//} CAN_RxHeaderTypeDef;
+#endif
 
 #endif // !APP_STM_INC_CAN0_H_
