@@ -41,6 +41,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+ float voltageTarget = 0;
 
 /* USER CODE END PV */
 
@@ -51,11 +52,17 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern Clutch clutch;
+extern float autonomousTargetAngle;
+extern DrivingMode mode;
+extern bool engage;
+uint32_t dt = 0;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
+extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim7;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -210,6 +217,53 @@ void DMA1_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
   /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM6 global interrupt, DAC channel1 and channel2 underrun error interrupts.
+  */
+void TIM6_DAC_IRQHandler(void)
+{
+	  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+		if(voltageTarget == 1.3f){
+			voltageTarget = 1.9f;
+		}
+		else {
+			voltageTarget = 1.30f;
+		}
+
+	  /* USER CODE END TIM6_DAC_IRQn 0 */
+	  HAL_TIM_IRQHandler(&htim6);
+	  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+	  /* USER CODE END TIM6_DAC_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM7 global interrupt.
+  */
+void TIM7_IRQHandler(void)
+{
+	  /* USER CODE BEGIN TIM7_IRQn 0 */
+		if(clutch.mode == AUTONOMOUS) {
+			if(engage)
+				engagedClutch(&clutch);
+			else
+				openClutch(&clutch);
+		}
+
+		clutch.current = getCurrent(&clutch);
+
+		dt = (uint32_t)(getMotorDutyCycle(&clutch) * TIM1->ARR);
+		TIM1->CCR1 = dt;
+
+
+	  /* USER CODE END TIM7_IRQn 0 */
+	  HAL_TIM_IRQHandler(&htim7);
+	  /* USER CODE BEGIN TIM7_IRQn 1 */
+
+	  /* USER CODE END TIM7_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
