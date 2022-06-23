@@ -1,12 +1,8 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_6
 ADC1.Channel-1\#ChannelRegularConversion=ADC_CHANNEL_10
-<<<<<<< Updated upstream:test/clutch_stm_bridge/clutch_stm_bridge.ioc
-ADC1.ClockPrescaler=ADC_CLOCK_ASYNC_DIV16
-=======
 ADC1.Channel-2\#ChannelRegularConversion=ADC_CHANNEL_15
 ADC1.ClockPrescaler=ADC_CLOCK_SYNC_PCLK_DIV4
->>>>>>> Stashed changes:clutch-432/clutch-432.ioc
 ADC1.ContinuousConvMode=ENABLE
 ADC1.DMAContinuousRequests=ENABLE
 ADC1.DiscontinuousConvMode=DISABLE
@@ -18,14 +14,9 @@ ADC1.OffsetNumber-1\#ChannelRegularConversion=ADC_OFFSET_NONE
 ADC1.Rank-0\#ChannelRegularConversion=1
 ADC1.Rank-1\#ChannelRegularConversion=2
 ADC1.Resolution=ADC_RESOLUTION_12B
-<<<<<<< Updated upstream:test/clutch_stm_bridge/clutch_stm_bridge.ioc
-ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_92CYCLES_5
-ADC1.SamplingTime-1\#ChannelRegularConversion=ADC_SAMPLETIME_92CYCLES_5
-=======
 ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_47CYCLES_5
 ADC1.SamplingTime-1\#ChannelRegularConversion=ADC_SAMPLETIME_47CYCLES_5
 ADC1.SamplingTime-2\#ChannelRegularConversion=ADC_SAMPLETIME_92CYCLES_5
->>>>>>> Stashed changes:clutch-432/clutch-432.ioc
 ADC1.master=1
 CAN1.BS1=CAN_BS1_2TQ
 CAN1.CalculateBaudRate=1000000
@@ -60,18 +51,11 @@ Mcu.IP8=TIM7
 Mcu.IPNb=9
 Mcu.Name=STM32L432K(B-C)Ux
 Mcu.Package=UFQFPN32
-<<<<<<< Updated upstream:test/clutch_stm_bridge/clutch_stm_bridge.ioc
-Mcu.Pin0=PA0
-Mcu.Pin1=PA1
-Mcu.Pin10=VP_TIM7_VS_ClockSourceINT
-Mcu.Pin2=PA5
-=======
 Mcu.Pin0=PA1
 Mcu.Pin1=PA5
 Mcu.Pin10=VP_TIM6_VS_ClockSourceINT
 Mcu.Pin11=VP_TIM7_VS_ClockSourceINT
 Mcu.Pin2=PB0
->>>>>>> Stashed changes:clutch-432/clutch-432.ioc
 Mcu.Pin3=PA8
 Mcu.Pin4=PA11
 Mcu.Pin5=PA12
@@ -79,11 +63,7 @@ Mcu.Pin6=PB4 (NJTRST)
 Mcu.Pin7=PB5
 Mcu.Pin8=VP_SYS_VS_Systick
 Mcu.Pin9=VP_TIM1_VS_ClockSourceINT
-<<<<<<< Updated upstream:test/clutch_stm_bridge/clutch_stm_bridge.ioc
-Mcu.PinsNb=11
-=======
 Mcu.PinsNb=12
->>>>>>> Stashed changes:clutch-432/clutch-432.ioc
 Mcu.ThirdPartyNb=0
 Mcu.UserConstants=
 Mcu.UserName=STM32L432KCUx

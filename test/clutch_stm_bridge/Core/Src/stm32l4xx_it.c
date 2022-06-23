@@ -280,13 +280,9 @@ void TIM7_IRQHandler(void)
 			openClutch(&clutch);
 	}
 
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/stm32l4xx_it.c
-	dt = (uint32_t)((getMotorDutyCycle(&clutch) * TIM1->ARR));
-=======
 	clutch.current = getCurrent(&clutch);
 
 	dt = (uint32_t)(getMotorDutyCycle(&clutch) * TIM1->ARR);
->>>>>>> Stashed changes:clutch-432/Core/Src/stm32l4xx_it.c
 	TIM1->CCR1 = dt;
 
 

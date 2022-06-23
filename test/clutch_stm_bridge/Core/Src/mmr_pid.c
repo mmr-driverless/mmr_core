@@ -99,14 +99,11 @@ float PIDCompute(PID* pid, float reference, float measured) {
 	errorPos = error;
 
 	_updateTerms(pid, error);
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_pid.c
-=======
 
 	/*if(fabs(error) < 0.2f) {
 		return 0.5f;
 	}*/
 
->>>>>>> Stashed changes:clutch-432/Core/Src/mmr_pid.c
 	const float outputPresaturation = getOutput(pid);
 	const float output = getOutputInSaturationRange(pid, outputPresaturation);
 

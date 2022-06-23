@@ -1,7 +1,5 @@
 #include "mmr_clutch.h"
 
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_clutch.c
-=======
 #define BUFFER_DIM 40
 
 float bufferCurr[BUFFER_DIM];
@@ -10,7 +8,6 @@ extern float voltageTarget;
 
 
 
->>>>>>> Stashed changes:clutch-432/Core/Src/mmr_clutch.c
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues) {
   LowpassData lpDataMeasured = {
 		input: 500,
@@ -42,13 +39,6 @@ float getMotorDutyCycle(Clutch *clutch) {
   //clutch->targetAngle = 0.8f;
   //clutch->current = getCurrent(clutch);
 
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_clutch.c
-  if(clutch->mode == MANUAL)
-    clutch->targetAngle =  getLeverAngle(clutch);
-
-  return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
-  /*return PIDCascade(
-=======
   /*if(clutch->mode == MANUAL){
 	    //clutch->targetAngle =  getLeverAngle(clutch);
 	  clutch->targetAngle = 2.0f;
@@ -57,7 +47,6 @@ float getMotorDutyCycle(Clutch *clutch) {
 
   //return PIDCompute(clutch->clutchPID.pid2, /*clutch->targetAngle*/voltageTarget, /*clutch->measuredAngle*/ clutch->current);
   return PIDCascade(
->>>>>>> Stashed changes:clutch-432/Core/Src/mmr_clutch.c
 		  clutch->clutchPID.pid1,
 		  clutch->clutchPID.pid2,
 		  0.7f,
@@ -68,12 +57,6 @@ float getMotorDutyCycle(Clutch *clutch) {
 }
 
 float getCurrent(Clutch *clutch) {
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_clutch.c
-  const float value = clutch->_adcValues[clutch->indexes.current];
-  float current = (((value / MAX_ADC_VALUE) *
-	5.0f) - 2.57f) *
-	0.1f;//COSTANTE K
-=======
   float avg = 0;
   float FattoreCorrettivo = 0.95f;
 
@@ -109,7 +92,6 @@ float getCurrent(Clutch *clutch) {
 		VOLTAGE_RATIO /
 		SENSITIVITY) - 25.0f;*/
   current = lowpassFilter(current, &clutch->_lpDataMeasured);
->>>>>>> Stashed changes:clutch-432/Core/Src/mmr_clutch.c
 
 
   return current;

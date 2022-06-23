@@ -22,7 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-#include "can.h"
+//#include "can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,13 +86,8 @@ bool engage = false;
 DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/main.c
-		min: -0.8f,
-		max: 0.8f,
-=======
 		min: 1.10f,
 		max: 1.90f,
->>>>>>> Stashed changes:clutch-432/Core/Src/main.c
 };
 
 const PIDParameters parameters1 = {
@@ -103,9 +98,6 @@ const PIDParameters parameters1 = {
 
 PID pid1;
 
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/main.c
-const float sampleTime = 1.0f / 80000.0f;
-=======
 const PIDSaturation saturations2 = {
 		min: 0.3f,
 		max: 0.7f,
@@ -120,7 +112,6 @@ const PIDParameters parameters2 = {
 PID pid2;
 
 const float sampleTime = 1.0f / 16000.0f;
->>>>>>> Stashed changes:clutch-432/Core/Src/main.c
 const float tau = 1.0f/14565.0f;
 
 //CLUTCH
@@ -176,9 +167,9 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
-  if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
+  /*if (MMR_CAN_BasicSetupAndStart(&hcan1) != HAL_OK) {
     Error_Handler();
-  }
+  }*/
 
   pid1 = PIDInit(
 	  saturations1,
@@ -199,12 +190,8 @@ int main(void)
   HAL_TIM_Base_Start(&htim1); // TIM1 Start
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM Start on TIM1
   HAL_TIM_Base_Start_IT(&htim7); // PID Sampling timer start
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/main.c
-
-=======
   HAL_TIM_Base_Start_IT(&htim6);
   /*
->>>>>>> Stashed changes:clutch-432/Core/Src/main.c
   CanRxBuffer buffer = {};
   MmrCanMessage message = {
 		  .store = buffer
@@ -235,10 +222,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-		currentError = voltageTarget - current;
+		//currentError = voltageTarget - current;
 
 
-	  MmrCanPacket packetOpenClutch = {
+	  /*MmrCanPacket packetOpenClutch = {
 			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL_OK,
 	  };
 
@@ -305,7 +292,7 @@ int main(void)
 		  		  break;
 		  }
 
-	  }
+	  }*/
 
 	  potMot = clutch.measuredAngle;
 	  lever = clutch.targetAngle;
@@ -424,8 +411,6 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/main.c
-=======
 
   /** Configure Regular Channel
   */
@@ -436,7 +421,6 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
->>>>>>> Stashed changes:clutch-432/Core/Src/main.c
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
