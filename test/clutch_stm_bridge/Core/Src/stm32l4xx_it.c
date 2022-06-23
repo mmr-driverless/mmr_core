@@ -41,7 +41,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
- float voltageTarget = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,7 +57,6 @@
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 /* USER CODE BEGIN EV */
 extern Clutch clutch;
@@ -247,27 +246,6 @@ void TIM1_UP_TIM16_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM6 global interrupt, DAC channel1 and channel2 underrun error interrupts.
-  */
-void TIM6_DAC_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-
-	if(voltageTarget == 1.3f){
-		voltageTarget = 1.9f;
-	}
-	else {
-		voltageTarget = 1.30f;
-	}
-
-  /* USER CODE END TIM6_DAC_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim6);
-  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
-
-  /* USER CODE END TIM6_DAC_IRQn 1 */
-}
-
-/**
   * @brief This function handles TIM7 global interrupt.
   */
 void TIM7_IRQHandler(void)
@@ -280,13 +258,7 @@ void TIM7_IRQHandler(void)
 			openClutch(&clutch);
 	}
 
-<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/stm32l4xx_it.c
 	dt = (uint32_t)((getMotorDutyCycle(&clutch) * TIM1->ARR));
-=======
-	clutch.current = getCurrent(&clutch);
-
-	dt = (uint32_t)(getMotorDutyCycle(&clutch) * TIM1->ARR);
->>>>>>> Stashed changes:clutch-432/Core/Src/stm32l4xx_it.c
 	TIM1->CCR1 = dt;
 
 
