@@ -208,12 +208,17 @@ all interrupt callbacks are set to the corresponding weak functions:
 static void TIM_OC1_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
 static void TIM_OC3_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
 static void TIM_OC4_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
+<<<<<<< Updated upstream:test/steering/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
 #if defined(TIM_CCER_CC5E)
 static void TIM_OC5_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
 #endif /* TIM_CCER_CC5E */
 #if defined(TIM_CCER_CC6E)
 static void TIM_OC6_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
 #endif /* TIM_CCER_CC6E */
+=======
+static void TIM_OC5_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
+static void TIM_OC6_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
+>>>>>>> Stashed changes:clutch-432/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c
 static void TIM_TI1_ConfigInputStage(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICFilter);
 static void TIM_TI2_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICSelection,
                               uint32_t TIM_ICFilter);

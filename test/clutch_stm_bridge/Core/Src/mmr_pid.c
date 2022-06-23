@@ -3,6 +3,10 @@
 
 extern float currentTarget;
 extern float errorPos;
+extern float voltageTarget;
+extern float current;
+extern float currentError;
+
 
 bool _isLastOutputSaturated(PID* pid) {
   return 
@@ -46,22 +50,27 @@ float getProportionalTerm(PID* pid, float error) {
 }
 
 float getIntegralTerm(PID* pid, float error) {
-	#ifdef INTEGRAL_ANTI_WINDUP
-		//Integral term + Anti-windup clamping
-		return _isLastOutputSaturated(pid)
-			? 0.0f
-			: pid->_terms.i +
-				pid->parameters.i *
-				0.5f *
-				pid->sampleTime *
-				(error + pid->_lastError);
-	#else
-		return pid->_terms.i +
-			pid->parameters.i * 
-			0.5f * 
-			pid->sampleTime * 
-			(error + pid->_lastError);
-	#endif
+	float i = pid->_terms.i +
+		pid->parameters.i *
+		0.5f *
+		pid->sampleTime *
+		(error + pid->_lastError);
+
+	float maxInt = pid->saturation.max > pid->_terms.p
+			? pid->saturation.max - pid->_terms.p
+			: 0.0f;
+
+	float minInt = pid->saturation.min < pid->_terms.p
+			? pid->saturation.min - pid->_terms.p
+			: 0.0f;
+
+	if(i > maxInt)
+		return maxInt;
+
+	if(i < minInt)
+		return minInt;
+
+	return i;
 }
 
 float getDerivativeTerm(PID* pid, float error) {
@@ -90,6 +99,14 @@ float PIDCompute(PID* pid, float reference, float measured) {
 	errorPos = error;
 
 	_updateTerms(pid, error);
+<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_pid.c
+=======
+
+	/*if(fabs(error) < 0.2f) {
+		return 0.5f;
+	}*/
+
+>>>>>>> Stashed changes:clutch-432/Core/Src/mmr_pid.c
 	const float outputPresaturation = getOutput(pid);
 	const float output = getOutputInSaturationRange(pid, outputPresaturation);
 
