@@ -1,5 +1,16 @@
 #include "mmr_clutch.h"
 
+<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_clutch.c
+=======
+#define BUFFER_DIM 40
+
+float bufferCurr[BUFFER_DIM];
+
+extern float voltageTarget;
+
+
+
+>>>>>>> Stashed changes:clutch-432/Core/Src/mmr_clutch.c
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues) {
   LowpassData lpDataMeasured = {
 		input: 500,
@@ -31,24 +42,75 @@ float getMotorDutyCycle(Clutch *clutch) {
   //clutch->targetAngle = 0.8f;
   //clutch->current = getCurrent(clutch);
 
+<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_clutch.c
   if(clutch->mode == MANUAL)
     clutch->targetAngle =  getLeverAngle(clutch);
 
   return PIDCompute(clutch->clutchPID.pid1, clutch->targetAngle, clutch->measuredAngle);
   /*return PIDCascade(
+=======
+  /*if(clutch->mode == MANUAL){
+	    //clutch->targetAngle =  getLeverAngle(clutch);
+	  clutch->targetAngle = 2.0f;
+  }*/
+
+
+  //return PIDCompute(clutch->clutchPID.pid2, /*clutch->targetAngle*/voltageTarget, /*clutch->measuredAngle*/ clutch->current);
+  return PIDCascade(
+>>>>>>> Stashed changes:clutch-432/Core/Src/mmr_clutch.c
 		  clutch->clutchPID.pid1,
 		  clutch->clutchPID.pid2,
-		  clutch->targetAngle,
+		  0.7f,
+		  //clutch->targetAngle,
 		  clutch->measuredAngle,
 		  clutch->current
-  );*/
+  );
 }
 
 float getCurrent(Clutch *clutch) {
+<<<<<<< Updated upstream:test/clutch_stm_bridge/Core/Src/mmr_clutch.c
   const float value = clutch->_adcValues[clutch->indexes.current];
   float current = (((value / MAX_ADC_VALUE) *
 	5.0f) - 2.57f) *
 	0.1f;//COSTANTE K
+=======
+  float avg = 0;
+  float FattoreCorrettivo = 0.95f;
+
+
+  for(int i = 2; i < 21; i += 3) {
+	  avg += clutch->_adcValues[i];//lowpassFilter(clutch->_adcValues[index], &clutch->_lpDataMeasured);
+  }
+
+  for(int i = 0; i < BUFFER_DIM - 1; i++) {
+	  bufferCurr[i] = bufferCurr[i + 1];
+  }
+
+  bufferCurr[BUFFER_DIM - 1] = avg / 7.0f;
+
+  float min = bufferCurr[0];
+  float max = bufferCurr[0];
+
+  for(int i = 1; i < BUFFER_DIM; i ++) {
+      if(min > bufferCurr[i]) {
+		  min = bufferCurr[i];
+      }
+
+      if(max < bufferCurr[i]) {
+		  max = bufferCurr[i];
+      }
+  }
+
+  avg = (max + min) / 2.0f;
+  float value = avg;
+ //  float current = FattoreCorrettivo*10.0f * ((value / MAX_ADC_VALUE) * 3.6f) - 16.8f;
+  float current = FattoreCorrettivo*(value/MAX_ADC_VALUE)*3.6f;
+  /*float current = (((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
+		VOLTAGE_RATIO /
+		SENSITIVITY) - 25.0f;*/
+  current = lowpassFilter(current, &clutch->_lpDataMeasured);
+>>>>>>> Stashed changes:clutch-432/Core/Src/mmr_clutch.c
+
 
   return current;
 }
