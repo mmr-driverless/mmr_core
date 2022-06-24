@@ -48,7 +48,7 @@
  ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
-CAN_HandleTypeDef hcan1;
+CAN_HandleTypeDef hcan;
 
 DAC_HandleTypeDef hdac;
 DMA_HandleTypeDef hdma_dac_ch1;
@@ -56,8 +56,8 @@ DMA_HandleTypeDef hdma_dac_ch1;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-uint32_t ADC_value[2];
-uint32_t dacValue;
+uint32_t adc[2];
+uint32_t dac;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,7 +75,7 @@ static void MX_ADC1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
+MmrLaunchControlMode mode = MMR_LAUNCH_CONTROL_MODE_IDLE;
 
 /* USER CODE END 0 */
 
@@ -113,8 +113,8 @@ int main(void)
   MX_TIM2_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start_DMA(&hadc1, ADC_value, sizeof(ADC_value) / sizeof(*ADC_value));
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dacValue, 1, DAC_ALIGN_12B_R);
+  HAL_ADC_Start_DMA(&hadc1, adc, sizeof(adc) / sizeof(*adc));
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dac, 1, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim2);
   /* USER CODE END 2 */
 
@@ -130,22 +130,15 @@ int main(void)
     .pin = BUTTON_Pin,
   };
 
-  
-  MmrCanFilter filter = {
-    .id = 0,
-    .mask = 0,
-  };
 
-  MMR_CAN_SetFilter(&can0, &filter);
-
-  if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+  if (MMR_CAN0_Start(&hcan) != HAL_OK) {
     Error_Handler();
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &changeMode, &dacValue);
+  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &changeMode, &dac);
 
-  MmrLaunchControlMode mode = MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
+  mode = MMR_LAUNCH_CONTROL_MODE_IDLE;
   while (1) {
     mode = MMR_LAUNCH_CONTROL_Run(mode);
     /* USER CODE END WHILE */
@@ -282,19 +275,19 @@ static void MX_CAN_Init(void)
   /* USER CODE BEGIN CAN_Init 1 */
 
   /* USER CODE END CAN_Init 1 */
-  hcan1.Instance = CAN;
-  hcan1.Init.Prescaler = 8;
-  hcan1.Init.Mode = CAN_MODE_NORMAL;
-  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
-  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
-  hcan1.Init.TimeTriggeredMode = DISABLE;
-  hcan1.Init.AutoBusOff = DISABLE;
-  hcan1.Init.AutoWakeUp = DISABLE;
-  hcan1.Init.AutoRetransmission = DISABLE;
-  hcan1.Init.ReceiveFifoLocked = DISABLE;
-  hcan1.Init.TransmitFifoPriority = DISABLE;
-  if (HAL_CAN_Init(&hcan1) != HAL_OK)
+  hcan.Instance = CAN;
+  hcan.Init.Prescaler = 8;
+  hcan.Init.Mode = CAN_MODE_NORMAL;
+  hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan.Init.TimeSeg1 = CAN_BS1_2TQ;
+  hcan.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan.Init.TimeTriggeredMode = DISABLE;
+  hcan.Init.AutoBusOff = DISABLE;
+  hcan.Init.AutoWakeUp = DISABLE;
+  hcan.Init.AutoRetransmission = DISABLE;
+  hcan.Init.ReceiveFifoLocked = DISABLE;
+  hcan.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan) != HAL_OK)
   {
     Error_Handler();
   }
@@ -431,7 +424,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : BUTTON_Pin */
   GPIO_InitStruct.Pin = BUTTON_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : GEAR_CHANGE_Pin */

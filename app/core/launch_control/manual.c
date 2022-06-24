@@ -34,7 +34,7 @@ static MmrManualState waiting(MmrManualState state) {
 }
 
 static MmrManualState setLaunchControl(MmrManualState state) {
-  static MmrDelay delay = { .ms = 25 };
+  static MmrDelay delay = { .ms = 250 };
   static MmrCanBuffer buffer = { 0x8 };
 
   MmrCanHeader header = MMR_CAN_HEADER_FromBits(0x628);
@@ -59,7 +59,7 @@ static MmrManualState setLaunchControl(MmrManualState state) {
 
 
 static MmrManualState stopLaunchControl(MmrManualState state) {
-  static MmrDelay delay = { .ms = 25 };
+  static MmrDelay delay = { .ms = 250 };
   static MmrCanBuffer buffer = { 0x8 };
 
   MmrCanHeader header = MMR_CAN_HEADER_FromBits(0x628);
@@ -67,10 +67,10 @@ static MmrManualState stopLaunchControl(MmrManualState state) {
   MMR_CAN_MESSAGE_SetStandardId(&unsetLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&unsetLaunchMsg, buffer, 8);
 
-  bool rpmOk = MMR_LAUNCH_CONTROL_GetRpm() >= 6000;
+  bool isClutchReleased = MMR_LAUNCH_CONTROL_GetClutchState() == MMR_CLUTCH_RELEASED;
   bool launchUnset = MMR_LAUNCH_CONTROL_GetLaunchControlState() == MMR_LAUNCH_CONTROL_NOT_SET;
 
-  if (rpmOk && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
+  if (isClutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &unsetLaunchMsg);
   }
 

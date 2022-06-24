@@ -73,10 +73,13 @@ MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
 
   bool canStart = handlePreStart(&mode);
   if (!canStart) {
+    as = MMR_AUTONOMOUS_WAITING;
+    ms = MMR_MANUAL_WAITING;
     return mode;
   }
 
   switch (mode) {
+  case MMR_LAUNCH_CONTROL_MODE_IDLE: break;
   case MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS: as = MMR_AUTONOMOUS_Run(as); break;
   case MMR_LAUNCH_CONTROL_MODE_MANUAL: ms = MMR_MANUAL_Run(ms); break;
   }
@@ -92,16 +95,13 @@ static bool handlePreStart(MmrLaunchControlMode *mode) {
   if (MMR_BUTTON_Read(&__changeModeButton) == MMR_BUTTON_JUST_RELEASED) {
     waitForStart = true;
     MMR_DELAY_Reset(&waitForStartDelay);
-
-    *mode = *mode == MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS
-      ? MMR_LAUNCH_CONTROL_MODE_MANUAL
-      : MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
-
+    *mode += 1;
+    *mode %= 3;
     return false;
   }
 
 
-  bool isInAutonomous = mode == MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
+  bool isInAutonomous = *mode == MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
   bool isClutchPulled = MMR_LAUNCH_CONTROL_GetClutchState() == MMR_CLUTCH_PULLED;
 
   if (isInAutonomous && isClutchPulled && waitForStart) {

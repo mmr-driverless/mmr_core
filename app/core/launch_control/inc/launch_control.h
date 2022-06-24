@@ -9,6 +9,7 @@ typedef struct MmrLaunchControl MmrLaunchControl;
 
 
 typedef enum MmrLaunchControlMode {
+  MMR_LAUNCH_CONTROL_MODE_IDLE,
   MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS,
   MMR_LAUNCH_CONTROL_MODE_MANUAL,
 } MmrLaunchControlMode;
