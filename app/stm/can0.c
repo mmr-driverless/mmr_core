@@ -9,7 +9,9 @@ HAL_StatusTypeDef MMR_CAN0_Start(CAN_HandleTypeDef *hcan0) {
   __hcan0 = hcan0;
 
   MmrCanFilter noFilter = {};
-  MMR_CAN_SetFilter(&can0, &noFilter);
+  if (!MMR_CAN_SetFilter(&can0, &noFilter))
+    return HAL_ERROR;
+
   return HAL_CAN_Start(__hcan0) == HAL_OK;
 }
 

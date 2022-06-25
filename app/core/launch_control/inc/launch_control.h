@@ -9,9 +9,9 @@ typedef struct MmrLaunchControl MmrLaunchControl;
 
 
 typedef enum MmrLaunchControlMode {
-  MMR_LAUNCH_CONTROL_MODE_IDLE,
-  MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS,
-  MMR_LAUNCH_CONTROL_MODE_MANUAL,
+  MMR_LAUNCH_CONTROL_MODE_IDLE = 0,
+  MMR_LAUNCH_CONTROL_MODE_MANUAL = 1,
+  MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS = 2,
 } MmrLaunchControlMode;
 
 typedef enum MmrClutchState {
@@ -27,7 +27,7 @@ typedef enum MmrLaunchControlState {
 } MmrLaunchControlState;
 
 
-void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, uint32_t *apps);
+void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, uint32_t *apps, uint32_t *adc);
 MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode);
 
 uint16_t MMR_LAUNCH_CONTROL_GetRpm();

@@ -24,8 +24,11 @@ static MmrCan *__can;
 static MmrPin *__gearDown;
 static MmrButton __changeModeButton;
 
+static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
+static MmrManualState ms = MMR_MANUAL_WAITING;
 
-void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, uint32_t *apps) {
+
+void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, uint32_t *apps, uint32_t *adc) {
   __can = can;
   __gearDown = gearDown;
   __changeModeButton = MMR_Button(changeMode);
@@ -34,12 +37,11 @@ void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, 
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
   };
 
+  MMR_MANUAL_Init(can, apps, adc);
   MMR_AUTONOMOUS_Init(can, gearDown, apps);
 }
 
 MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
-  static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
-  static MmrManualState ms = MMR_MANUAL_WAITING;
   static MmrCanBuffer buffer = {};
   static MmrCanMessage msg = {
     .payload = buffer,
@@ -113,10 +115,9 @@ static bool handlePreStart(MmrLaunchControlMode *mode) {
   bool canStart = waitForStart && MMR_DELAY_WaitAsync(&waitForStartDelay);
   if (canStart) {
     waitForStart = false;
-    return true;
   }
 
-  return false;
+  return !waitForStart;
 }
 
 

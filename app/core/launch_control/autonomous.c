@@ -175,7 +175,7 @@ static MmrAutonomousState accelerate(MmrAutonomousState state) {
 }
 
 static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 1 };
+  static MmrDelay delay = { .ms = 5 };
   
   MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE);
   MmrCanMessage clutchReleaseMsg = MMR_CAN_OutMessage(header);
@@ -185,9 +185,7 @@ static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
   }
 
   bool isClutchReleased = MMR_LAUNCH_CONTROL_GetClutchState() == MMR_CLUTCH_RELEASED;
-  bool rpmOk = MMR_LAUNCH_CONTROL_GetRpm() >= 6000;
-
-  if (isClutchReleased && rpmOk) {
+  if (isClutchReleased) {
     return MMR_AUTONOMOUS_UNSET_LAUNCH;
   }
 
@@ -204,10 +202,10 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
   MMR_CAN_MESSAGE_SetStandardId(&unsetLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&unsetLaunchMsg, buffer, 8);
 
-  bool rpmOk = MMR_LAUNCH_CONTROL_GetRpm() >= 6000;
+  bool clutchReleased = MMR_LAUNCH_CONTROL_GetClutchState() == MMR_CLUTCH_RELEASED;
   bool launchUnset = MMR_LAUNCH_CONTROL_GetLaunchControlState() == MMR_LAUNCH_CONTROL_NOT_SET;
 
-  if (rpmOk && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
+  if (clutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &unsetLaunchMsg);
   }
 

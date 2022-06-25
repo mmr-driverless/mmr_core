@@ -12,13 +12,20 @@ static MmrManualState stopLaunchControl(MmrManualState state);
 static MmrManualState done(MmrManualState state);
 
 static MmrCan *__can;
+static uint32_t *__adc;
+static uint32_t *__apps;
 
-void MMR_MANUAL_Init(MmrCan *can) {
+
+void MMR_MANUAL_Init(MmrCan *can, uint32_t *apps, uint32_t *adc) {
   __can = can;
+  __adc = adc;
+  __apps = apps;
 }
 
 
 MmrManualState MMR_MANUAL_Run(MmrManualState state) {
+  *__apps = *__adc;
+
   switch (state) {
   case MMR_MANUAL_WAITING: return waiting(state);
   case MMR_MANUAL_SET_LAUNCH_CONTROL: return setLaunchControl(state);

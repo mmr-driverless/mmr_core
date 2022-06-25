@@ -131,12 +131,12 @@ int main(void)
   };
 
 
-  if (MMR_CAN0_Start(&hcan) != HAL_OK) {
+  if (!MMR_CAN0_Start(&hcan)) {
     Error_Handler();
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &changeMode, &dac);
+  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &changeMode, &dac, adc);
 
   mode = MMR_LAUNCH_CONTROL_MODE_IDLE;
   while (1) {
