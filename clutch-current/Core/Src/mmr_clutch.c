@@ -15,12 +15,27 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
 		cutoffFrequency: 10.0f,
   };
 
+  LowpassData lpDataCurrent = {
+		input: 500,
+		output: 500,
+		cutoffFrequency: 10.0f,
+  };
+
+
+  float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) / (ENGAGED_LEVER_ANGLE - OPEN_LEVER_ANGLE);
+  float q = ENGAGED_CLUTCH_ANGLE - (m * ENGAGED_LEVER_ANGLE);
+
   Clutch clutch = {
 	clutchPID: clutchPID,
     indexes: indexes,
 	mode: MANUAL,
 	_adcValues: adcValues,
 	_lpDataMeasured: lpDataMeasured,
+	_lpDataMeasured: lpDataCurrent,
+
+	_leverM: m,
+	_leverQ: q,
+
   };
 
   return clutch;
@@ -37,7 +52,7 @@ void setTargetAngle(Clutch *clutch, float angle) {
 float getMotorDutyCycle(Clutch *clutch) {
   clutch->measuredAngle = getPotMotAngle(clutch);//lowpassFilter(getPotMotAngle(clutch), &clutch->_lpDataMeasured);
   clutch->targetAngle = 0.8f;
-  //clutch->current = getCurrent(clutch);
+  clutch->current = getCurrent(clutch);
 
   /*if(clutch->mode == MANUAL){
 	    //clutch->targetAngle =  getLeverAngle(clutch);
@@ -57,10 +72,8 @@ float getMotorDutyCycle(Clutch *clutch) {
 }
 
 float getCurrent(Clutch *clutch) {
-  float avg = 0;
-  float FattoreCorrettivo = 0.95f;
-
-  for(int i = 2; i < 21; i += 3) {
+  //float avg = 0;
+  /*for(int i = 2; i < 21; i += 3) {
 	  avg += clutch->_adcValues[i];//lowpassFilter(clutch->_adcValues[index], &clutch->_lpDataMeasured);
   }
 
@@ -83,32 +96,27 @@ float getCurrent(Clutch *clutch) {
       }
   }
 
-  avg = (max + min) / 2.0f;
-  float value = avg;
+  avg = (max + min) / 2.0f;*/
  //  float current = FattoreCorrettivo*10.0f * ((value / MAX_ADC_VALUE) * 3.6f) - 16.8f;
-  float current = FattoreCorrettivo*(value/MAX_ADC_VALUE)*3.6f;
-  /*float current = (((value / MAX_ADC_VALUE) * MAX_VOLTAGE) *
-		VOLTAGE_RATIO /
-		SENSITIVITY) - 25.0f;*/
-  current = lowpassFilter(current, &clutch->_lpDataMeasured);
+  float current = CURRENT_CORRECTIVE_FACTOR *
+		  (clutch->_adcValues[clutch->indexes.current]/MAX_ADC_VALUE) *
+		  3.6f;
 
-
-  return current;
+  return lowpassFilter(current, &clutch->_lpDataCurrent);
 }
 
 float getPotMotAngle(Clutch *clutch) {
-  const float potValue = _getMotorPotentiomerValue(clutch);
-  return _getPotentiometerAngle(potValue, clutch);
+  return _getPotentiometerAngle(
+	  _getMotorPotentiomerValue(clutch),
+	  clutch
+  );
 }
 
 float getLeverAngle(Clutch *clutch) {
-  const float leverValue = _getLeverValue(clutch);
-  float targetPosition = _getPotentiometerAngle(leverValue, clutch);
-
-  const float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) /
-		    (ENGAGED_LEVER_ANGLE - OPEN_LEVER_ANGLE);
-
-  const float q = ENGAGED_CLUTCH_ANGLE - (m * ENGAGED_LEVER_ANGLE);
+  float targetPosition = _getPotentiometerAngle(
+		  _getLeverValue(clutch),
+		  clutch
+  );
 
   if(targetPosition >= ENGAGED_LEVER_ANGLE)
 	  targetPosition = ENGAGED_LEVER_ANGLE;
@@ -116,8 +124,7 @@ float getLeverAngle(Clutch *clutch) {
   if(targetPosition <= OPEN_LEVER_ANGLE)
 	  targetPosition = OPEN_LEVER_ANGLE;
 
-  targetPosition = (targetPosition * m) + q;
-  return targetPosition;
+  return  (targetPosition * clutch->_leverM) + clutch->_leverQ;;
 }
 
 float _getPotentiometerAngle(AdcValue value, Clutch *clutch) {
