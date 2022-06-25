@@ -21,8 +21,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "can.h"
+#include <can.h>
+#include <launch_control.h>
 #include"apps.h"
+#include "can0.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +45,7 @@
  ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
-CAN_HandleTypeDef hcan;
+CAN_HandleTypeDef hcan1;
 
 DAC_HandleTypeDef hdac;
 DMA_HandleTypeDef hdma_dac_ch1;
@@ -51,12 +53,10 @@ DMA_HandleTypeDef hdma_dac_ch1;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-const uint16_t DAC_30 = 865; // 1439 - OLD;
-const uint16_t DAC_0 = 500; // 1111 - OLD;
 uint32_t ADC_value[2];
-uint32_t dacValue = DAC_0;
-int gear = 0;
-int nMot = 0;
+uint32_t dacValue;
+
+extern MmrPin *gearDown;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -115,239 +115,29 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc1, ADC_value, sizeof(ADC_value) / sizeof(*ADC_value));
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dacValue, 1, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim2);
-  if (MMR_CAN_BasicSetupAndStart(&hcan) != HAL_OK)
-    Error_Handler();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  CanRxBuffer buffer = {};
-  MmrCanMessage msg = { .store = buffer };
-
-
-  MmrCanPacket clutchPull = { .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL };
-  MmrCanPacket clutchRelease = { .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE };
-  MmrCanPacket clutchSetManual = { .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_SET_MANUAL };
-
-  uint8_t _launchControlData[8] = {0x8};
-  MmrCanPacket launchControl = {
-      .data = _launchControlData,
-      .length = 8,
-      .noExtId = true,
-      .header = MMR_CAN_HeaderFromBits(0x628),
+  CAN_FilterTypeDef filter = {
+    .FilterActivation = CAN_FILTER_ENABLE,
+    .FilterFIFOAssignment = CAN_FILTER_FIFO0,
+    .FilterBank = 0,
+    .SlaveStartFilterBank = 10,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
   };
-  uint8_t _launchControlStopData[8] = {0x0};
-  MmrCanPacket launchControlStopPacket = {
-        .data = _launchControlStopData,
-        .length = 8,
-        .noExtId = true,
-        .header = MMR_CAN_HeaderFromBits(0x628),
-    };
 
-  int clutchMsgStart = uwTick;
-  int clutchMsgCnt = 0;
+  HAL_CAN_ConfigFilter(&hcan1, &filter);
+  if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+    Error_Handler();
+  }
 
-  int launchControlStart = 0;
-  int launchControlStop = 0;
-  int launchControlCnt = 0;
+  MMR_SetTickProvider(HAL_GetTick);
+  MMR_LAUNCH_CONTROL_Init(&can0, gearDown, &dacValue);
 
-  bool waitForStateChange = false;
-  int stateChangeStart = 0;
-
-  while (1)
-  {
-    int pendingMsgs = HAL_CAN_GetRxFifoFillLevel(&hcan, MMR_CAN_RX_FIFO);
-    if (pendingMsgs > 0) {
-      MMR_CAN_Receive(&hcan, &msg);
-
-      switch (msg.header.messageId) {
-      case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN1:
-        gear = readGear(buffer);
-        nMot = readRPM(buffer);
-        break;
-      }
-    }
-
-    if (isManual){
-    	sendLaunchM=true;
-      dacValue = ADC_value[0];
-if(gear==1){
-    if ((nMot > 1500 && sendLaunchM && uwTick - launchControlStart > 25)) {
-          status = MMR_CAN_SendNoTamper(&hcan, launchControl);
-          launchControlStart = uwTick;
-
-
-    }
-}
-}
-          if (nMot > 9000) {
-
-                  launchControlStop = uwTick;
-                  launchControlCnt = 0;
-                  _launchControlData[0] = 0x0;
-                  state = RELEASED;
-                  MMR_CAN_SendNoTamper(&hcan, launchControlStopPacket);
-
-                }
-
-
-
-//    if (readButton() == BTN_JUST_PRESSED) {
-//      isManual = !isManual;
-//      if (isManual) {
-//        for (int i = 0; i < 10; i++) {
-//          status = MMR_CAN_Send(&hcan, clutchSetManual);
-//          HAL_Delay(5);
-//        }
-//      }
-//      else {
-//        dacValue = DAC_0;
-//      }
-//
-//      stateChangeStart = uwTick;
-//      waitForStateChange = true;
-//      state = START;
-//    }
-//
-//    if (waitForStateChange && uwTick - stateChangeStart < 10000) {
-//      continue;
-//    }
-//
-//
-//    if (nMot > 1000 && sendLaunch && uwTick - launchControlStart > 25) {
-//      status = MMR_CAN_SendNoTamper(&hcan, launchControl);
-//      launchControlStart = uwTick;
-//    }
-//
-//    switch (state) {
-//    case START:
-//      if (isManual) {
-//    	  state = RELEASE;
-//      } else {
-//    	  state = PULL;
-//    	  debounce = 0;
-//      }
-//
-//
-//    case PULL:
-//    	if (nMot > 1000){
-//			if (uwTick - clutchMsgStart > 1) {
-//				status = MMR_CAN_Send(&hcan, clutchPull);
-//				clutchMsgStart = uwTick;
-//			}
-//
-//			if (msg.header.messageId == MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL_OK) {
-//			sendLaunch = true;
-//			launchControlStart = uwTick;
-//			state = PULLED;
-//			}
-//    	}
-//      break;
-//
-//    case PULLED:
-//      if (msg.header.messageId == MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2) {
-//        if (buffer[6]) {
-//          clutchMsgStart = uwTick;
-//          clutchMsgCnt = 0;
-//          state = GEAR_NOT_SET;
-//        }
-//      }
-//      break;
-//
-//    case GEAR_NOT_SET:
-//      if (!gear)
-//        changeGear(true);
-//
-//      state = GEAR_CHANGING;
-//      break;
-//
-//    case GEAR_CHANGING:
-//      if (gear) {
-//        changeGearStop = true;
-//        changeGear(true);
-//        HAL_GPIO_WritePin(GEAR_CHANGE_GPIO_Port, GEAR_CHANGE_Pin, GEAR_N_OFF);
-//        state = GEAR_CHANGED;
-//        break;
-//      }
-//
-//      if (!gear || !changeGear(false)) {
-//        waitMs(true, 2000);
-//        state = GEAR_NOT_CHANGED;
-//        break;
-//      }
-//
-//      break;
-//
-//    case GEAR_NOT_CHANGED:
-//      if (waitMs(false, 2000)) {
-//        HAL_GPIO_WritePin(GEAR_CHANGE_GPIO_Port, GEAR_CHANGE_Pin, GEAR_N_OFF);
-//        state = GEAR_NOT_SET;
-//      }
-//
-//      break;
-//
-//    case GEAR_CHANGED:
-//      HAL_GPIO_WritePin(GEAR_CHANGE_GPIO_Port, GEAR_CHANGE_Pin, GEAR_N_OFF);
-//      waitMs(true, 1000);
-//      state = LAUNCH_CONTROL_SET;
-//      break;
-//
-//    case LAUNCH_CONTROL_SET:
-//      dacValue = DAC_30;
-//      if (waitMs(false, 1000)) {
-//        state = APPS_30;
-//      }
-//      break;
-//
-//    case APPS_30:
-//      if (uwTick - clutchMsgStart > 1) {
-//        status = MMR_CAN_Send(&hcan, clutchRelease);
-//        clutchMsgStart = uwTick;
-//
-//        if (clutchMsgCnt++ >= 5 && nMot >= 6000) {
-//          state = RELEASE;
-//        }
-//      }
-//
-//      break;
-//
-//    case RELEASE:
-//      if (msg.header.messageId == MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK) {
-//    	  firstrun=1;
-//        clutchMsgStart = uwTick;
-//        launchControlStop = uwTick;
-//        clutchMsgCnt = 0;
-//        launchControlCnt = 0;
-//        _launchControlData[0] = 0x0;
-//        state = RELEASED;
-//      }
-//      break;
-//
-//    case RELEASED:
-//      if (!isManual)
-//    	  dacValue = DAC_0;
-//
-//      if (clutchMsgCnt < 5 && uwTick - clutchMsgStart > 5) {
-//        status = MMR_CAN_Send(&hcan, clutchSetManual);
-//        clutchMsgStart = uwTick;
-//        clutchMsgCnt++;
-//      }
-//
-//      if (launchControlCnt < 1 && uwTick - launchControlStop > 100) {
-//        sendLaunch = false;
-//        launchControlStop = uwTick;
-//        launchControlCnt++;
-//      }
-//
-//      if (clutchMsgCnt >= 5 && launchControlCnt >= 1) {
-//        state = DONE;
-//      }
-//      break;
-//
-//    case DONE:
-//      break;
-//    }
-
+  while (1) {
+    MMR_LAUNCH_CONTROL_Run(MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -482,19 +272,19 @@ static void MX_CAN_Init(void)
   /* USER CODE BEGIN CAN_Init 1 */
 
   /* USER CODE END CAN_Init 1 */
-  hcan.Instance = CAN;
-  hcan.Init.Prescaler = 8;
-  hcan.Init.Mode = CAN_MODE_NORMAL;
-  hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan.Init.TimeSeg1 = CAN_BS1_2TQ;
-  hcan.Init.TimeSeg2 = CAN_BS2_1TQ;
-  hcan.Init.TimeTriggeredMode = DISABLE;
-  hcan.Init.AutoBusOff = DISABLE;
-  hcan.Init.AutoWakeUp = DISABLE;
-  hcan.Init.AutoRetransmission = DISABLE;
-  hcan.Init.ReceiveFifoLocked = DISABLE;
-  hcan.Init.TransmitFifoPriority = DISABLE;
-  if (HAL_CAN_Init(&hcan) != HAL_OK)
+  hcan1.Instance = CAN;
+  hcan1.Init.Prescaler = 8;
+  hcan1.Init.Mode = CAN_MODE_NORMAL;
+  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan1.Init.TimeTriggeredMode = DISABLE;
+  hcan1.Init.AutoBusOff = DISABLE;
+  hcan1.Init.AutoWakeUp = DISABLE;
+  hcan1.Init.AutoRetransmission = DISABLE;
+  hcan1.Init.ReceiveFifoLocked = DISABLE;
+  hcan1.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan1) != HAL_OK)
   {
     Error_Handler();
   }

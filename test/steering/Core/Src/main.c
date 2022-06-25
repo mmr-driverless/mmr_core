@@ -85,7 +85,7 @@ const float STD_DEVIATION_LIMIT = 2.5f;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- ADC_HandleTypeDef hadc2;
+ADC_HandleTypeDef hadc2;
 DMA_HandleTypeDef hdma_adc2;
 
 CAN_HandleTypeDef hcan;
