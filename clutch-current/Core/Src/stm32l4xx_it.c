@@ -42,7 +42,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
  float voltageTarget = 0;
-
+int c = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -246,14 +246,13 @@ void TIM6_DAC_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
 	  /* USER CODE BEGIN TIM7_IRQn 0 */
-		if(clutch.mode == AUTONOMOUS) {
+	c++;
+		/*if(clutch.mode == AUTONOMOUS) {
 			if(engage)
 				engagedClutch(&clutch);
 			else
 				openClutch(&clutch);
-		}
-
-		clutch.current = getCurrent(&clutch);
+		}*/
 
 		dt = (uint32_t)(getMotorDutyCycle(&clutch) * TIM1->ARR);
 		TIM1->CCR1 = dt;
