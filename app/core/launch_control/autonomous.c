@@ -20,6 +20,7 @@ static MmrAutonomousState waitBeforeAccelerating(MmrAutonomousState state);
 static MmrAutonomousState accelerate(MmrAutonomousState state);
 static MmrAutonomousState releaseClutch(MmrAutonomousState state);
 static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state);
+static MmrAutonomousState accelerateTo15(MmrAutonomousState state);
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state);
 
 static MmrAutonomousState clutchSetManual(MmrAutonomousState state);
@@ -27,13 +28,13 @@ static MmrAutonomousState done(MmrAutonomousState state);
 
 
 static MmrCan *__can;
-static MmrPin *__gearDown;
+static MmrPin *__gearN;
 static uint32_t *__apps;
 
 
-void MMR_AUTONOMOUS_Init(MmrCan *can, MmrPin *gearDown, uint32_t *apps) {
+void MMR_AUTONOMOUS_Init(MmrCan *can, MmrPin *gearN, uint32_t *apps) {
   __can = can;
-  __gearDown = gearDown;
+  __gearN = gearN;
   __apps = apps;
 }
 
@@ -51,6 +52,7 @@ MmrAutonomousState MMR_AUTONOMOUS_Run(MmrAutonomousState state) {
   case MMR_AUTONOMOUS_ACCELERATE: return accelerate(state);
   case MMR_AUTONOMOUS_RELEASE_CLUTCH: return releaseClutch(state);
   case MMR_AUTONOMOUS_UNSET_LAUNCH: return unsetLaunchControl(state);
+  case MMR_AUTONOMOUS_ACCELERATE_TO_15: return accelerateTo15(state);
   case MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM: return accelerateToMinimum(state);
 
   case MMR_AUTONOMOUS_CLUTCH_SET_MANUAL: return clutchSetManual(state);
@@ -103,7 +105,7 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
 
   bool isGearSet = MMR_LAUNCH_CONTROL_GetGear() == 1;
   if (isGearSet && !changingGear) {
-    MMR_PIN_Write(__gearDown, MMR_PIN_LOW);
+    MMR_PIN_Write(__gearN, MMR_PIN_LOW);
     return MMR_AUTONOMOUS_SET_LAUNCH_CONTROL;
   }
 
@@ -113,10 +115,10 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
   }
 
   if (!MMR_DELAY_WaitAsync(&gearChangingDelay)) {
-    MMR_PIN_Write(__gearDown, MMR_PIN_HIGH);
+    MMR_PIN_Write(__gearN, MMR_PIN_HIGH);
   }
   else {
-    MMR_PIN_Write(__gearDown, MMR_PIN_LOW);
+    MMR_PIN_Write(__gearN, MMR_PIN_LOW);
     MMR_DELAY_Reset(&gearNotChangedDelay);
     changingGear = false;
   }
@@ -210,6 +212,19 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
   }
 
   if (launchUnset) {
+    return MMR_AUTONOMOUS_ACCELERATE_TO_15;
+  }
+
+  return state;
+}
+
+
+static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
+  static const uint16_t DAC_15 = 700;
+  static MmrDelay delay = { .ms = 500 };
+
+  if (MMR_DELAY_WaitAsync(&delay)) {
+    *__apps = DAC_15;
     return MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM;
   }
 
@@ -218,7 +233,7 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
 
 
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
-  static const uint16_t DAC_0 = 500;
+  static const uint16_t DAC_0 = 520;
   static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {

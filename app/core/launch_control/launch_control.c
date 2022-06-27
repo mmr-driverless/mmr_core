@@ -1,6 +1,7 @@
 #include "inc/launch_control.h"
 #include "inc/autonomous.h"
 #include "inc/manual.h"
+#include "inc/gear_change.h"
 #include <button.h>
 #include <buffer.h>
 #include <delay.h>
@@ -12,6 +13,9 @@ static bool handlePreStart(MmrLaunchControlMode *mode);
 
 
 struct MmrLaunchControl {
+  int16_t steeringAngle;
+  uint8_t lap;
+  uint16_t ath; //<--farfalla
   uint16_t gear;
   uint16_t rpm;
   uint16_t speed;
@@ -21,15 +25,29 @@ struct MmrLaunchControl {
 
 
 static MmrCan *__can;
+static MmrPin *__gearN;
+static MmrPin *__gearUp;
 static MmrPin *__gearDown;
 static MmrButton __changeModeButton;
+static uint32_t *__apps;
+static uint32_t *__adc;
 
 static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
 static MmrManualState ms = MMR_MANUAL_WAITING;
 
 
-void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, uint32_t *apps, uint32_t *adc) {
+void MMR_LAUNCH_CONTROL_Init(
+  MmrCan *can,
+  MmrPin *gearUp,
+  MmrPin *gearDown,
+  MmrPin *gearN,
+  MmrPin *changeMode,
+  uint32_t *apps,
+  uint32_t *adc
+) {
   __can = can;
+  __gearN = gearN;
+  __gearUp = gearUp;
   __gearDown = gearDown;
   __changeModeButton = MMR_Button(changeMode);
   __state = (struct MmrLaunchControl){
@@ -37,8 +55,12 @@ void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, 
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
   };
 
+  __apps = apps;
+  __adc = adc;
+
   MMR_MANUAL_Init(can, apps, adc);
-  MMR_AUTONOMOUS_Init(can, gearDown, apps);
+  MMR_GEAR_CHANGE_Init(gearUp, gearDown);
+  MMR_AUTONOMOUS_Init(can, gearN, apps);
 }
 
 MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
@@ -54,6 +76,7 @@ MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
       __state.rpm = MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
       __state.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       __state.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
+      __state.ath = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
@@ -81,9 +104,11 @@ MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
   }
 
   switch (mode) {
-  case MMR_LAUNCH_CONTROL_MODE_IDLE: break;
-  case MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS: as = MMR_AUTONOMOUS_Run(as); break;
+  case MMR_LAUNCH_CONTROL_MODE_IDLE:
   case MMR_LAUNCH_CONTROL_MODE_MANUAL: ms = MMR_MANUAL_Run(ms); break;
+
+  case MMR_LAUNCH_CONTROL_MODE_GEAR_CHANGE: MMR_GEAR_CHANGE_Run(); break;
+  case MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS: as = MMR_AUTONOMOUS_Run(as); break;
   }
 
   return mode;
@@ -92,7 +117,7 @@ MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
 
 static bool handlePreStart(MmrLaunchControlMode *mode) {
   static bool waitForStart = true;
-  static MmrDelay waitForStartDelay = { .ms = 10000 };
+  static MmrDelay waitForStartDelay = { .ms = 20000 };
 
   if (MMR_BUTTON_Read(&__changeModeButton) == MMR_BUTTON_JUST_RELEASED) {
     waitForStart = true;
@@ -137,6 +162,18 @@ uint16_t MMR_LAUNCH_CONTROL_GetRpm() {
   return __state.rpm;
 }
 
-uint8_t MMR_LAUNCH_CONTROL_GetSpeed() {
+uint16_t MMR_LAUNCH_CONTROL_GetSpeed() {
   return __state.speed;
+}
+
+int16_t MMR_LAUNCH_CONTROL_GetSteeringAngle() {
+  return __state.steeringAngle;
+}
+
+uint8_t MMR_LAUNCH_CONTROL_GetLap() {
+  return __state.lap;
+}
+
+uint16_t MMR_LAUNCH_CONTROL_GetAth() {
+  return __state.ath;
 }

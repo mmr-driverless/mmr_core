@@ -21,4 +21,7 @@ struct MmrPin {
   uint16_t pin;
 };
 
+
+MmrPin MMR_Pin(GPIO_TypeDef *port, uint16_t pin);
+
 #endif // !APP_STM_INC_STM_PIN_H_

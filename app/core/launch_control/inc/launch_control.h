@@ -11,7 +11,8 @@ typedef struct MmrLaunchControl MmrLaunchControl;
 typedef enum MmrLaunchControlMode {
   MMR_LAUNCH_CONTROL_MODE_IDLE = 0,
   MMR_LAUNCH_CONTROL_MODE_MANUAL = 1,
-  MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS = 2,
+  MMR_LAUNCH_CONTROL_MODE_GEAR_CHANGE = 2,
+  MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS = 3,
 } MmrLaunchControlMode;
 
 typedef enum MmrClutchState {
@@ -27,12 +28,15 @@ typedef enum MmrLaunchControlState {
 } MmrLaunchControlState;
 
 
-void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearDown, MmrPin *changeMode, uint32_t *apps, uint32_t *adc);
+void MMR_LAUNCH_CONTROL_Init(MmrCan *can, MmrPin *gearUp, MmrPin *gearDown, MmrPin *gearN, MmrPin *changeMode, uint32_t *apps, uint32_t *adc);
 MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode);
 
 uint16_t MMR_LAUNCH_CONTROL_GetRpm();
 uint16_t MMR_LAUNCH_CONTROL_GetGear();
-uint16_t MMR_LAUNCH_CONTROL_Getspeed();
+uint16_t MMR_LAUNCH_CONTROL_GetSpeed();
+uint8_t MMR_LAUNCH_CONTROL_GetLap();
+uint16_t MMR_LAUNCH_CONTROL_GetAth();
+int16_t MMR_LAUNCH_CONTROL_GetSteeringAngle();
 MmrClutchState MMR_LAUNCH_CONTROL_GetClutchState();
 MmrLaunchControlState MMR_LAUNCH_CONTROL_GetLaunchControlState();
 

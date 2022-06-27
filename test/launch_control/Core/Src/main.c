@@ -120,15 +120,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MmrPin gearDown = {
-    .port = GEAR_CHANGE_GPIO_Port,
-    .pin = GEAR_CHANGE_Pin,
-  };
-
-  MmrPin changeMode = {
-    .port = BUTTON_GPIO_Port,
-    .pin = BUTTON_Pin,
-  };
+  MmrPin gearUp = MMR_Pin(GEARUP_SWITCH_GPIO_Port, GEARUP_SWITCH_Pin);
+  MmrPin gearN = MMR_Pin(GEARN_SWITCH_GPIO_Port, GEARN_SWITCH_Pin);
+  MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin);
+  MmrPin changeModeBtn = MMR_Pin(B1_GPIO_Port, B1_Pin);
 
 
   if (!MMR_CAN0_Start(&hcan)) {
@@ -136,7 +131,7 @@ int main(void)
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &changeMode, &dac, adc);
+  MMR_LAUNCH_CONTROL_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
 
   mode = MMR_LAUNCH_CONTROL_MODE_IDLE;
   while (1) {
@@ -416,23 +411,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GEAR_CHANGE_GPIO_Port, GEAR_CHANGE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : BUTTON_Pin */
-  GPIO_InitStruct.Pin = BUTTON_Pin;
+  /*Configure GPIO pin : B1_Pin */
+  GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : GEAR_CHANGE_Pin */
-  GPIO_InitStruct.Pin = GEAR_CHANGE_Pin;
+  /*Configure GPIO pins : GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin */
+  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GEAR_CHANGE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED_Pin */
   GPIO_InitStruct.Pin = LED_Pin;

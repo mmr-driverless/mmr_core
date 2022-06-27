@@ -57,10 +57,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define BUTTON_Pin GPIO_PIN_13
-#define BUTTON_GPIO_Port GPIOC
-#define GEAR_CHANGE_Pin GPIO_PIN_2
-#define GEAR_CHANGE_GPIO_Port GPIOC
+#define B1_Pin GPIO_PIN_13
+#define B1_GPIO_Port GPIOC
+#define GEARUP_SWITCH_Pin GPIO_PIN_1
+#define GEARUP_SWITCH_GPIO_Port GPIOC
+#define GEARN_SWITCH_Pin GPIO_PIN_2
+#define GEARN_SWITCH_GPIO_Port GPIOC
+#define GEARDOWN_SWITCH_Pin GPIO_PIN_3
+#define GEARDOWN_SWITCH_GPIO_Port GPIOC
+#define APPS1_IN_Pin GPIO_PIN_0
+#define APPS1_IN_GPIO_Port GPIOA
+#define APPS2_IN_Pin GPIO_PIN_1
+#define APPS2_IN_GPIO_Port GPIOA
+#define APPS1_OUT_Pin GPIO_PIN_4
+#define APPS1_OUT_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_0
 #define LED_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
