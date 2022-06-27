@@ -7,6 +7,8 @@
 #define MAX_ADC_VALUE 4096.0f
 #define VOLTAGE_RATIO (5.0f/3.3f)
 
+#define CURRENT_CORRECTIVE_FACTOR 0.95f
+
 #define OPEN_CLUTCH_ANGLE 0.57f // [rad]
 #define ENGAGED_CLUTCH_ANGLE 1.7f // [rad]
 
@@ -41,12 +43,19 @@ typedef struct Clutch {
 	ClutchPID clutchPID;
 	ClutchIndexes indexes;
 	AdcValue *_adcValues;
-    float measuredAngle;
+
+	float measuredAngle;
     float targetAngle;
     float current;
-	DrivingMode mode;
+
+    float _leverM;
+    float _leverQ;
+
+    DrivingMode mode;
 	bool inProgress;
+
 	LowpassData _lpDataMeasured;
+	LowpassData _lpDataCurrent;
 } Clutch;
 
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues);
