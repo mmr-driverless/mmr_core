@@ -310,10 +310,11 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  if (MMR_CAN_BasicSetupAndStart(&hcan) != HAL_OK) {
-      Error_Handler();
-    }
-  MMR_CAN_SetTickProvider(HAL_GetTick);
+  if (!MMR_CAN0_Start(&hcan)) {
+    Error_Handler();
+  }
+
+  MMR_SetTickProvider(HAL_GetTick);
 
   HAL_ADC_Start_DMA(&hadc2, (uint16_t*)ADC2_Value, ADC_SIZE);
   HAL_TIM_Base_Start_IT(&htim3);
@@ -361,14 +362,7 @@ int main(void)
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
   while (1)
   {
-	    uint32_t pendingMessages =
-	      HAL_CAN_GetRxFifoFillLevel(&hcan, MMR_CAN_RX_FIFO);
-
-	    if (pendingMessages > 0) {
-	      if (MMR_CAN_Receive(&hcan, &message) != HAL_OK) {
-	        Error_Handler();
-	      }
-
+	    if (MMR_CAN_ReceiveAsync(&can0, result)) {
 	      switch (message.header.messageId) {
 	      case MMR_CAN_MESSAGE_ID_D_STEERING_ANGLE:
 	        target_angle = (*(float*)buffer) * STEERING_RATIO;

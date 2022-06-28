@@ -53,6 +53,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/util/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/stm/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/gpio/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/timing/inc}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.2050330399" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
