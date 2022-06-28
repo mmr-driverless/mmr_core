@@ -23,7 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <can.h>
 #include <timing.h>
-#include <launch_control.h>
+#include <back.h>
 #include <timing.h>
 #include <can0.h>
 #include <stm_pin.h>
@@ -75,7 +75,7 @@ static void MX_ADC1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-MmrLaunchControlMode mode = MMR_LAUNCH_CONTROL_MODE_IDLE;
+MmrLaunchControlMode mode = MMR_LAUNCH_CONTROL_MODE_MANUAL;
 
 /* USER CODE END 0 */
 
@@ -133,7 +133,7 @@ int main(void)
   MMR_SetTickProvider(HAL_GetTick);
   MMR_LAUNCH_CONTROL_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
 
-  mode = MMR_LAUNCH_CONTROL_MODE_IDLE;
+  mode = MMR_LAUNCH_CONTROL_MODE_MANUAL;
   while (1) {
     mode = MMR_LAUNCH_CONTROL_Run(mode);
     /* USER CODE END WHILE */

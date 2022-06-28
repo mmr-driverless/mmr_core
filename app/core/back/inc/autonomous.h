@@ -20,11 +20,12 @@ typedef enum MmrAutonomousState {
   MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM,
 
   MMR_AUTONOMOUS_CLUTCH_SET_MANUAL,
+  MMR_AUTONOMOUS_SET_MANUAL_APPS,
   MMR_AUTONOMOUS_DONE,
 } MmrAutonomousState;
 
 
-void MMR_AUTONOMOUS_Init(MmrCan *can, MmrPin *pin, uint32_t *apps);
+void MMR_AUTONOMOUS_Init(MmrCan *can, MmrPin *pin, uint32_t *apps, uint32_t *adc);
 MmrAutonomousState MMR_AUTONOMOUS_Run(MmrAutonomousState state);
 
 #endif // !APP_LAUNCH_CONTROL_INC_AUTONOMOUS_H_

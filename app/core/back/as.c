@@ -1,7 +1,7 @@
-#include "inc/launch_control.h"
+#include "inc/gear_change.h"
 #include "inc/autonomous.h"
 #include "inc/manual.h"
-#include "inc/gear_change.h"
+#include "inc/back.h"
 #include <button.h>
 #include <buffer.h>
 #include <delay.h>
@@ -36,7 +36,7 @@ static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
 static MmrManualState ms = MMR_MANUAL_WAITING;
 
 
-void MMR_LAUNCH_CONTROL_Init(
+void MMR_AS_Init(
   MmrCan *can,
   MmrPin *gearUp,
   MmrPin *gearDown,
@@ -51,8 +51,9 @@ void MMR_LAUNCH_CONTROL_Init(
   __gearDown = gearDown;
   __changeModeButton = MMR_Button(changeMode);
   __state = (struct MmrLaunchControl){
+    .lap = 1,
     .clutch = MMR_CLUTCH_UNKNOWN,
-    .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
+    .launchControl = MMR_AS_UNKNOWN,
   };
 
   __apps = apps;
@@ -60,10 +61,10 @@ void MMR_LAUNCH_CONTROL_Init(
 
   MMR_MANUAL_Init(can, apps, adc);
   MMR_GEAR_CHANGE_Init(gearUp, gearDown);
-  MMR_AUTONOMOUS_Init(can, gearN, apps);
+  MMR_AUTONOMOUS_Init(can, gearN, apps, adc);
 }
 
-MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
+MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
   static MmrCanBuffer buffer = {};
   static MmrCanMessage msg = {
     .payload = buffer,
@@ -81,8 +82,8 @@ MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
       __state.launchControl = MMR_BUFFER_ReadByte(buffer, 6) == 0x1
-        ? MMR_LAUNCH_CONTROL_SET
-        : MMR_LAUNCH_CONTROL_NOT_SET;
+        ? MMR_AS_SET
+        : MMR_AS_NOT_SET;
 
       break;
 
@@ -104,11 +105,21 @@ MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
   }
 
   switch (mode) {
-  case MMR_LAUNCH_CONTROL_MODE_IDLE:
-  case MMR_LAUNCH_CONTROL_MODE_MANUAL: ms = MMR_MANUAL_Run(ms); break;
+  case MMR_AS_MODE_MANUAL:
+    MMR_AS_SetLap(1);
+    ms = MMR_MANUAL_Run(ms);
+    break;
 
-  case MMR_LAUNCH_CONTROL_MODE_GEAR_CHANGE: MMR_GEAR_CHANGE_Run(); break;
-  case MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS: as = MMR_AUTONOMOUS_Run(as); break;
+  case MMR_AS_MODE_GEAR_CHANGE:
+    MMR_AS_SetLap(2);
+    MMR_GEAR_CHANGE_Run();
+    ms = MMR_MANUAL_Run(ms);
+    break;
+
+  case MMR_AS_MODE_AUTONOMOUS:
+    MMR_AS_SetLap(1);
+    as = MMR_AUTONOMOUS_Run(as);
+    break;
   }
 
   return mode;
@@ -117,7 +128,7 @@ MmrLaunchControlMode MMR_LAUNCH_CONTROL_Run(MmrLaunchControlMode mode) {
 
 static bool handlePreStart(MmrLaunchControlMode *mode) {
   static bool waitForStart = true;
-  static MmrDelay waitForStartDelay = { .ms = 20000 };
+  static MmrDelay waitForStartDelay = { .ms = 10000 };
 
   if (MMR_BUTTON_Read(&__changeModeButton) == MMR_BUTTON_JUST_RELEASED) {
     waitForStart = true;
@@ -128,13 +139,13 @@ static bool handlePreStart(MmrLaunchControlMode *mode) {
   }
 
 
-  bool isInAutonomous = *mode == MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS;
-  bool isClutchPulled = MMR_LAUNCH_CONTROL_GetClutchState() == MMR_CLUTCH_PULLED;
+  bool isInAutonomous = *mode == MMR_AS_MODE_AUTONOMOUS;
+  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
 
   if (isInAutonomous && isClutchPulled && waitForStart) {
     waitForStart = true;
     MMR_DELAY_Reset(&waitForStartDelay);
-    *mode = MMR_LAUNCH_CONTROL_MODE_MANUAL;
+    *mode = MMR_AS_MODE_MANUAL;
   }
 
   bool canStart = waitForStart && MMR_DELAY_WaitAsync(&waitForStartDelay);
@@ -146,34 +157,38 @@ static bool handlePreStart(MmrLaunchControlMode *mode) {
 }
 
 
-MmrClutchState MMR_LAUNCH_CONTROL_GetClutchState() {
+MmrClutchState MMR_AS_GetClutchState() {
   return __state.clutch;
 }
 
-MmrLaunchControlState MMR_LAUNCH_CONTROL_GetLaunchControlState() {
+MmrLaunchControlState MMR_AS_GetLaunchControlState() {
   return __state.launchControl;
 }
 
-uint16_t MMR_LAUNCH_CONTROL_GetGear() {
+uint16_t MMR_AS_GetGear() {
   return __state.gear;
 }
 
-uint16_t MMR_LAUNCH_CONTROL_GetRpm() {
+uint16_t MMR_AS_GetRpm() {
   return __state.rpm;
 }
 
-uint16_t MMR_LAUNCH_CONTROL_GetSpeed() {
+uint16_t MMR_AS_GetSpeed() {
   return __state.speed;
 }
 
-int16_t MMR_LAUNCH_CONTROL_GetSteeringAngle() {
+int16_t MMR_AS_GetSteeringAngle() {
   return __state.steeringAngle;
 }
 
-uint8_t MMR_LAUNCH_CONTROL_GetLap() {
+void MMR_AS_SetLap(uint8_t lap) {
+  __state.lap = lap;
+}
+
+uint8_t MMR_AS_GetLap() {
   return __state.lap;
 }
 
-uint16_t MMR_LAUNCH_CONTROL_GetAth() {
+uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }

@@ -50,11 +50,11 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/lib/can/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/lib/util/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/core/launch_control/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/lib/gpio/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/lib/timing/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/lib/buffer}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/stm/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/core/back/inc}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.457440995" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
