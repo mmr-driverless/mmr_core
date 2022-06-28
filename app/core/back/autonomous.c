@@ -1,5 +1,5 @@
 #include "inc/autonomous.h"
-#include "inc/back.h"
+#include "inc/as.h"
 #include "message_id.h"
 #include <delay.h>
 #include <pin.h>
@@ -49,7 +49,7 @@ MmrAutonomousState MMR_AUTONOMOUS_Run(MmrAutonomousState state) {
   case MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR: return waitBeforeChangingGear(state);
 
   case MMR_AUTONOMOUS_CHANGE_GEAR: return changeGear(state);
-  case MMR_AUTONOMOUS_SET_BACK: return setLaunchControl(state);
+  case MMR_AUTONOMOUS_SET_LAUNCH_CONTROL: return setLaunchControl(state);
   case MMR_AUTONOMOUS_WAIT_BEFORE_ACCELERATING: return waitBeforeAccelerating(state);
 
   case MMR_AUTONOMOUS_ACCELERATE: return accelerate(state);
@@ -110,7 +110,7 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
   bool isGearSet = MMR_AS_GetGear() == 1;
   if (isGearSet && !changingGear) {
     MMR_PIN_Write(__gearN, MMR_PIN_LOW);
-    return MMR_AUTONOMOUS_SET_BACK;
+    return MMR_AUTONOMOUS_SET_LAUNCH_CONTROL;
   }
 
   if (!changingGear && !isGearSet && MMR_DELAY_WaitAsync(&gearNotChangedDelay)) {
@@ -142,7 +142,7 @@ static MmrAutonomousState setLaunchControl(MmrAutonomousState state) {
   MMR_CAN_MESSAGE_SetPayload(&setLaunchMsg, buffer, 8);
 
   bool rpmOk = MMR_AS_GetRpm() >= 1000;
-  bool isLaunchSet = MMR_AS_GetLaunchControlState() == MMR_AS_SET;
+  bool isLaunchSet = MMR_AS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_SET;
   bool isInFirstGear = MMR_AS_GetGear() == 1;
 
   if (rpmOk && isInFirstGear && !isLaunchSet && MMR_DELAY_WaitAsync(&delay)) {
@@ -209,7 +209,7 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
   MMR_CAN_MESSAGE_SetPayload(&unsetLaunchMsg, buffer, 8);
 
   bool clutchReleased = MMR_AS_GetClutchState() == MMR_CLUTCH_RELEASED;
-  bool launchUnset = MMR_AS_GetLaunchControlState() == MMR_AS_NOT_SET;
+  bool launchUnset = MMR_AS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_NOT_SET;
 
   if (clutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &unsetLaunchMsg);

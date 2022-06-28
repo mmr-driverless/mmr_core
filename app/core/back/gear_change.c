@@ -1,5 +1,5 @@
 #include "inc/gear_change.h"
-#include "inc/back.h"
+#include "inc/as.h"
 #include <pin.h>
 #include <delay.h>
 #include <stdbool.h>
@@ -30,15 +30,15 @@ void MMR_GEAR_CHANGE_Run() {
   static bool enableGearDn = false;
 
   // TODO ask info
-  uint8_t lap = MMR_LAUNCH_CONTROL_GetLap();
+  uint8_t lap = MMR_AS_GetLap();
   if (lap == 1)
     return;
 
-  uint16_t currentSpeed = MMR_LAUNCH_CONTROL_GetSpeed();
-  int16_t steeringAngle = MMR_LAUNCH_CONTROL_GetSteeringAngle();
-  uint16_t ath = MMR_LAUNCH_CONTROL_GetAth();
-  uint16_t gear = MMR_LAUNCH_CONTROL_GetGear();
-  uint16_t rpm = MMR_LAUNCH_CONTROL_GetRpm();
+  uint16_t currentSpeed = MMR_AS_GetSpeed();
+  int16_t steeringAngle = MMR_AS_GetSteeringAngle();
+  uint16_t ath = MMR_AS_GetAth();
+  uint16_t gear = MMR_AS_GetGear();
+  uint16_t rpm = MMR_AS_GetRpm();
 
   currentSpeed = round(currentSpeed / 2) * 2;
   int deltaSpeed = currentSpeed - previousSpeed;
