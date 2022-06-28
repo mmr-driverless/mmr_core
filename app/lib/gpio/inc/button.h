@@ -14,7 +14,7 @@ typedef enum MmrButtonState {
 
 typedef struct MmrButton {
   MmrPin *pin;
-  MmrBitVector8b readings;
+  uint16_t readings;
   MmrButtonState state;
 } MmrButton;
 

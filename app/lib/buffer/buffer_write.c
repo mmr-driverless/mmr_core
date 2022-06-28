@@ -25,11 +25,17 @@ static void writeTwoBytes(uint8_t *buffer, uint8_t *bytes, uint8_t offset, MmrEn
 }
 
 static void writeFourBytes(uint8_t *buffer, uint8_t *bytes, uint8_t offset, MmrEncoding encoding) {
-  writeTwoBytes(buffer, bytes, offset, encoding);
-  writeTwoBytes(buffer, bytes + 2, offset, encoding);
+  uint8_t offset1 = encoding == MMR_ENCODING_BIG_ENDIAN ? 0 : 2;
+  uint8_t offset2 = encoding == MMR_ENCODING_BIG_ENDIAN ? 2 : 0;
+
+  writeTwoBytes(buffer, bytes, offset + offset1, encoding);
+  writeTwoBytes(buffer, bytes, offset + offset2, encoding);
 }
 
 static void writeEightBytes(uint8_t *buffer, uint8_t *bytes, uint8_t offset, MmrEncoding encoding) {
-  writeFourBytes(buffer, bytes, offset, encoding);
-  writeFourBytes(buffer, bytes + 4, offset, encoding);
+  uint8_t offset1 = encoding == MMR_ENCODING_BIG_ENDIAN ? 0 : 4;
+  uint8_t offset2 = encoding == MMR_ENCODING_BIG_ENDIAN ? 4 : 0;
+
+  writeFourBytes(buffer, bytes, offset + offset1, encoding);
+  writeFourBytes(buffer, bytes, offset + offset2, encoding);
 }

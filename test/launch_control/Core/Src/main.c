@@ -22,7 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <can.h>
-#include <launch_control.h>
+#include <timing.h>
+#include <back.h>
 #include <timing.h>
 #include <can0.h>
 #include <stm_pin.h>
@@ -47,7 +48,7 @@
  ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
-CAN_HandleTypeDef hcan1;
+CAN_HandleTypeDef hcan;
 
 DAC_HandleTypeDef hdac;
 DMA_HandleTypeDef hdma_dac_ch1;
@@ -55,10 +56,8 @@ DMA_HandleTypeDef hdma_dac_ch1;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-uint32_t ADC_value[2];
-uint32_t dacValue;
-
-extern MmrPin *gearDown;
+uint32_t adc[2];
+uint32_t dac;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,7 +75,7 @@ static void MX_ADC1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
+MmrLaunchControlMode mode = MMR_LAUNCH_CONTROL_MODE_MANUAL;
 
 /* USER CODE END 0 */
 
@@ -114,35 +113,29 @@ int main(void)
   MX_TIM2_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start_DMA(&hadc1, ADC_value, sizeof(ADC_value) / sizeof(*ADC_value));
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dacValue, 1, DAC_ALIGN_12B_R);
+  HAL_ADC_Start_DMA(&hadc1, adc, sizeof(adc) / sizeof(*adc));
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dac, 1, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MmrPin gearDown = {
-    .port = GEAR_CHANGE_GPIO_Port,
-    .pin = GEAR_CHANGE_Pin,
-  };
+  MmrPin gearUp = MMR_Pin(GEARUP_SWITCH_GPIO_Port, GEARUP_SWITCH_Pin);
+  MmrPin gearN = MMR_Pin(GEARN_SWITCH_GPIO_Port, GEARN_SWITCH_Pin);
+  MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin);
+  MmrPin changeModeBtn = MMR_Pin(B1_GPIO_Port, B1_Pin);
 
 
-  MmrCanFilter filter = {
-    .id = 0,
-    .mask = 0,
-  };
-
-  MMR_CAN_SetFilter(&can0, &filter);
-
-  if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+  if (!MMR_CAN0_Start(&hcan)) {
     Error_Handler();
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_LAUNCH_CONTROL_Init(&can0, &gearDown, &dacValue);
+  MMR_LAUNCH_CONTROL_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
 
+  mode = MMR_LAUNCH_CONTROL_MODE_MANUAL;
   while (1) {
-    MMR_LAUNCH_CONTROL_Run(MMR_LAUNCH_CONTROL_MODE_AUTONOMOUS);
+    mode = MMR_LAUNCH_CONTROL_Run(mode);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -277,19 +270,19 @@ static void MX_CAN_Init(void)
   /* USER CODE BEGIN CAN_Init 1 */
 
   /* USER CODE END CAN_Init 1 */
-  hcan1.Instance = CAN;
-  hcan1.Init.Prescaler = 8;
-  hcan1.Init.Mode = CAN_MODE_NORMAL;
-  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
-  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
-  hcan1.Init.TimeTriggeredMode = DISABLE;
-  hcan1.Init.AutoBusOff = DISABLE;
-  hcan1.Init.AutoWakeUp = DISABLE;
-  hcan1.Init.AutoRetransmission = DISABLE;
-  hcan1.Init.ReceiveFifoLocked = DISABLE;
-  hcan1.Init.TransmitFifoPriority = DISABLE;
-  if (HAL_CAN_Init(&hcan1) != HAL_OK)
+  hcan.Instance = CAN;
+  hcan.Init.Prescaler = 8;
+  hcan.Init.Mode = CAN_MODE_NORMAL;
+  hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan.Init.TimeSeg1 = CAN_BS1_2TQ;
+  hcan.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan.Init.TimeTriggeredMode = DISABLE;
+  hcan.Init.AutoBusOff = DISABLE;
+  hcan.Init.AutoWakeUp = DISABLE;
+  hcan.Init.AutoRetransmission = DISABLE;
+  hcan.Init.ReceiveFifoLocked = DISABLE;
+  hcan.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan) != HAL_OK)
   {
     Error_Handler();
   }
@@ -418,23 +411,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GEAR_CHANGE_GPIO_Port, GEAR_CHANGE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : BUTTON_Pin */
-  GPIO_InitStruct.Pin = BUTTON_Pin;
+  /*Configure GPIO pin : B1_Pin */
+  GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : GEAR_CHANGE_Pin */
-  GPIO_InitStruct.Pin = GEAR_CHANGE_Pin;
+  /*Configure GPIO pins : GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin */
+  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GEAR_CHANGE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED_Pin */
   GPIO_InitStruct.Pin = LED_Pin;

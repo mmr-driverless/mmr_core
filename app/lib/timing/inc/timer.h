@@ -1,0 +1,5 @@
+#ifndef APP_LIB_TIMING_INC_TIMER_H_
+#define APP_LIB_TIMING_INC_TIMER_H_
+
+
+#endif // !APP_LIB_TIMING_INC_TIMER_H_

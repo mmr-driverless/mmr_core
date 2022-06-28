@@ -2,7 +2,18 @@
 
 #define MMR_CAN0_MAILBOXES_COUNT 3
 
-extern CAN_HandleTypeDef hcan1;
+static CAN_HandleTypeDef *__hcan0;
+
+
+HAL_StatusTypeDef MMR_CAN0_Start(CAN_HandleTypeDef *hcan0) {
+  __hcan0 = hcan0;
+
+  MmrCanFilter noFilter = {};
+  if (!MMR_CAN_SetFilter(&can0, &noFilter))
+    return HAL_ERROR;
+
+  return HAL_CAN_Start(__hcan0) == HAL_OK;
+}
 
 
 static uint32_t __mmr_can0_mailboxes[MMR_CAN0_MAILBOXES_COUNT] = {};
@@ -30,7 +41,7 @@ static bool __mmr_can0_trySetFilter(MmrCanFilter *filter) {
     .FilterScale = CAN_FILTERSCALE_32BIT,
   };
 
-  return HAL_CAN_ConfigFilter(&hcan1, &f) == HAL_OK;
+  return HAL_CAN_ConfigFilter(__hcan0, &f) == HAL_OK;
 }
 
 static bool __mmr_can0_send(MmrCanMessage *message) {
@@ -49,7 +60,7 @@ static bool __mmr_can0_send(MmrCanMessage *message) {
   }
 
   HAL_StatusTypeDef status =
-    HAL_CAN_AddTxMessage(&hcan1, &tx, message->payload, __mmr_can0_getNextMailbox());
+    HAL_CAN_AddTxMessage(__hcan0, &tx, message->payload, __mmr_can0_getNextMailbox());
 
   return status == HAL_OK;
 }
@@ -58,7 +69,7 @@ static bool __mmr_can0_send(MmrCanMessage *message) {
 static bool __mmr_can0_receive(MmrCanMessage *message) {
   CAN_RxHeaderTypeDef rx = {};
   HAL_StatusTypeDef status =
-    HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rx, message->payload);
+    HAL_CAN_GetRxMessage(__hcan0, CAN_RX_FIFO0, &rx, message->payload);
 
   message->length = rx.DLC;
   MMR_CAN_MESSAGE_SetId(message, rx.ExtId);
@@ -67,7 +78,7 @@ static bool __mmr_can0_receive(MmrCanMessage *message) {
 
 
 static uint8_t __mmr_can0_pendingMessages() {
-  return HAL_CAN_GetRxFifoFillLevel(&hcan1, CAN_RX_FIFO0);
+  return HAL_CAN_GetRxFifoFillLevel(__hcan0, CAN_RX_FIFO0);
 }
 
 
