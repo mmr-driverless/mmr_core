@@ -1,7 +1,7 @@
 #include "inc/gear_change.h"
 #include "inc/autonomous.h"
 #include "inc/manual.h"
-#include "inc/back.h"
+#include "inc/as.h"
 #include <button.h>
 #include <buffer.h>
 #include <delay.h>
@@ -53,7 +53,7 @@ void MMR_AS_Init(
   __state = (struct MmrLaunchControl){
     .lap = 1,
     .clutch = MMR_CLUTCH_UNKNOWN,
-    .launchControl = MMR_AS_UNKNOWN,
+    .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
   };
 
   __apps = apps;
@@ -82,8 +82,8 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
       __state.launchControl = MMR_BUFFER_ReadByte(buffer, 6) == 0x1
-        ? MMR_AS_SET
-        : MMR_AS_NOT_SET;
+        ? MMR_LAUNCH_CONTROL_SET
+        : MMR_LAUNCH_CONTROL_NOT_SET;
 
       break;
 
