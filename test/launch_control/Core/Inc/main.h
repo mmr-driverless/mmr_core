@@ -9,7 +9,7 @@
   *
   * Copyright (c) 2022 STMicroelectronics.
   * All rights reserved.
-  *
+
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -69,10 +71,40 @@ void Error_Handler(void);
 #define APPS1_IN_GPIO_Port GPIOA
 #define APPS2_IN_Pin GPIO_PIN_1
 #define APPS2_IN_GPIO_Port GPIOA
+#define SDC_READY_Pin GPIO_PIN_2
+#define SDC_READY_GPIO_Port GPIOA
 #define APPS1_OUT_Pin GPIO_PIN_4
 #define APPS1_OUT_GPIO_Port GPIOA
-#define LED_Pin GPIO_PIN_0
-#define LED_GPIO_Port GPIOB
+#define WATCHDOG_Pin GPIO_PIN_6
+#define WATCHDOG_GPIO_Port GPIOA
+#define LSW_LED1_Pin GPIO_PIN_4
+#define LSW_LED1_GPIO_Port GPIOC
+#define LSW_LEDEBS_Pin GPIO_PIN_5
+#define LSW_LEDEBS_GPIO_Port GPIOC
+#define LSW_ASSI_BLUE_Pin GPIO_PIN_0
+#define LSW_ASSI_BLUE_GPIO_Port GPIOB
+#define LSW_ASSI_YELLOW_Pin GPIO_PIN_1
+#define LSW_ASSI_YELLOW_GPIO_Port GPIOB
+#define ASMS_SUPPLY_Pin GPIO_PIN_12
+#define ASMS_SUPPLY_GPIO_Port GPIOB
+#define EBS_CONTROL1_Pin GPIO_PIN_15
+#define EBS_CONTROL1_GPIO_Port GPIOB
+#define EBS_CONTROL2_Pin GPIO_PIN_6
+#define EBS_CONTROL2_GPIO_Port GPIOC
+#define BUTTON1_Pin GPIO_PIN_8
+#define BUTTON1_GPIO_Port GPIOC
+#define AS_SDC_CLOSE_Pin GPIO_PIN_8
+#define AS_SDC_CLOSE_GPIO_Port GPIOA
+#define AS_DRIVING_MODE_Pin GPIO_PIN_9
+#define AS_DRIVING_MODE_GPIO_Port GPIOA
+#define CTR_LED1_Pin GPIO_PIN_3
+#define CTR_LED1_GPIO_Port GPIOB
+#define CTR_LED2_Pin GPIO_PIN_4
+#define CTR_LED2_GPIO_Port GPIOB
+#define CTR_LED3_Pin GPIO_PIN_5
+#define CTR_LED3_GPIO_Port GPIOB
+#define SIG__Pin GPIO_PIN_9
+#define SIG__GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

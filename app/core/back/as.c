@@ -8,6 +8,8 @@
 #include <can.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "stm_pin.h"
+
 
 static bool handlePreStart(MmrLaunchControlMode *mode);
 
@@ -31,7 +33,10 @@ static MmrPin *__gearDown;
 static MmrButton __changeModeButton;
 static uint32_t *__apps;
 static uint32_t *__adc;
-
+/*ASSI VARIABLE*/
+static MmrPin *__AssiBlue;
+static MmrPin *__AssiYellow;
+/**/
 static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
 static MmrManualState ms = MMR_MANUAL_WAITING;
 
@@ -191,4 +196,76 @@ uint8_t MMR_AS_GetLap() {
 
 uint16_t MMR_AS_GetAth() {
   return __state.ath;
+}
+
+void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow)
+{
+	__AssiBlue = AssiBlue;
+	__AssiYellow = AssiYellow;
+
+}
+
+void LED_BLUE_ASSI(ASSI_state assi_state)
+{
+	if(assi_state == LED_ASSI_ON) HAL_GPIO_WritePin(__AssiBlue->port,__AssiBlue->pin, GPIO_PIN_RESET);
+	else
+	if(assi_state == LED_ASSI_OFF) HAL_GPIO_WritePin(__AssiBlue->port,__AssiBlue->pin, GPIO_PIN_SET);
+}
+
+
+void LED_YELLOW_ASSI(ASSI_state assi_state)
+{
+	if(assi_state == LED_ASSI_ON) HAL_GPIO_WritePin(__AssiYellow->port,__AssiYellow->pin, GPIO_PIN_RESET);
+		else
+		if(assi_state == LED_ASSI_OFF) HAL_GPIO_WritePin(__AssiYellow->port,__AssiYellow->pin, GPIO_PIN_SET);
+
+}
+
+void AS_LED_ASSI(uint8_t AS_state)
+{
+   switch(AS_state)
+   {
+   case AS_OFF: {
+	             LED_BLUE_ASSI(LED_ASSI_OFF);
+	             LED_YELLOW_ASSI(LED_ASSI_OFF);
+	             break;
+	             }
+
+   case AS_READY:
+                {
+                  LED_BLUE_ASSI(LED_ASSI_OFF);
+                  LED_YELLOW_ASSI(LED_ASSI_ON);
+                  break;
+                }
+
+   case AS_DRIVING:
+                {
+	              LED_BLUE_ASSI(LED_ASSI_OFF);
+	              LED_YELLOW__ASSI(LED_ASSI_ON);
+	              //DELAY(20ms);
+	              LED_YELLOW_ASSI(LED_ASSI_OFF);
+	              //DELAY(20ms);
+	              break;
+                 }
+
+   case AS_FINISHED:
+                 {
+                	  LED_BLUE_ASSI(LED_ASSI_ON);
+                      LED_YELLOW__ASSI(LED_ASSI_OFF);
+                	  //DELAY(20ms);
+                	  LED_BLUE_ASSI(LED_ASSI_ON);
+                	  //DELAY(20ms);
+                	  break;
+                 }
+
+   case AS_IDLE:
+                 {
+                	 LED_BLUE_ASSI(LED_ASSI_OFF);
+                	 LED_YELLOW_ASSI(LED_ASSI_OFF);
+                	 break;
+                 }
+
+    }
+
+
 }
