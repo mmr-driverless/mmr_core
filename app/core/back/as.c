@@ -241,7 +241,7 @@ void AS_LED_ASSI(uint8_t AS_state)
    case AS_DRIVING:
                 {
 	              LED_BLUE_ASSI(LED_ASSI_OFF);
-	              LED_YELLOW__ASSI(LED_ASSI_ON);
+	              LED_YELLOW_ASSI(LED_ASSI_ON);
 	              //DELAY(20ms);
 	              LED_YELLOW_ASSI(LED_ASSI_OFF);
 	              //DELAY(20ms);
@@ -251,7 +251,7 @@ void AS_LED_ASSI(uint8_t AS_state)
    case AS_FINISHED:
                  {
                 	  LED_BLUE_ASSI(LED_ASSI_ON);
-                      LED_YELLOW__ASSI(LED_ASSI_OFF);
+                      LED_YELLOW_ASSI(LED_ASSI_OFF);
                 	  //DELAY(20ms);
                 	  LED_BLUE_ASSI(LED_ASSI_ON);
                 	  //DELAY(20ms);
