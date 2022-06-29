@@ -58,6 +58,7 @@ TIM_HandleTypeDef htim2;
 /* USER CODE BEGIN PV */
 uint32_t adc[2];
 uint32_t dac;
+//commento di prova
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
