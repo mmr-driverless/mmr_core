@@ -35,6 +35,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <timing.h>
 #include <can0.h>
 #include <math.h>
 #include <stdbool.h>
@@ -125,16 +126,11 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 void Autoset(){
 	centerOffset=((filtered_ADC / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO);
-	uint8_t empty = 0;
-	uint8_t *data = (uint8_t*)(&empty);
 
-	MmrCanPacket packet = {
-	  .data = data,
-	  .length = sizeof(*data),
-	  .header.messageId = MMR_CAN_MESSAGE_ID_D_STEERING_CENTER_AUTOSET_OK,
-	};
+	MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_ST_STEERING_CENTER_AUTOSET_OK);
+  MmrCanMessage autosetOkMsg = MMR_CAN_OutMessage(header);
 
-	MMR_CAN_Send(&hcan, packet);
+	MMR_CAN_Send(&can0, &autosetOkMsg);
 }
 
 float Average(uint16_t p[], int length){
@@ -249,18 +245,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     // CAN LOGGING
     if (cansendflag==5){
     	float current_steering_angle=current_angle/STEERING_RATIO;
-    	    //uint8_t current_steering_angle = 8;
-    	    uint8_t *data = (uint8_t*)(&current_steering_angle);
+      //uint8_t current_steering_angle = 8;
+    	uint8_t *data = (uint8_t*)(&current_steering_angle);
+    	MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_ST_CURRENT_ANGLE);
+      MmrCanMessage currentAngleMsg = MMR_CAN_OutMessage(header);
+      MMR_CAN_MESSAGE_SetPayload(&currentAngleMsg, data, sizeof(float));
 
-    	    MmrCanPacket packet = {
-    	      .data = data,
-    	      .length = sizeof(float),
-    	      .header.messageId = MMR_CAN_MESSAGE_ID_D_CURRENT_ANGLE,
-    	    };
-
-    	    MMR_CAN_Send(&hcan, packet);
-
-    	    cansendflag=0;
+      MMR_CAN_Send(&can0, &currentAngleMsg);
+      cansendflag=0;
     } else {
     	cansendflag++;
     }
@@ -323,9 +315,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  CanRxBuffer buffer = {};
+  MmrCanBuffer buffer = {};
   MmrCanMessage message = {
-    .store = buffer,
+    .payload = buffer,
   };
 
   // Definition of proportional parameters
@@ -362,8 +354,9 @@ int main(void)
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
   while (1)
   {
-	    if (MMR_CAN_ReceiveAsync(&can0, result)) {
-	      switch (message.header.messageId) {
+	    if (MMR_CAN_ReceiveAsync(&can0, &message) == MMR_TASK_COMPLETED) {
+	      MmrCanHeader header = MMR_CAN_MESSAGE_GetHeader(&message);
+	      switch (header.messageId) {
 	      case MMR_CAN_MESSAGE_ID_D_STEERING_ANGLE:
 	        target_angle = (*(float*)buffer) * STEERING_RATIO;
 	        break;
@@ -372,45 +365,45 @@ int main(void)
 	    	speed = (*(float*)buffer);
 	    	break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ERROR_LEFT_X:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ERROR_LEFT_X:
 	    	  p_data_angular_error.left_x=(*(float*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ERROR_RIGHT_X:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ERROR_RIGHT_X:
 	    	  p_data_angular_error.right_x=(*(float*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_LEFT_X:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MIN_SPEED_LEFT_X:
 	    	  p_data_odometry_speed_1.left_x=(*(float*)buffer);
 	    	  p_data_odometry_speed_2.left_x=(*(float*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_LEFT_Y:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MIN_SPEED_LEFT_Y:
 	    	  p_data_odometry_speed_1.left_y=(*(uint32_t*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_RIGHT_X:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MIN_SPEED_RIGHT_X:
 	    	  p_data_odometry_speed_1.right_x=(*(float*)buffer);
 	    	  p_data_odometry_speed_2.right_x=(*(float*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MIN_SPEED_RIGHT_Y:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MIN_SPEED_RIGHT_Y:
 	    	  p_data_odometry_speed_1.right_y=(*(uint32_t*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MAX_SPEED_LEFT_Y:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MAX_SPEED_LEFT_Y:
 	    	  p_data_odometry_speed_2.left_y=(*(uint32_t*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_PROPORTIONAL_ODOMETRY_MAX_SPEED_RIGHT_Y:
+	      case MMR_CAN_MESSAGE_ID_ST_PROPORTIONAL_ODOMETRY_MAX_SPEED_RIGHT_Y:
 	    	  p_data_odometry_speed_2.right_y=(*(uint32_t*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_RISE_CUTOFF_FREQUENCY:
+	      case MMR_CAN_MESSAGE_ID_ST_RISE_CUTOFF_FREQUENCY:
 	    	  lowpass32_data.cutoff_frequency=(*(float*)buffer);
 	    	  break;
 
-	      case MMR_CAN_MESSAGE_ID_D_STEERING_CENTER_AUTOSET:
+	      case MMR_CAN_MESSAGE_ID_ST_STEERING_CENTER_AUTOSET:
 	      	  Autoset();
 	      	  break;
 	      }
