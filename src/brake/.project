@@ -31,9 +31,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Lib</name>
+			<name>app</name>
 			<type>2</type>
-			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/lib</locationURI>
+			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/app</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
