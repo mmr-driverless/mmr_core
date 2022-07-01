@@ -36,6 +36,7 @@ static uint32_t *__adc;
 /*ASSI VARIABLE*/
 static MmrPin *__AssiBlue;
 static MmrPin *__AssiYellow;
+static MmrDelay *__assi_delay;
 /**/
 static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
 static MmrManualState ms = MMR_MANUAL_WAITING;
@@ -198,10 +199,14 @@ uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }
 
-void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow)
+void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay)
 {
 	__AssiBlue = AssiBlue;
 	__AssiYellow = AssiYellow;
+	__assi_delay = assi_delay;
+
+	*__assi_delay = MMR_Delay(20);
+
 
 }
 
@@ -221,7 +226,7 @@ void LED_YELLOW_ASSI(ASSI_state assi_state)
 
 }
 
-void AS_LED_ASSI(uint8_t AS_state)
+void AS_LED_ASSI(AS_state AS_state)
 {
    switch(AS_state)
    {
@@ -242,20 +247,28 @@ void AS_LED_ASSI(uint8_t AS_state)
                 {
 	              LED_BLUE_ASSI(LED_ASSI_OFF);
 	              LED_YELLOW_ASSI(LED_ASSI_ON);
-	              //DELAY(20ms);
+	              MMR_DELAY_Reset(__assi_delay);
+	              if(MMR_DELAY_WaitAsync(__assi_delay));
 	              LED_YELLOW_ASSI(LED_ASSI_OFF);
-	              //DELAY(20ms);
+	              if(MMR_DELAY_WaitAsync(__assi_delay));
 	              break;
+                 }
+
+   case AS_EMERGENCY:
+                 {
+                	  LED_BLUE_ASSI(LED_ASSI_ON);
+                      LED_YELLOW_ASSI(LED_ASSI_OFF);
+                      MMR_DELAY_Reset(__assi_delay);
+                      if(MMR_DELAY_WaitAsync(__assi_delay));
+                	  LED_BLUE_ASSI(LED_ASSI_ON);
+                	  if(MMR_DELAY_WaitAsync(__assi_delay));
+                	  break;
                  }
 
    case AS_FINISHED:
                  {
-                	  LED_BLUE_ASSI(LED_ASSI_ON);
-                      LED_YELLOW_ASSI(LED_ASSI_OFF);
-                	  //DELAY(20ms);
-                	  LED_BLUE_ASSI(LED_ASSI_ON);
-                	  //DELAY(20ms);
-                	  break;
+                	 LED_BLUE_ASSI(LED_ASSI_ON);
+                	 LED_YELLOW_ASSI(LED_ASSI_OFF);
                  }
 
    case AS_IDLE:
@@ -264,6 +277,7 @@ void AS_LED_ASSI(uint8_t AS_state)
                 	 LED_YELLOW_ASSI(LED_ASSI_OFF);
                 	 break;
                  }
+
 
     }
 

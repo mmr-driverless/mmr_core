@@ -4,7 +4,8 @@
 #include <pin.h>
 
 typedef enum MmrLedState {
-
+LED_ON = 0U,
+LED_OFF,
 } MmrLedState;
 
 typedef struct MmrLed {

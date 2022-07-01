@@ -3,6 +3,8 @@
 
 #include <can.h>
 #include <pin.h>
+#include "timing.h"
+#include "delay.h"
 
 
 typedef struct MmrLaunchControl MmrLaunchControl;
@@ -46,7 +48,7 @@ AS_OFF,
 AS_READY,
 AS_DRIVING,
 AS_EMERGENCY,
-AS_FINISHED
+AS_FINISHED,
 }AS_state;
 
 
@@ -61,7 +63,7 @@ void MMR_AS_Init(MmrCan *can, MmrPin *gearUp, MmrPin *gearDown, MmrPin *gearN, M
 void AS_LED_ASSI(uint8_t AS_state);
 void LED_BLUE_ASSI(ASSI_state assi_state);
 void LED_YELLOW_ASSI(ASSI_state assi_state);
-void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow);
+void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow,MmrDelay *assi_delay);
 MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode);
 
 uint16_t MMR_AS_GetRpm();

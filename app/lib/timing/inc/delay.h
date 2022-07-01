@@ -10,6 +10,7 @@ typedef struct MmrDelay {
   Tick start;
 } MmrDelay;
 
+MmrDelay MMR_Delay(uint32_t delayMs);
 void MMR_DELAY_Reset(MmrDelay *delay);
 void MMR_DELAY_Change(MmrDelay *delay, uint32_t delayMs);
 bool MMR_DELAY_WaitAsync(MmrDelay *delay);

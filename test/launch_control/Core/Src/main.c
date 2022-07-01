@@ -28,6 +28,8 @@
 #include <can0.h>
 #include <stm_pin.h>
 #include"apps.h"
+#include "ebs.h"
+#include "delay.h"
 
 /* USER CODE END Includes */
 
@@ -38,6 +40,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+#define EBS_TEST 1
+#define ASSI_TEST 1
+#define APPS_TEST 1
+#define TPS_TEST 1
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,7 +70,7 @@ TIM_HandleTypeDef htim17;
 uint32_t adc[2];
 uint32_t dac;
 
-
+AS_state as_state = AS_IDLE;
 
 
 /* USER CODE END PV */
@@ -84,7 +92,7 @@ static void MX_TIM17_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-MmrLaunchControlMode mode = MMR_AS_MODE_MANUAL;
+MmrLaunchControlMode mode = MMR_AS_MODE_MANUAL; // IDEM TO IDLE
 
 /* USER CODE END 0 */
 
@@ -124,9 +132,18 @@ int main(void)
   MX_TIM16_Init();
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
+  /*ADC/DAC with DMA Start*/
   HAL_ADC_Start_DMA(&hadc1, adc, sizeof(adc) / sizeof(*adc));
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dac, 1, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim2);
+  /**/
+  /*EBS ACTIVATION*/
+#ifdef EBS_TEST
+WATCHDOG_Activation();
+#endif
+/**/
+/*RES SETUP */
+/**/
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -138,6 +155,7 @@ int main(void)
   /* LED ASSI variables (LAB == LED ASSI BLUE) (LAY == LED ASSI YELLOW) */
   MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port,LSW_ASSI_BLUE_Pin);
   MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin);
+  MmrDelay ASSI_Delay;
   /**/
 
 
@@ -147,10 +165,13 @@ int main(void)
 
   MMR_SetTickProvider(HAL_GetTick);
   MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
-  MMR_ASSI_Init(&LABpin,&LAYpin);
+  MMR_ASSI_Init(&LABpin,&LAYpin,&ASSI_Delay);
   mode = MMR_AS_MODE_MANUAL;
   while (1) {
     mode = MMR_AS_Run(mode);
+#ifdef ASSI_TEST
+    AS_LED_ASSI(as_state);
+#endif
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
