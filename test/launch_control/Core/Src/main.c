@@ -17,6 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <apps&tps.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -27,7 +28,6 @@
 #include <timing.h>
 #include <can0.h>
 #include <stm_pin.h>
-#include"apps.h"
 #include "ebs.h"
 #include "delay.h"
 
@@ -45,6 +45,7 @@
 #define ASSI_TEST 1
 #define APPS_TEST 1
 #define TPS_TEST 1
+#define BUZZER_TEST 1
 
 /* USER CODE END PD */
 
@@ -92,7 +93,7 @@ static void MX_TIM17_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-MmrLaunchControlMode mode = MMR_AS_MODE_MANUAL; // IDEM TO IDLE
+MmrLaunchControlMode mode = MMR_AS_MODE_MANUAL; // IDEM TO IDLE ?
 
 /* USER CODE END 0 */
 
@@ -156,6 +157,7 @@ WATCHDOG_Activation();
   MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port,LSW_ASSI_BLUE_Pin);
   MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin);
   MmrDelay ASSI_Delay;
+  MmrDelay Buzzer_Delay;
   /**/
 
 
@@ -165,13 +167,15 @@ WATCHDOG_Activation();
 
   MMR_SetTickProvider(HAL_GetTick);
   MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
-  MMR_ASSI_Init(&LABpin,&LAYpin,&ASSI_Delay);
+  MMR_ASSI_Init(&LABpin,&LAYpin,&ASSI_Delay,&Buzzer_Delay);
+
   mode = MMR_AS_MODE_MANUAL;
   while (1) {
     mode = MMR_AS_Run(mode);
 #ifdef ASSI_TEST
     AS_LED_ASSI(as_state);
 #endif
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

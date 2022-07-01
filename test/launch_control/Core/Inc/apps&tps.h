@@ -5,8 +5,8 @@
  *      Author: simon
  */
 
-#ifndef INC_APPS_H_
-#define INC_APPS_H_
+#ifndef INC_APPS_TPS_H_
+#define INC_APPS_TPS_H_
 
 #include "main.h"
 #include <stdbool.h>
@@ -33,4 +33,4 @@ _Bool APPS_Handling(uint32_t *ADC_value);
 //
 
 
-#endif /* INC_APPS_H_ */
+#endif /* INC_APPS_TPS_H_ */
