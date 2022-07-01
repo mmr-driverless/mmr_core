@@ -22,9 +22,9 @@ typedef enum MmrClutchState {
 } MmrClutchState;
 
 typedef enum MmrLaunchControlState {
-  MMR_AS_UNKNOWN,
-  MMR_AS_SET,
-  MMR_AS_NOT_SET,
+  MMR_LAUNCH_CONTROL_UNKNOWN,
+  MMR_LAUNCH_CONTROL_SET,
+  MMR_LAUNCH_CONTROL_NOT_SET,
 } MmrLaunchControlState;
 
 
