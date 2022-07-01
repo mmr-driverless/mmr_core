@@ -21,27 +21,43 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <timing.h>
+#include <can0.h>
 #include <math.h>
-#include "can.h"
-#include "msg_conversions.h"
+#include <stdbool.h>
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+struct proportional_data{
+	uint32_t left_y, right_y;
+	float left_x, right_x;
+};
 
+struct lowpass_data{
+	uint16_t  input, output;
+	float cutoff_frequency, dt;
+};
+
+struct lowpass32_data{
+	uint32_t  input, output;
+	float cutoff_frequency, dt;
+};
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFFER_LENGTH 10
-#define MAX_ADC_VALUE 4096
-#define MAX_ADC_VOLTAGE 3.6f // [V]
-#define CONVERSION_FACTOR 40.0f // [bar/V]
-#define AMBIENT_PRESSURE_VOLTAGE 0.5f // [V]
-#define TOLERANCE 0.5f // [bar]
-#define PRESCALER_SLOWEST 1000-1
-#define PRESCALER_FASTEST 70-1
-#define PRESSURE_RANGE 12.0f
+#define ADC_SIZE 50
+#define POSITION_SAMPLES_NUMBER 5
+
+const float ADC_MAX_VALUE = 1024.0f;
+const float ADC_MAX_VOLTAGE = 3.6f; // [V]
+const float VOLTAGE_RATIO = 3.3f/5.0f;
+const float TOLERANCE = 0.5f; // [bar]
+const float STD_DEVIATION_LIMIT = 2.5f;
+const float AMBIENT_PRESSURE_VOLTAGE = 0.5f; // [V]
+const float BARS_PER_VOLT = 40.0f; // [bar/V]
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,95 +69,187 @@
  ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
-CAN_HandleTypeDef hcan;
+CAN_HandleTypeDef hcan1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
+//volatile float degrees;
+struct proportional_data p_data_pressure_error;
+struct lowpass_data lowpass_data_pressure, lowpass_data_angle;
+struct lowpass32_data lowpass32_data;
 
+float target_pressure=0; // [deg]
+float speed=10; // [m/s]
+
+float current_pressure=0; // [deg]
+float tension=0; // [V]
+float pressure_error=0; // [deg]
+uint16_t prescaler=100-1;
+uint16_t ADC2_Value[ADC_SIZE];
+uint16_t filtered_ADC_pressure = 0;
+uint16_t filtered_ADC_angle = 0;
+uint32_t target_psc = 500;
+uint16_t position_samples[POSITION_SAMPLES_NUMBER];
+uint16_t k=0;
+uint16_t cansendflag=0;
+
+float flag=0;
+float sigma=0;
+float limitOffset=0.0f;
+float max_pressure = 12.0f; // [bar]
+
+bool isActive = true;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_CAN_Init(void);
+static void MX_TIM2_Init(void);
+static void MX_TIM7_Init(void);
+static void MX_CAN1_Init(void);
 /* USER CODE BEGIN PFP */
+void Autoset(){
+	limitOffset=filtered_ADC_angle;
 
-/* USER CODE END PFP */
+	MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_BRK_ZERO_PRESSURE_AUTOSET_OK);
+	MmrCanMessage autosetOkMsg = MMR_CAN_OutMessage(header);
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-uint8_t control_option = 0; // 0 = constant speed, 1 = proportional speed.
-float target_pressure=0.5; // MUST BE CONNECTED TO CAN! Value from NPC is given in 0-1 range
-float current_pressure=0;
-float pressure_error=0;
-int prescaler=1000-1;
-
-uint16_t ADC_values[BUFFER_LENGTH];
-uint16_t temp=0;
-
-
-// Function to calculate the average of the ADC values and convert to pressure ([bar]), following BODAS datasheet.
-float Current_pressure(){
-	float pressure = 0;
-	temp=0;
-	for(int i=0; i<BUFFER_LENGTH; i++)
-	{
-		temp+=ADC_values[i];
-	}
-	temp/=(BUFFER_LENGTH*MAX_ADC_VALUE);
-	pressure=temp*MAX_ADC_VOLTAGE;
-	pressure=(pressure-AMBIENT_PRESSURE_VOLTAGE)*CONVERSION_FACTOR;
-	return pressure;
+	MMR_CAN_Send(&can0, &autosetOkMsg);
 }
 
-// Function to choose the direction of the motor based on the error.
-void Direction_set(float error){
-	if(error>TOLERANCE){
-		if(HAL_GPIO_ReadPin(DIRECTION_GPIO_Port, DIRECTION_Pin)==GPIO_PIN_RESET){
-			HAL_GPIO_WritePin(DIRECTION_GPIO_Port, DIRECTION_Pin, GPIO_PIN_SET);
-		}
-	}
-	else if (error<-TOLERANCE){
-		if(HAL_GPIO_ReadPin(DIRECTION_GPIO_Port, DIRECTION_Pin)==GPIO_PIN_SET){
-				HAL_GPIO_WritePin(DIRECTION_GPIO_Port, DIRECTION_Pin, GPIO_PIN_RESET);
-		}
+float Average(uint16_t p[], int length){
+    float avg=0;
+    for (int i =0; i<length; i+=2){
+        avg+=p[i];
+    }
+    return avg/(length);
+}
+
+float StandardDeviation(uint16_t p[], int length){
+    float avg=Average(p, length);
+    float sigma=0;
+    for (int i =0; i<length; i++){
+        sigma+=pow((float)(p[i]-avg), 2);
+    }
+    return sqrt(sigma/length);
+}
+
+uint32_t Proportional(float error, struct proportional_data p_data){
+	float absolute_error=fabsf(error);
+	if(absolute_error<p_data.left_x){
+		return p_data.left_y;
+	} else if(absolute_error>p_data.right_x){
+		return p_data.right_y;
+	} else{
+		float proportional_slope=(p_data.left_y-p_data.right_y)/(p_data.left_x-p_data.right_x);
+		return (proportional_slope*absolute_error)+p_data.left_y-(proportional_slope*p_data.left_x);
 	}
 }
 
-// Function to set speed (prescaler) proportionally to the absolute value of the pressure error;
-void Speed_set(float error){
-	error=fabsf(error);
-	if(error<TOLERANCE && error>-TOLERANCE){
-		TIM2->CCR1=0;
-	}
-	else if (control_option==0){
-		prescaler=PRESCALER_FASTEST;
-		TIM2->CCR1=50-1;
-		TIM2->PSC=(uint16_t) (prescaler);
-	}
-	else if (control_option==1){
-		prescaler=PRESCALER_SLOWEST+(PRESCALER_FASTEST-PRESCALER_SLOWEST)*error/PRESSURE_RANGE;
-		TIM2->CCR1=50-1;
-		if(prescaler<PRESCALER_FASTEST) prescaler=PRESCALER_FASTEST;
-		TIM2->PSC=(uint16_t) (prescaler);
-	}
+static void brake(
+  GPIO_PinState dirPinExpected,
+  GPIO_PinState dirPinWrite
+) {
+  if (HAL_GPIO_ReadPin(DIR_GPIO_Port, DIR_Pin) == dirPinExpected){
+    HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, dirPinWrite);
+    target_psc=p_data_pressure_error.left_y;
+    lowpass32_data.output=target_psc;
+  }
+
+  TIM2->CCR1 = 50;
 }
 
+static void press() {
+  brake(GPIO_PIN_SET, GPIO_PIN_RESET);
+}
+
+static void release() {
+  brake(GPIO_PIN_RESET, GPIO_PIN_SET);
+}
+
+uint16_t Lowpass(uint16_t input, struct lowpass_data *lp_data){
+	lp_data->input=input;
+	return lp_data->output += (lp_data->input - lp_data->output) * (1-exp(-lp_data->dt * lp_data->cutoff_frequency));
+}
+
+uint32_t Lowpass32(uint32_t input, struct lowpass32_data *lp32_data){
+	lp32_data->input=input;
+	float exp_portion=1.f-exp(-lp32_data->dt * lp32_data->cutoff_frequency);
+	float input_minus_output=(float)lp32_data->input - (float)lp32_data->output;
+	return lp32_data->output = (uint32_t)((float)lp32_data->output + (float)(input_minus_output * exp_portion));
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   // Check which version of the timer triggered this callback
-  if (htim == &htim2 )
+  if (htim == &htim7)
   {
-	  pressure_error=target_pressure*PRESSURE_RANGE-current_pressure;
-	  Direction_set(pressure_error);
-	  Speed_set(pressure_error);
+	filtered_ADC_pressure=Lowpass(ADC2_Value[0], &lowpass_data_pressure);
+	filtered_ADC_angle=Lowpass(ADC2_Value[1], &lowpass_data_angle);
+
+    tension = ((filtered_ADC_pressure / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO);
+
+    current_pressure = (tension - AMBIENT_PRESSURE_VOLTAGE) * BARS_PER_VOLT;
+
+    pressure_error = -(target_pressure - current_pressure); // We calculate the error compared to the target
+
+    if(k>=POSITION_SAMPLES_NUMBER-1){
+    	k=0;
+    } else k++;
+    position_samples[k]=filtered_ADC_pressure;
+    sigma = StandardDeviation(position_samples, POSITION_SAMPLES_NUMBER);
+    if(sigma<STD_DEVIATION_LIMIT) {
+    	target_psc=p_data_pressure_error.left_y;
+    	lowpass32_data.output=target_psc;
+    }
+
+    if (pressure_error > TOLERANCE) {
+    // Add here safety control with filtered_ADC_angle
+      press();
+      target_psc=Proportional(pressure_error, p_data_pressure_error);
+      TIM2->PSC = Lowpass32(target_psc, &lowpass32_data);
+    }
+    else if (pressure_error < -TOLERANCE) {
+    // Add here safety control with filtered_ADC_angle
+      release();
+      target_psc=Proportional(pressure_error, p_data_pressure_error);
+      TIM2->PSC = Lowpass32(target_psc, &lowpass32_data);
+    }
+    else {
+      target_psc=p_data_pressure_error.left_y;
+      lowpass32_data.output=target_psc;
+      TIM2->PSC=target_psc;
+      TIM2->CCR1 = 0;
+    }
+
+    //if (filtered_ADC_angle) set the duty cycle to zero if going too far back
+    // CAN LOGGING
+    if (cansendflag==5){
+    	    uint8_t *data = (uint8_t*)(&current_pressure);
+
+    	    MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_BRK_CURRENT_PRESSURE);
+    	    MmrCanMessage currentPressureMsg = MMR_CAN_OutMessage(header);
+    	    MMR_CAN_MESSAGE_SetPayload(&currentPressureMsg, data, sizeof(float));
+
+    	    MMR_CAN_Send(&can0, &currentPressureMsg);
+
+    	    cansendflag=0;
+    } else {
+    	cansendflag++;
+    }
+
+
   }
 }
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
 /* USER CODE END 0 */
 
 /**
@@ -172,47 +280,120 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM2_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  MX_CAN_Init();
+  MX_TIM2_Init();
+  MX_TIM7_Init();
+  MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-  // We initialise the ADC buffer to zero
-  for(int i=0; i<BUFFER_LENGTH; i++)
-  {
-	  ADC_values[i]=0;
-  }
+    if (!MMR_CAN0_Start(&hcan1)) {
+      Error_Handler();
+    }
 
-  HAL_ADC_Start_DMA(&hadc1, (uint16_t *)ADC_values, BUFFER_LENGTH); // Syntax error is NOT relevant!
+    MMR_SetTickProvider(HAL_GetTick);
 
-  HAL_TIM_Base_Start_IT(&htim2);
-  HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+    HAL_ADC_Start_DMA(&hadc1, (uint16_t*)ADC2_Value, ADC_SIZE);
+    HAL_TIM_Base_Start_IT(&htim7);
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  CanRxBuffer canRxBuffer = {};
-  MmrCanMessage msg = {
-    .store = canRxBuffer,
-  };
+    MmrCanBuffer buffer = {};
+    MmrCanMessage message = {
+      .payload = buffer,
+    };
 
+    // Definition of proportional parameters
+    p_data_pressure_error.left_x=0.0f;
+    p_data_pressure_error.left_y=500;
+    p_data_pressure_error.right_x=2.0f;
+    p_data_pressure_error.right_y=200;
+
+    // Definition of lowpass parameters
+    lowpass_data_pressure.input=ADC2_Value[0];
+    lowpass_data_pressure.output=ADC2_Value[0];
+    lowpass_data_pressure.cutoff_frequency=20.0f; // [rad/s]
+    lowpass_data_pressure.dt=0.0125f; // TIM3 time period
+
+    lowpass_data_angle.input=ADC2_Value[1];
+    lowpass_data_angle.output=ADC2_Value[1];
+    lowpass_data_angle.cutoff_frequency=20.0f; // [rad/s]
+    lowpass_data_angle.dt=0.0125f; // TIM3 time period
+
+    lowpass32_data.input=500;
+    lowpass32_data.output=500;
+    lowpass32_data.cutoff_frequency=15.0f; // [rad/s]
+    lowpass32_data.dt=0.0125f; // TIM3 time period
+
+    for (int i=0; i<POSITION_SAMPLES_NUMBER; i++){
+    	position_samples[i]=0;
+    }
+
+    if(isActive) {
+    	HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
+    } else {
+    	HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_RESET);
+    }
   while (1)
   {
-    MmrResult rxResult = MMR_CAN_TryReceive(&hcan, &msg);
-    if (rxResult == MMR_RESULT_COMPLETED) {
-      switch (msg.header.messageId) {
-      case MMR_CAN_MESSAGE_ID_D_BREAKING_PERCENTAGE:
-        target_pressure = MMR_CAN_MsgToFloat(msg) * PRESSURE_RANGE;
-        break;
-      }
-    }
-    else if (MMR_RESULT_ERROR) {
-      Error_Handler();
-    }
 
+	  if (MMR_CAN_ReceiveAsync(&can0, &message) == MMR_TASK_COMPLETED) {
+	  	      MmrCanHeader header = MMR_CAN_MESSAGE_GetHeader(&message);
+
+	  	      switch (header.messageId) {
+	  	      case MMR_CAN_MESSAGE_ID_BRK_TARGET_PRESSURE:
+	  	        target_pressure = (*(float*)buffer) * max_pressure;
+	  	        break;
+
+	  	      case MMR_CAN_MESSAGE_ID_BRK_PROPORTIONAL_ERROR_LEFT_X:
+	  	    	  p_data_pressure_error.left_x=(*(float*)buffer);
+	  	    	  break;
+
+	  	      case MMR_CAN_MESSAGE_ID_BRK_PROPORTIONAL_ERROR_RIGHT_X:
+	  	    	  p_data_pressure_error.right_x=(*(float*)buffer);
+	  	    	  break;
+
+	  	      case MMR_CAN_MESSAGE_ID_BRK_PROPORTIONAL_ERROR_LEFT_Y:
+	  	    	  p_data_pressure_error.left_y=(*(uint32_t*)buffer);
+	  	    	  break;
+
+	  	      case MMR_CAN_MESSAGE_ID_BRK_PROPORTIONAL_ERROR_RIGHT_Y:
+	  	    	  p_data_pressure_error.right_y=(*(uint32_t*)buffer);
+	  	    	  break;
+
+	  	      case MMR_CAN_MESSAGE_ID_BRK_RISE_CUTOFF_FREQUENCY:
+	  	    	  lowpass32_data.cutoff_frequency=(*(float*)buffer);
+	  	    	  break;
+
+	  	      case MMR_CAN_MESSAGE_ID_BRK_ZERO_PRESSURE_AUTOSET:
+	  	      	  Autoset();
+	  	      	  break;
+
+		  	  case MMR_CAN_MESSAGE_ID_BRK_MAX_PRESSURE:
+		  	   	  max_pressure=(*(float*)buffer);
+		  	   	  break;
+	  	      }
+	  	    }
+
+
+	  	    if(target_pressure>max_pressure){
+	  	    	target_pressure=max_pressure;
+	  	    } else if(target_pressure < 0.0f){
+	  	    	target_pressure = 0.0f;
+	  	    }
+
+	  	    /*
+	  	    if(current_angle>120){
+	  	    	target_angle=-140;
+	  	    } else if (current_angle < -120){
+	  	    	target_angle=140;
+	  	    }
+	  	    */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  	  flag++;
   }
   /* USER CODE END 3 */
 }
@@ -226,13 +407,26 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
+  /** Configure the main internal regulator output voltage
+  */
+  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 2;
+  RCC_OscInitStruct.PLL.PLLN = 16;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV8;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -242,7 +436,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -274,19 +468,20 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.Resolution = ADC_RESOLUTION_10B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.NbrOfConversion = 2;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+  hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -294,12 +489,21 @@ static void MX_ADC1_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Channel = ADC_CHANNEL_10;
   sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -311,43 +515,39 @@ static void MX_ADC1_Init(void)
 }
 
 /**
-  * @brief CAN Initialization Function
+  * @brief CAN1 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_CAN_Init(void)
+static void MX_CAN1_Init(void)
 {
 
-  /* USER CODE BEGIN CAN_Init 0 */
+  /* USER CODE BEGIN CAN1_Init 0 */
 
-  /* USER CODE END CAN_Init 0 */
+  /* USER CODE END CAN1_Init 0 */
 
-  /* USER CODE BEGIN CAN_Init 1 */
+  /* USER CODE BEGIN CAN1_Init 1 */
 
-  /* USER CODE END CAN_Init 1 */
-  hcan.Instance = CAN;
-  hcan.Init.Prescaler = 16;
-  hcan.Init.Mode = CAN_MODE_NORMAL;
-  hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan.Init.TimeSeg1 = CAN_BS1_2TQ;
-  hcan.Init.TimeSeg2 = CAN_BS2_1TQ;
-  hcan.Init.TimeTriggeredMode = DISABLE;
-  hcan.Init.AutoBusOff = DISABLE;
-  hcan.Init.AutoWakeUp = DISABLE;
-  hcan.Init.AutoRetransmission = DISABLE;
-  hcan.Init.ReceiveFifoLocked = DISABLE;
-  hcan.Init.TransmitFifoPriority = DISABLE;
-  if (HAL_CAN_Init(&hcan) != HAL_OK)
+  /* USER CODE END CAN1_Init 1 */
+  hcan1.Instance = CAN1;
+  hcan1.Init.Prescaler = 4;
+  hcan1.Init.Mode = CAN_MODE_NORMAL;
+  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan1.Init.TimeTriggeredMode = DISABLE;
+  hcan1.Init.AutoBusOff = DISABLE;
+  hcan1.Init.AutoWakeUp = DISABLE;
+  hcan1.Init.AutoRetransmission = DISABLE;
+  hcan1.Init.ReceiveFifoLocked = DISABLE;
+  hcan1.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan1) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN CAN_Init 2 */
+  /* USER CODE BEGIN CAN1_Init 2 */
 
-  if (MMR_CAN_BasicSetupAndStart(&hcan) != HAL_OK) {
-    Error_Handler();
-  }
-
-  /* USER CODE END CAN_Init 2 */
+  /* USER CODE END CAN1_Init 2 */
 
 }
 
@@ -371,7 +571,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 1000-1;
+  htim2.Init.Prescaler = 2000-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 100-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -396,18 +596,55 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 80;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
-  __HAL_TIM_DISABLE_OCxPRELOAD(&htim2, TIM_CHANNEL_1);
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 2000-1;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 100-1;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
 
 }
 
@@ -437,18 +674,20 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DIRECTION_GPIO_Port, DIRECTION_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : DIRECTION_Pin */
-  GPIO_InitStruct.Pin = DIRECTION_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pins : DIR_Pin ENB_Pin */
+  GPIO_InitStruct.Pin = DIR_Pin|ENB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(DIRECTION_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
 
