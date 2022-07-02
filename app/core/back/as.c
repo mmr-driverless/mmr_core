@@ -94,6 +94,10 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     case MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK:
       __state.clutch = MMR_CLUTCH_RELEASED;
       break;
+
+    case MMR_CAN_MESSAGE_ID_D_AS_CHANGE_MODE:
+      mode = MMR_BUFFER_ReadByte(buffer, 0);
+      break;
     }
   }
 
