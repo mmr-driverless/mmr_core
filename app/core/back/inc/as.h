@@ -75,6 +75,7 @@ uint16_t MMR_AS_GetSpeed();
 uint8_t MMR_AS_GetLap();
 void MMR_AS_SetLap(uint8_t lap);
 uint16_t MMR_AS_GetAth();
+uint16_t MMR_AS_GetAth2();
 int16_t MMR_AS_GetSteeringAngle();
 MmrClutchState MMR_AS_GetClutchState();
 MmrLaunchControlState MMR_AS_GetLaunchControlState();

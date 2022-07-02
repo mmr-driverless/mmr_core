@@ -242,9 +242,9 @@ if (TPS_Flag == 1 && !TPS_startCounter) {
 	  if (TPS_startCounter) {
 	  	  TPS_counter++;
 
-	  	  TPS_ctr += TPS_check(adc[0],adc[1]);
+	  	  TPS_ctr += TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2()); // da aggiungere la seconda lettura via CAN ATH2
 	  	  if (TPS_ctr >= 100)
-	  		  HAL_DMA_Abort(&hdma_dac_ch1); // DA MODIFICARE
+	  		  HAL_DMA_Abort(&hdma_dac_ch1); // DA MODIFICARE, CAPIRE COME SPEGNERE LVMS SE CI SONO PROBLEMI --->>> EBS ???
 
 	  	  if (TPS_counter >= 100)
 	  	  {

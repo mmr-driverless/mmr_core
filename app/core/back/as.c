@@ -19,7 +19,8 @@ static bool handlePreStart(MmrLaunchControlMode *mode);
 struct MmrLaunchControl {
   int16_t steeringAngle;
   uint8_t lap;
-  uint16_t ath; //<--farfalla
+  uint16_t ath;//<-- primo valore farfalla
+  uint16_t ath2;//<-- secondo valore farfalla
   uint16_t gear;
   uint16_t rpm;
   uint16_t speed;
@@ -40,12 +41,13 @@ static MmrPin *__AssiBlue;
 static MmrPin *__AssiYellow;
 static MmrDelay *__assi_delay;
 static MmrDelay *__buzzer_delay;
+extern TIM_HandleTypeDef htim17;
+
 /**/
 static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
 static MmrManualState ms = MMR_MANUAL_WAITING;
 
 
-extern TIM_HandleTypeDef htim17;
 
 void MMR_AS_Init(
   MmrCan *can,
@@ -204,6 +206,10 @@ uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }
 
+uint16_t MMR_AS_GetAth2() {
+	return __state.ath2;
+}
+
 void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay, MmrDelay *buzz_delay)
 {
 	__AssiBlue = AssiBlue;
@@ -267,26 +273,24 @@ void AS_LED_ASSI(AS_state AS_state)
 
    case AS_EMERGENCY:
                  {
-
-                	  LED_BLUE_ASSI(LED_ASSI_ON);
-                      LED_YELLOW_ASSI(LED_ASSI_OFF);
-                      MMR_DELAY_Reset(__assi_delay);
-                      if(MMR_DELAY_WaitAsync(__assi_delay)) LED_BLUE_ASSI(LED_ASSI_ON);
-                	  if(MMR_DELAY_WaitAsync(__assi_delay)) break;
-
+                  LED_BLUE_ASSI(LED_ASSI_ON);
+                  LED_YELLOW_ASSI(LED_ASSI_OFF);
+                  MMR_DELAY_Reset(__assi_delay);
+                  if(MMR_DELAY_WaitAsync(__assi_delay)) LED_BLUE_ASSI(LED_ASSI_ON);
+                  if(MMR_DELAY_WaitAsync(__assi_delay)) break;
                  }
 
    case AS_FINISHED:
                  {
-                	 LED_BLUE_ASSI(LED_ASSI_ON);
-                	 LED_YELLOW_ASSI(LED_ASSI_OFF);
+                   LED_BLUE_ASSI(LED_ASSI_ON);
+                   LED_YELLOW_ASSI(LED_ASSI_OFF);
                  }
 
    case AS_IDLE:
                  {
-                	 LED_BLUE_ASSI(LED_ASSI_OFF);
-                	 LED_YELLOW_ASSI(LED_ASSI_OFF);
-                	 break;
+                	LED_BLUE_ASSI(LED_ASSI_OFF);
+                	LED_YELLOW_ASSI(LED_ASSI_OFF);
+                	break;
                  }
 
 
