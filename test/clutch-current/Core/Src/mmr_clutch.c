@@ -31,7 +31,7 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
 	mode: MANUAL,
 	_adcValues: adcValues,
 	_lpDataMeasured: lpDataMeasured,
-	_lpDataMeasured: lpDataCurrent,
+	_lpDataCurrent: lpDataCurrent,
 
 	_leverM: m,
 	_leverQ: q,

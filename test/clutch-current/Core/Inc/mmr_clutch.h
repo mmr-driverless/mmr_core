@@ -15,8 +15,8 @@
 #define OPEN_LEVER_ANGLE 0.65f // [rad]
 #define ENGAGED_LEVER_ANGLE 1.1f // [rad]
 
-#define ADC_CHANNELS 2//number of adc channels
-#define BUFFER_LENGTH 20
+#define ADC_CHANNELS 3//number of adc channels
+#define BUFFER_LENGTH 21
 
 enum DrivingMode {
 	MANUAL,
