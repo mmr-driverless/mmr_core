@@ -94,6 +94,7 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     case MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK:
       __state.clutch = MMR_CLUTCH_RELEASED;
       break;
+    }
   }
 
   bool canStart = handlePreStart(&mode);
