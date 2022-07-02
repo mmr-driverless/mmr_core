@@ -22,6 +22,16 @@
 #include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "apps&tps.h"
+#include <can.h>
+#include <timing.h>
+#include <as.h>
+#include <timing.h>
+#include <can0.h>
+#include <stm_pin.h>
+#include "ebs.h"
+#include "delay.h"
+#include "stdbool.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,7 +51,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+_Bool APPS_Flag;
+_Bool TPS_Flag;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,7 +70,8 @@ extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_dac_ch1;
 /* USER CODE BEGIN EV */
-
+extern MmrLaunchControlMode mode;
+extern uint32_t adc[2];
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -185,9 +197,67 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+	  static uint16_t APPS_counter = 0;
+	  static _Bool APPS_startCounter = 0;
+	  static uint8_t APPS_ctr = 0;
+	  static uint16_t TPS_counter = 0;
+	  static _Bool TPS_startCounter = 0;
+	  static uint8_t TPS_ctr = 0;
+	  HAL_IncTick();
+
+
+if(mode == MMR_AS_MODE_MANUAL)
+{
+	 APPS_Flag = APPS_check(adc[0],adc[1]);
+
+	 if (APPS_Flag == 1 && !APPS_startCounter) {
+		  APPS_startCounter = true;
+		  APPS_counter++;
+	 }
+		  if (APPS_startCounter) {
+		  	  APPS_counter++;
+
+		  	  APPS_ctr += APPS_check(adc[0],adc[1]);
+		  	  if (APPS_ctr >= 100)
+		  		  HAL_DMA_Abort(&hdma_dac_ch1);
+
+		  	  if (APPS_counter >= 100)
+		  	  {
+		  		  APPS_startCounter = false;
+		  		  APPS_counter = 0;
+		  		  APPS_ctr = 0;
+		  		  return;
+		  	  }
+	  }
+
+}
+
+
+TPS_Flag = TPS_check(adc[0],adc[1]); // I DUE VALORI DI ADC DA RIMPIAZZERE CON I VALORI DI TPS 1&2
+
+if (TPS_Flag == 1 && !TPS_startCounter) {
+	  TPS_startCounter = true;
+	  TPS_counter++;
+}
+	  if (TPS_startCounter) {
+	  	  TPS_counter++;
+
+	  	  TPS_ctr += TPS_check(adc[0],adc[1]);
+	  	  if (TPS_ctr >= 100)
+	  		  HAL_DMA_Abort(&hdma_dac_ch1); // DA MODIFICARE
+
+	  	  if (TPS_counter >= 100)
+	  	  {
+	  		  TPS_startCounter = false;
+	  		  TPS_counter = 0;
+	  		  TPS_ctr = 0;
+	  		  return;
+	  	  }
+ }
+
+
 
   /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
   /* USER CODE END SysTick_IRQn 1 */
