@@ -77,12 +77,11 @@ static MmrAutonomousState pullClutch(MmrAutonomousState state) {
   MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL);
   MmrCanMessage clutchPullMsg = MMR_CAN_OutMessage(header);
 
-  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
-
   if (MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &clutchPullMsg);
   }
 
+  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
   if (isClutchPulled) {
     return MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR;
   }
