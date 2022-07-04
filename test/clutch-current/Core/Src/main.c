@@ -75,6 +75,7 @@ int delay;
 int tick;
 extern float voltageTarget;
 float currentError;
+extern float current;
 
 
 
@@ -83,26 +84,26 @@ bool engage = false;
 DrivingMode mode = MANUAL;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
-		min: 1.10f,
-		max: 1.90f,
+		min: 1.0f,
+		max: 2.20f,
 };
 
 const PIDParameters parameters1 = {
 	p: 7.53f * 3.0f * 3.0f,
 	i: 8.6f * 3.0f,
-	d: 1.4f * 1.5f,
+	d: 1.4f * 1.5f*0.5f
 };
 
 PID pid1;
 
 const PIDSaturation saturations2 = {
-		min: 0.3f,
-		max: 0.7f,
+		min: 0.2f,
+		max: 0.8f,
 };
 
 const PIDParameters parameters2 = {
-	p: 0.08f,
-	i: 0.08f * 1050.0f,
+	p: 0.01f,
+	i:0.01f*(1050.0f),
 	d: 0.0f,
 };
 
@@ -521,7 +522,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 8000-1;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 400;
+  htim6.Init.Period = 800-1;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {

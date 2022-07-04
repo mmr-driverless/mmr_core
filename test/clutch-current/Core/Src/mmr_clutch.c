@@ -12,13 +12,13 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
   LowpassData lpDataMeasured = {
 		input: 500,
 		output: 500,
-		cutoffFrequency: 10.0f,
+		cutoffFrequency: 100.0f,
   };
 
   LowpassData lpDataCurrent = {
 		input: 500,
 		output: 500,
-		cutoffFrequency: 10.0f,
+		cutoffFrequency: 100.0f,
   };
 
 
@@ -60,7 +60,7 @@ float getMotorDutyCycle(Clutch *clutch) {
   }*/
 
 
-  //return PIDCompute(clutch->clutchPID.pid2, /*clutch->targetAngle*/voltageTarget, /*clutch->measuredAngle*/ clutch->current);
+// return PIDCompute(clutch->clutchPID.pid2, /*clutch->targetAngle*/voltageTarget, /*clutch->measuredAngle*/ clutch->current);
   return PIDCascade(
 		  clutch->clutchPID.pid1,
 		  clutch->clutchPID.pid2,

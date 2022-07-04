@@ -83,6 +83,8 @@ float getDerivativeTerm(PID* pid, float error) {
 float PIDCompute(PID* pid, float reference, float measured) {
 	float error = getError(reference, measured);
 
+	_updateTerms(pid,error);
+
 	const float outputPresaturation = getOutput(pid);
 	const float output = getOutputInSaturationRange(pid, outputPresaturation);
 

@@ -9,17 +9,17 @@ CDefines=USE_HAL_DRIVER;STM32L432xx;USE_HAL_DRIVER;USE_HAL_DRIVER;
 [PreviousGenFiles]
 AdvancedFolderStructure=true
 HeaderFileListSize=3
-HeaderFiles#0=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Inc/stm32l4xx_it.h
-HeaderFiles#1=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Inc/stm32l4xx_hal_conf.h
-HeaderFiles#2=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Inc/main.h
+HeaderFiles#0=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Inc/stm32l4xx_it.h
+HeaderFiles#1=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Inc/stm32l4xx_hal_conf.h
+HeaderFiles#2=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Inc/main.h
 HeaderFolderListSize=1
-HeaderPath#0=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Inc
+HeaderPath#0=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Inc
 HeaderFiles=;
 SourceFileListSize=3
-SourceFiles#0=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Src/stm32l4xx_it.c
-SourceFiles#1=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Src/stm32l4xx_hal_msp.c
-SourceFiles#2=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Src/main.c
+SourceFiles#0=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Src/stm32l4xx_it.c
+SourceFiles#1=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Src/stm32l4xx_hal_msp.c
+SourceFiles#2=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Src/main.c
 SourceFolderListSize=1
-SourcePath#0=C:/Users/matte/OneDrive/Desktop/mmr_core/clutch-current/Core/Src
+SourcePath#0=D:/github/mmr_core/mmr_core/test/clutch-current/Core/Src
 SourceFiles=;
 
