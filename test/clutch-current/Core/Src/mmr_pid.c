@@ -1,5 +1,6 @@
 #include "mmr_pid.h"
 #include "stm32l4xx_hal.h"
+#include <math.h>
 
 extern float currentTarget;
 extern float errorPos;
@@ -98,7 +99,12 @@ float PIDCompute(PID* pid, float reference, float measured) {
 float PIDCascade(PID* pid1, PID* pid2, float reference, float measured1, float measured2) {
 	const float pid1Result = PIDCompute(pid1, reference, measured1);
 	//currentTarget = pid1Result;
+	if (fabsf(reference - measured1)<=0.1f){
+		return 0.5f;
+	}
+	else{
 	return PIDCompute(pid2, pid1Result, measured2);
+	}
 }
 
 PID PIDInit(PIDSaturation saturation, PIDParameters parameters, float sampleTime, float tau) {

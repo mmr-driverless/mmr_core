@@ -9,17 +9,17 @@ extern float voltageTarget;
 
 
 Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValues) {
-  LowpassData lpDataMeasured = {
-		input: 500,
-		output: 500,
-		cutoffFrequency: 100.0f,
-  };
 
-  LowpassData lpDataCurrent = {
+   LowpassData lpDataCurrent = {
 		input: 500,
 		output: 500,
 		cutoffFrequency: 100.0f,
   };
+  LowpassData lpDataAngle = {
+ 		input: 500,
+ 		output: 500,
+ 		cutoffFrequency: 100.0f,
+   };
 
 
   float m = (ENGAGED_CLUTCH_ANGLE - OPEN_CLUTCH_ANGLE) / (ENGAGED_LEVER_ANGLE - OPEN_LEVER_ANGLE);
@@ -30,7 +30,7 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
     indexes: indexes,
 	mode: MANUAL,
 	_adcValues: adcValues,
-	_lpDataMeasured: lpDataMeasured,
+	_lpDataAngle: lpDataAngle,
 	_lpDataCurrent: lpDataCurrent,
 
 	_leverM: m,
@@ -58,6 +58,7 @@ float getMotorDutyCycle(Clutch *clutch) {
 	    //clutch->targetAngle =  getLeverAngle(clutch);
 	  clutch->targetAngle = 2.0f;
   }*/
+
 
 
 // return PIDCompute(clutch->clutchPID.pid2, /*clutch->targetAngle*/voltageTarget, /*clutch->measuredAngle*/ clutch->current);
@@ -106,10 +107,11 @@ float getCurrent(Clutch *clutch) {
 }
 
 float getPotMotAngle(Clutch *clutch) {
-  return _getPotentiometerAngle(
-	  _getMotorPotentiomerValue(clutch),
-	  clutch
-  );
+	float angle = _getPotentiometerAngle(
+			  _getMotorPotentiomerValue(clutch),
+			  clutch);
+  return  lowpassFilter(angle, &clutch->_lpDataAngle);
+
 }
 
 float getLeverAngle(Clutch *clutch) {

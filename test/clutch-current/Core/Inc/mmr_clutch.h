@@ -54,7 +54,7 @@ typedef struct Clutch {
     DrivingMode mode;
 	bool inProgress;
 
-	LowpassData _lpDataMeasured;
+	LowpassData _lpDataAngle;
 	LowpassData _lpDataCurrent;
 } Clutch;
 
