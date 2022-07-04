@@ -57,15 +57,27 @@ bool MMR_ADC_SelectChannel(MmrAdc *adc, uint32_t channel, uint32_t rank, uint32_
   
   switch (adc->readingSize) {
     case MMR_ADC_READING_SIZE_8:
-      HAL_ADC_Start_DMA(&(adc->adcHandle), (uint16_t*) adc->readings8, adc->bufferLength);
+      HAL_ADC_Start_DMA(&(adc->adcHandle), (uint8_t*) adc->readings8, adc->bufferLength);
       break;
     case MMR_ADC_READING_SIZE_16:
       HAL_ADC_Start_DMA(&(adc->adcHandle), (uint16_t*) adc->readings16, adc->bufferLength);
       break;
     case MMR_ADC_READING_SIZE_32:
-      HAL_ADC_Start_DMA(&(adc->adcHandle), (uint16_t*) adc->readings32, adc->bufferLength);
+      HAL_ADC_Start_DMA(&(adc->adcHandle), (uint32_t*) adc->readings32, adc->bufferLength);
       break;
   }
 
   return true;
+}
+
+uint8_t* MMR_ADC_Read8(MmrAdc *adc) {
+  return adc->readings8;
+}
+
+uint16_t* MMR_ADC_Read16(MmrAdc *adc) {
+  return adc->readings16;
+}
+
+uint32_t* MMR_ADC_Read32(MmrAdc *adc) {
+  return adc->readings32;
 }

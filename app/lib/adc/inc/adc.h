@@ -11,10 +11,7 @@ bool MMR_ADC_Init(MmrAdc *adc);
 bool MMR_ADC_SelectChannel(MmrAdc *adc, uint32_t channel, uint32_t rank, uint32_t sampleTime);
 
 uint8_t* MMR_ADC_Read8(MmrAdc *adc);
-uint8_t MMR_ADC_ReadIndex8(MmrAdc *adc, size_t index);
 uint16_t* MMR_ADC_Read16(MmrAdc *adc);
-uint16_t MMR_ADC_ReadIndex16(MmrAdc *adc, size_t index);
 uint32_t* MMR_ADC_Read32(MmrAdc *adc);
-uint32_t MMR_ADC_ReadIndex32(MmrAdc *adc, size_t index);
 
 #endif // !APP_LIB_ADC_INC_ADC_H_
