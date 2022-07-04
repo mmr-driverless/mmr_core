@@ -51,7 +51,7 @@ void setTargetAngle(Clutch *clutch, float angle) {
 
 float getMotorDutyCycle(Clutch *clutch) {
   clutch->measuredAngle = getPotMotAngle(clutch);//lowpassFilter(getPotMotAngle(clutch), &clutch->_lpDataMeasured);
-  clutch->targetAngle = 0.8f;
+  clutch->targetAngle = getLeverAngle(clutch);
   clutch->current = getCurrent(clutch);
 
   /*if(clutch->mode == MANUAL){
