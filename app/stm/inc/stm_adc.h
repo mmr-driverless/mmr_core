@@ -1,9 +1,8 @@
 #ifndef APP_STM_INC_ADC2_H_
 #define APP_STM_INC_ADC2_H_
 
+#include "../../lib/adc/inc/adc.h"
 #include "stm_hal_adc_defs.h"
-#include <adc.h>
-
 
 typedef enum {
   MMR_ADC_RESOLUTION_6B,
@@ -20,16 +19,16 @@ typedef enum {
 
 struct MmrAdc {
   union {
-    uint8_t *readings8,
-    uint16_t *readings16,
+    uint8_t *readings8;
+    uint16_t *readings16;
     uint32_t *readings32
-  },
-  size_t bufferLength,
-  ADC_HandleTypeDef adcHandle,
-  MmrAdcResolution resolution,
+  };
+  size_t bufferLength;
+  ADC_HandleTypeDef adcHandle;
+  MmrAdcResolution resolution;
   MmrAdcReadingSize readingSize
 };
 
-MmrAdc MMR_Adc(size_t channels, MmrAdcResolution res);
+MmrAdc MMR_Adc(size_t channels, MmrAdcResolution res, MmrAdcReadingSize size);
 
 #endif  // !APP_STM_INC_ADC2_H_

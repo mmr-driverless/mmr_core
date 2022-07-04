@@ -1,230 +1,258 @@
 #ifndef APP_STM_INC_STM_HAL_ADC_DEFS_H_
 #define APP_STM_INC_STM_HAL_ADC_DEFS_H_
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-#include "stm32f3xx_hal_def.h"  // TODO: unwrap dependencies
-#include "stm32f3xx_hal_adc_ex.h"
-
-/* States of ADC global scope */
-#define HAL_ADC_STATE_RESET             (0x00000000U)    /*!< ADC not yet initialized or disabled */
-#define HAL_ADC_STATE_READY             (0x00000001U)    /*!< ADC peripheral ready for use */
-#define HAL_ADC_STATE_BUSY_INTERNAL     (0x00000002U)    /*!< ADC is busy to internal process (initialization, calibration) */
-#define HAL_ADC_STATE_TIMEOUT           (0x00000004U)    /*!< TimeOut occurrence */
-
-/* States of ADC errors */
-#define HAL_ADC_STATE_ERROR_INTERNAL    (0x00000010U)    /*!< Internal error occurrence */
-#define HAL_ADC_STATE_ERROR_CONFIG      (0x00000020U)    /*!< Configuration error occurrence */
-#define HAL_ADC_STATE_ERROR_DMA         (0x00000040U)    /*!< DMA error occurrence */
-
-/* States of ADC group regular */
-#define HAL_ADC_STATE_REG_BUSY          (0x00000100U)    /*!< A conversion on group regular is ongoing or can occur (either by continuous mode,
-                                                                       external trigger, low power auto power-on, multimode ADC master control) */
-#define HAL_ADC_STATE_REG_EOC           (0x00000200U)    /*!< Conversion data available on group regular */
-#define HAL_ADC_STATE_REG_OVR           (0x00000400U)    /*!< Overrun occurrence */
-#define HAL_ADC_STATE_REG_EOSMP         (0x00000800U)    /*!< End Of Sampling flag raised  */
-
-/* States of ADC group injected */
-#define HAL_ADC_STATE_INJ_BUSY          (0x00001000U)    /*!< A conversion on group injected is ongoing or can occur (either by auto-injection mode,
-                                                                       external trigger, low power auto power-on, multimode ADC master control) */
-#define HAL_ADC_STATE_INJ_EOC           (0x00002000U)    /*!< Conversion data available on group injected */
-#define HAL_ADC_STATE_INJ_JQOVF         (0x00004000U)    /*!< Injected queue overflow occurrence */
-
-/* States of ADC analog watchdogs */
-#define HAL_ADC_STATE_AWD1              (0x00010000U)    /*!< Out-of-window occurrence of analog watchdog 1 */
-#define HAL_ADC_STATE_AWD2              (0x00020000U)    /*!< Out-of-window occurrence of analog watchdog 2 */
-#define HAL_ADC_STATE_AWD3              (0x00040000U)    /*!< Out-of-window occurrence of analog watchdog 3 */
-
-/* States of ADC multi-mode */
-#define HAL_ADC_STATE_MULTIMODE_SLAVE   (0x00100000U)    /*!< ADC in multimode slave state, controlled by another ADC master ( */
+typedef struct {
+  uint32_t Direction;
+  uint32_t PeriphInc;
+  uint32_t MemInc;
+  uint32_t PeriphDataAlignment;
+  uint32_t MemDataAlignment;    
+  uint32_t Mode;
+  uint32_t Priority;
+} DMA_InitTypeDef;
 
 
-/** 
-  * @brief  ADC handle Structure definition  
-  */
-typedef struct __ADC_HandleTypeDef
-{
-  ADC_TypeDef                   *Instance;              /*!< Register base address */
+typedef enum {
+  HAL_DMA_STATE_RESET             = 0x00U,  /*!< DMA not yet initialized or disabled */  
+  HAL_DMA_STATE_READY             = 0x01U,  /*!< DMA initialized and ready for use   */
+  HAL_DMA_STATE_BUSY              = 0x02U,  /*!< DMA process is ongoing              */     
+  HAL_DMA_STATE_TIMEOUT           = 0x03   /*!< DMA timeout state                   */  
+} HAL_DMA_StateTypeDef;
 
-  ADC_InitTypeDef               Init;                   /*!< ADC required parameters */
+typedef enum {
+  DISABLE = 0U, 
+  ENABLE = !DISABLE
+} FunctionalState;
+#define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
 
-  DMA_HandleTypeDef             *DMA_Handle;            /*!< Pointer DMA Handler */
+typedef struct {
+  uint32_t ClockPrescaler;
+  uint32_t Resolution;
+  uint32_t DataAlign;
+  uint32_t ScanConvMode;
+  uint32_t EOCSelection;
+  FunctionalState LowPowerAutoWait;
+  FunctionalState  ContinuousConvMode;
+  uint32_t NbrOfConversion;
+  FunctionalState DiscontinuousConvMode;
+  uint32_t NbrOfDiscConversion;
+  uint32_t ExternalTrigConv;
+  uint32_t ExternalTrigConvEdge;
+  FunctionalState DMAContinuousRequests;
+  uint32_t Overrun;
+} ADC_InitTypeDef;
 
-  HAL_LockTypeDef               Lock;                   /*!< ADC locking object */
+typedef struct {
+  uint32_t CCR;          /*!< DMA channel x configuration register                                           */
+  uint32_t CNDTR;        /*!< DMA channel x number of data register                                          */
+  uint32_t CPAR;         /*!< DMA channel x peripheral address register                                      */
+  uint32_t CMAR;         /*!< DMA channel x memory address register                                          */
+} DMA_Channel_TypeDef;
 
-  __IO uint32_t                 State;                  /*!< ADC communication state (bitmap of ADC states) */
+typedef struct {
+  uint32_t ISR;          /*!< DMA interrupt status register,                            Address offset: 0x00 */
+  uint32_t IFCR;         /*!< DMA interrupt flag clear register,                        Address offset: 0x04 */
+} DMA_TypeDef;
 
-  __IO uint32_t                 ErrorCode;              /*!< ADC Error code */
+typedef enum {
+  HAL_UNLOCKED = 0x00U,
+  HAL_LOCKED   = 0x01  
+} HAL_LockTypeDef;
+
+typedef struct __DMA_HandleTypeDef {
+  DMA_Channel_TypeDef   *Instance;                                                    /*!< Register base address                  */
+  DMA_InitTypeDef       Init;                                                         /*!< DMA communication parameters           */ 
+  HAL_LockTypeDef       Lock;                                                         /*!< DMA locking object                     */  
+  HAL_DMA_StateTypeDef  State;                                                        /*!< DMA transfer state                     */
+  void                  *Parent;                                                      /*!< Parent object state                    */  
+  void                  (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
+  void                  (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
+  void                  (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
+  void                  (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer abort callback            */  
+   uint32_t         ErrorCode;                                                    /*!< DMA Error code                         */
+  DMA_TypeDef          *DmaBaseAddress;                                               /*!< DMA Channel Base Address               */
+  uint32_t              ChannelIndex;                                                 /*!< DMA Channel Index                      */
+} DMA_HandleTypeDef;
+
+typedef struct {
+  uint32_t ContextQueue;                          
+  uint32_t ChannelCount;                                        
+} ADC_InjectionConfigTypeDef;
+
+typedef struct {
+  uint32_t ISR;              /*!< ADC Interrupt and Status Register,                 Address offset: 0x00 */
+  uint32_t IER;              /*!< ADC Interrupt Enable Register,                     Address offset: 0x04 */
+  uint32_t CR;               /*!< ADC control register,                              Address offset: 0x08 */
+  uint32_t CFGR;             /*!< ADC Configuration register,                        Address offset: 0x0C */
+  uint32_t RESERVED0;        /*!< Reserved, 0x010                                                         */
+  uint32_t SMPR1;            /*!< ADC sample time register 1,                        Address offset: 0x14 */
+  uint32_t SMPR2;            /*!< ADC sample time register 2,                        Address offset: 0x18 */
+  uint32_t RESERVED1;        /*!< Reserved, 0x01C                                                         */
+  uint32_t TR1;              /*!< ADC watchdog threshold register 1,                 Address offset: 0x20 */
+  uint32_t TR2;              /*!< ADC watchdog threshold register 2,                 Address offset: 0x24 */
+  uint32_t TR3;              /*!< ADC watchdog threshold register 3,                 Address offset: 0x28 */
+  uint32_t RESERVED2;        /*!< Reserved, 0x02C                                                         */
+  uint32_t SQR1;             /*!< ADC regular sequence register 1,                   Address offset: 0x30 */
+  uint32_t SQR2;             /*!< ADC regular sequence register 2,                   Address offset: 0x34 */
+  uint32_t SQR3;             /*!< ADC regular sequence register 3,                   Address offset: 0x38 */
+  uint32_t SQR4;             /*!< ADC regular sequence register 4,                   Address offset: 0x3C */
+  uint32_t DR;               /*!< ADC regular data register,                         Address offset: 0x40 */
+  uint32_t RESERVED3;        /*!< Reserved, 0x044                                                         */
+  uint32_t RESERVED4;        /*!< Reserved, 0x048                                                         */
+  uint32_t JSQR;             /*!< ADC injected sequence register,                    Address offset: 0x4C */
+  uint32_t RESERVED5[4];     /*!< Reserved, 0x050 - 0x05C                                                 */
+  uint32_t OFR1;             /*!< ADC offset register 1,                             Address offset: 0x60 */
+  uint32_t OFR2;             /*!< ADC offset register 2,                             Address offset: 0x64 */
+  uint32_t OFR3;             /*!< ADC offset register 3,                             Address offset: 0x68 */
+  uint32_t OFR4;             /*!< ADC offset register 4,                             Address offset: 0x6C */
+  uint32_t RESERVED6[4];     /*!< Reserved, 0x070 - 0x07C                                                 */
+  uint32_t JDR1;             /*!< ADC injected data register 1,                      Address offset: 0x80 */
+  uint32_t JDR2;             /*!< ADC injected data register 2,                      Address offset: 0x84 */
+  uint32_t JDR3;             /*!< ADC injected data register 3,                      Address offset: 0x88 */
+  uint32_t JDR4;             /*!< ADC injected data register 4,                      Address offset: 0x8C */
+  uint32_t RESERVED7[4];     /*!< Reserved, 0x090 - 0x09C                                                 */
+  uint32_t AWD2CR;           /*!< ADC  Analog Watchdog 2 Configuration Register,     Address offset: 0xA0 */
+  uint32_t AWD3CR;           /*!< ADC  Analog Watchdog 3 Configuration Register,     Address offset: 0xA4 */
+  uint32_t RESERVED8;        /*!< Reserved, 0x0A8                                                         */
+  uint32_t RESERVED9;        /*!< Reserved, 0x0AC                                                         */
+  uint32_t DIFSEL;           /*!< ADC  Differential Mode Selection Register,         Address offset: 0xB0 */
+  uint32_t CALFACT;          /*!< ADC  Calibration Factors,                          Address offset: 0xB4 */
+
+} ADC_TypeDef;
+
+typedef struct {
+  uint32_t CSR;            /*!< ADC Common status register,                  Address offset: ADC1/3 base address + 0x300 */
+  uint32_t RESERVED;       /*!< Reserved, ADC1/3 base address + 0x304                                                    */
+  uint32_t CCR;            /*!< ADC common control register,                 Address offset: ADC1/3 base address + 0x308 */
+  uint32_t CDR;            /*!< ADC common regular data register for dual
+                                     AND triple modes,                            Address offset: ADC1/3 base address + 0x30C */
+} ADC_Common_TypeDef;
+
+typedef struct __ADC_HandleTypeDef {
+  ADC_TypeDef *Instance;              /*!< Register base address */
+  ADC_InitTypeDef Init;                   /*!< ADC required parameters */
+  DMA_HandleTypeDef *DMA_Handle;            /*!< Pointer DMA Handler */
+  HAL_LockTypeDef Lock;                   /*!< ADC locking object */
+  uint32_t State;                  /*!< ADC communication state (bitmap of ADC states) */
+  uint32_t ErrorCode;              /*!< ADC Error code */
   
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
-    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+  defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+  defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+  defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
   ADC_InjectionConfigTypeDef    InjectionConfig ;       /*!< ADC injected channel configuration build-up structure */  
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+      /* STM32F302xC || STM32F303xC || STM32F358xx || */
+      /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+      /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+} ADC_HandleTypeDef;
 
-#if (USE_HAL_ADC_REGISTER_CALLBACKS == 1)
-  void (* ConvCpltCallback)(struct __ADC_HandleTypeDef *hadc);              /*!< ADC conversion complete callback */
-  void (* ConvHalfCpltCallback)(struct __ADC_HandleTypeDef *hadc);          /*!< ADC conversion DMA half-transfer callback */
-  void (* LevelOutOfWindowCallback)(struct __ADC_HandleTypeDef *hadc);      /*!< ADC analog watchdog 1 callback */
-  void (* ErrorCallback)(struct __ADC_HandleTypeDef *hadc);                 /*!< ADC error callback */
-  void (* InjectedConvCpltCallback)(struct __ADC_HandleTypeDef *hadc);      /*!< ADC group injected conversion complete callback */       /*!< ADC end of sampling callback */
-  void (* MspInitCallback)(struct __ADC_HandleTypeDef *hadc);               /*!< ADC Msp Init callback */
-  void (* MspDeInitCallback)(struct __ADC_HandleTypeDef *hadc);             /*!< ADC Msp DeInit callback */
-#endif /* USE_HAL_ADC_REGISTER_CALLBACKS */
-}ADC_HandleTypeDef;
+#define FLASH_BASE            0x08000000UL /*!< FLASH base address in the alias region */
+#define SRAM_BASE             0x20000000UL /*!< SRAM base address in the alias region */
+#define PERIPH_BASE           0x40000000UL /*!< Peripheral base address in the alias region */
+#define SRAM_BB_BASE          0x22000000UL /*!< SRAM base address in the bit-band region */
+#define PERIPH_BB_BASE        0x42000000UL /*!< Peripheral base address in the bit-band region */
 
-#if (USE_HAL_ADC_REGISTER_CALLBACKS == 1)
-/**
-  * @brief  HAL ADC Callback ID enumeration definition
-  */
-typedef enum
-{
-  HAL_ADC_CONVERSION_COMPLETE_CB_ID     = 0x00U,  /*!< ADC conversion complete callback ID */
-  HAL_ADC_CONVERSION_HALF_CB_ID         = 0x01U,  /*!< ADC conversion DMA half-transfer callback ID */
-  HAL_ADC_LEVEL_OUT_OF_WINDOW_1_CB_ID   = 0x02U,  /*!< ADC analog watchdog 1 callback ID */
-  HAL_ADC_ERROR_CB_ID                   = 0x03U,  /*!< ADC error callback ID */
-  HAL_ADC_INJ_CONVERSION_COMPLETE_CB_ID = 0x04U,  /*!< ADC group injected conversion complete callback ID */
-  HAL_ADC_MSPINIT_CB_ID                 = 0x09U,  /*!< ADC Msp Init callback ID          */
-  HAL_ADC_MSPDEINIT_CB_ID               = 0x0AU   /*!< ADC Msp DeInit callback ID        */
-} HAL_ADC_CallbackIDTypeDef;
+#define APB1PERIPH_BASE       PERIPH_BASE
+#define APB2PERIPH_BASE       (PERIPH_BASE + 0x00010000UL)
+#define AHB1PERIPH_BASE       (PERIPH_BASE + 0x00020000UL)
+#define AHB2PERIPH_BASE       (PERIPH_BASE + 0x08000000UL)
+#define AHB3PERIPH_BASE       (PERIPH_BASE + 0x10000000UL)
 
-/**
-  * @brief  HAL ADC Callback pointer definition
-  */
-typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< pointer to a ADC callback function */
+#define ADC2_BASE             (AHB3PERIPH_BASE + 0x00000100UL)
+#define ADC1_2_COMMON_BASE    (AHB3PERIPH_BASE + 0x00000300UL)
 
-#endif /* USE_HAL_ADC_REGISTER_CALLBACKS */
+#define ADC2                ((ADC_TypeDef *) ADC2_BASE)
+#define ADC12_COMMON        ((ADC_Common_TypeDef *) ADC1_2_COMMON_BASE)
+#define ADC1_2_COMMON       ADC12_COMM
 
-/**
-  * @}
-  */
-
-/* Exported constants --------------------------------------------------------*/
-/* Exported macros -----------------------------------------------------------*/
-     
-/** @defgroup ADC_Exported_Macro ADC Exported Macros
-  * @{
-  */
-/** @brief  Reset ADC handle state
-  * @param  __HANDLE__ ADC handle
-  * @retval None
-  */
-#if (USE_HAL_ADC_REGISTER_CALLBACKS == 1)
-#define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__)                               \
-  do{                                                                          \
-     (__HANDLE__)->State = HAL_ADC_STATE_RESET;                                \
-     (__HANDLE__)->MspInitCallback = NULL;                                     \
-     (__HANDLE__)->MspDeInitCallback = NULL;                                   \
-    } while(0)
-#else
-#define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__)                               \
-  ((__HANDLE__)->State = HAL_ADC_STATE_RESET)
-#endif
+#define ADC_CLOCK_ASYNC_DIV1          (0x00000000U)          /*!< ADC asynchronous clock derived from ADC dedicated PLL */
 
 
+#define ADC_CFGR_RES_Pos               (3U)                                    
+#define ADC_CFGR_RES_Msk               (0x3UL << ADC_CFGR_RES_Pos)              /*!< 0x00000018 */
+#define ADC_CFGR_RES                   ADC_CFGR_RES_Msk                        /*!< ADC data resolution */
+#define ADC_CFGR_RES_0                 (0x1UL << ADC_CFGR_RES_Pos)              /*!< 0x00000008 */
+#define ADC_CFGR_RES_1                 (0x2UL << ADC_CFGR_RES_Pos)  
 
+#define ADC_RESOLUTION_12B      (0x00000000U)          /*!<  ADC 12-bit resolution */
+#define ADC_RESOLUTION_10B      ((uint32_t)ADC_CFGR_RES_0)      /*!<  ADC 10-bit resolution */
+#define ADC_RESOLUTION_8B       ((uint32_t)ADC_CFGR_RES_1)      /*!<  ADC 8-bit resolution */
+#define ADC_RESOLUTION_6B       ((uint32_t)ADC_CFGR_RES)        /*!<  ADC 6-bit resolution */
 
-/* Exported functions --------------------------------------------------------*/
-/** @addtogroup ADC_Exported_Functions ADC Exported Functions
-  * @{
-  */ 
+#define ADC_SCAN_DISABLE         (0x00000000U)
+#define ADC_SCAN_ENABLE          (0x00000001U)
 
-/** @addtogroup ADC_Exported_Functions_Group1 Initialization and de-initialization functions 
- * @{
- */ 
-/* Initialization and de-initialization functions  **********************************/
-HAL_StatusTypeDef       HAL_ADC_Init(ADC_HandleTypeDef* hadc);
-HAL_StatusTypeDef       HAL_ADC_DeInit(ADC_HandleTypeDef *hadc);
-void                    HAL_ADC_MspInit(ADC_HandleTypeDef* hadc);
-void                    HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc);
+#define ADC_CFGR_EXTEN_Pos             (10U)                                   
+#define ADC_CFGR_EXTEN_Msk             (0x3UL << ADC_CFGR_EXTEN_Pos)            /*!< 0x00000C00 */
+#define ADC_CFGR_EXTEN                 ADC_CFGR_EXTEN_Msk                      /*!< ADC group regular external trigger polarity */
+#define ADC_CFGR_EXTEN_0               (0x1UL << ADC_CFGR_EXTEN_Pos)            /*!< 0x00000400 */
+#define ADC_CFGR_EXTEN_1               (0x2UL << ADC_CFGR_EXTEN_Pos)
 
-#if (USE_HAL_ADC_REGISTER_CALLBACKS == 1)
-/* Callbacks Register/UnRegister functions  ***********************************/
-HAL_StatusTypeDef HAL_ADC_RegisterCallback(ADC_HandleTypeDef *hadc, HAL_ADC_CallbackIDTypeDef CallbackID, pADC_CallbackTypeDef pCallback);
-HAL_StatusTypeDef HAL_ADC_UnRegisterCallback(ADC_HandleTypeDef *hadc, HAL_ADC_CallbackIDTypeDef CallbackID);
-#endif /* USE_HAL_ADC_REGISTER_CALLBACKS */
-/**
-  * @}
-  */
+#define ADC_EXTERNALTRIGCONVEDGE_NONE           (0x00000000U)
+#define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CFGR_EXTEN_0)
+#define ADC_EXTERNALTRIGCONVEDGE_FALLING        ((uint32_t)ADC_CFGR_EXTEN_1)
+#define ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING  ((uint32_t)ADC_CFGR_EXTEN)
 
-/** @addtogroup ADC_Exported_Functions_Group2 Input and Output operation functions
- * @{
- */ 
-/* Blocking mode: Polling */
-HAL_StatusTypeDef       HAL_ADC_Start(ADC_HandleTypeDef* hadc);
-HAL_StatusTypeDef       HAL_ADC_Stop(ADC_HandleTypeDef* hadc);
-HAL_StatusTypeDef       HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout);
-HAL_StatusTypeDef       HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventType, uint32_t Timeout);
+#define ADC_SOFTWARE_START                  (0x00000001U)
 
-/* Non-blocking mode: Interruption */
-HAL_StatusTypeDef       HAL_ADC_Start_IT(ADC_HandleTypeDef* hadc);
-HAL_StatusTypeDef       HAL_ADC_Stop_IT(ADC_HandleTypeDef* hadc);
+#define ADC_DATAALIGN_RIGHT      (0x00000000U)
+#define ADC_DATAALIGN_LEFT       ((uint32_t)ADC_CFGR_ALIGN)
 
-/* Non-blocking mode: DMA */
-HAL_StatusTypeDef       HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length);
-HAL_StatusTypeDef       HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc);
+#define ADC_ISR_EOC_Pos                (2U)                                    
+#define ADC_ISR_EOC_Msk                (0x1UL << ADC_ISR_EOC_Pos)               /*!< 0x00000004 */
+#define ADC_ISR_EOC                    ADC_ISR_EOC_Msk
 
-/* ADC retrieve conversion value intended to be used with polling or interruption */
-uint32_t                HAL_ADC_GetValue(ADC_HandleTypeDef* hadc);
+#define ADC_ISR_EOS_Pos                (3U)                                    
+#define ADC_ISR_EOS_Msk                (0x1UL << ADC_ISR_EOS_Pos)               /*!< 0x00000008 */
+#define ADC_ISR_EOS                    ADC_ISR_EOS_Msk                         /*!< ADC group regular end of sequence conversions flag */
 
-/* ADC IRQHandler and Callbacks used in non-blocking modes (Interruption and DMA) */
-void                    HAL_ADC_IRQHandler(ADC_HandleTypeDef* hadc);
-void                    HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
-void                    HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc);
-void                    HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc);
-void                    HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
-/**
-  * @}
-  */
+#define ADC_EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
+#define ADC_EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
 
-/** @addtogroup ADC_Exported_Functions_Group3 Peripheral Control functions
- * @{
- */ 
-/* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef       HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConfTypeDef* sConfig);
-HAL_StatusTypeDef       HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDGConfTypeDef* AnalogWDGConfig);
-/**
-  * @}
-  */
+#define ADC_OVR_DATA_OVERWRITTEN    (0x00000000U)   /*!< Default setting, to be used for compatibility with other STM32 devices */
+#define ADC_OVR_DATA_PRESERVED      (0x00000001U)
 
-/** @defgroup ADC_Exported_Functions_Group4 Peripheral State functions
- *  @brief   ADC Peripheral State functions 
- * @{
- */ 
-/* Peripheral State functions *************************************************/
-uint32_t                HAL_ADC_GetState(ADC_HandleTypeDef* hadc);
-uint32_t                HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
-/**
-  * @}
-  */
+typedef enum {
+  HAL_OK       = 0x00U,
+  HAL_ERROR    = 0x01U,
+  HAL_BUSY     = 0x02U,
+  HAL_TIMEOUT  = 0x03
+} HAL_StatusTypeDef;
 
-/**
-  * @}
-  */
+#define ADC_SMPR2_SMP10_Pos            (0U)                                    
+#define ADC_SMPR2_SMP10_Msk            (0x7UL << ADC_SMPR2_SMP10_Pos)           /*!< 0x00000007 */
+#define ADC_SMPR2_SMP10                ADC_SMPR2_SMP10_Msk                     /*!< ADC channel 10 sampling time selection  */
+#define ADC_SMPR2_SMP10_0              (0x1UL << ADC_SMPR2_SMP10_Pos)           /*!< 0x00000001 */
+#define ADC_SMPR2_SMP10_1              (0x2UL << ADC_SMPR2_SMP10_Pos)           /*!< 0x00000002 */
+#define ADC_SMPR2_SMP10_2              (0x4UL << ADC_SMPR2_SMP10_Pos)           /*!< 0x00000004 */
 
-/**
-  * @}
-  */ 
+#define ADC_SAMPLETIME_1CYCLE_5       (0x00000000U)                              /*!< Sampling time 1.5 ADC clock cycle */
+#define ADC_SAMPLETIME_2CYCLES_5      ((uint32_t)ADC_SMPR2_SMP10_0)                       /*!< Sampling time 2.5 ADC clock cycles */
+#define ADC_SAMPLETIME_4CYCLES_5      ((uint32_t)ADC_SMPR2_SMP10_1)                       /*!< Sampling time 4.5 ADC clock cycles */
+#define ADC_SAMPLETIME_7CYCLES_5      ((uint32_t)(ADC_SMPR2_SMP10_1 | ADC_SMPR2_SMP10_0)) /*!< Sampling time 7.5 ADC clock cycles */
+#define ADC_SAMPLETIME_19CYCLES_5     ((uint32_t)ADC_SMPR2_SMP10_2)                       /*!< Sampling time 19.5 ADC clock cycles */
+#define ADC_SAMPLETIME_61CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP10_2 | ADC_SMPR2_SMP10_0)) /*!< Sampling time 61.5 ADC clock cycles */
+#define ADC_SAMPLETIME_181CYCLES_5    ((uint32_t)(ADC_SMPR2_SMP10_2 | ADC_SMPR2_SMP10_1)) /*!< Sampling time 181.5 ADC clock cycles */
+#define ADC_SAMPLETIME_601CYCLES_5    ((uint32_t)ADC_SMPR2_SMP10)     
 
-/**
-  * @}
-  */
+#define ADC_SINGLE_ENDED                (0x00000000U)
+#define ADC_DIFFERENTIAL_ENDED          (0x00000001U)
 
-#ifdef __cplusplus
-}
-#endif
+#define ADC_OFFSET_NONE               (0x00U)
+#define ADC_OFFSET_1                  (0x01U)
+#define ADC_OFFSET_2                  (0x02U)
+#define ADC_OFFSET_3                  (0x03U)
+#define ADC_OFFSET_4                  (0x04U)
+
+typedef struct {
+  uint32_t Channel;
+  uint32_t Rank;
+  uint32_t SamplingTime;
+  uint32_t SingleDiff;
+  uint32_t OffsetNumber;
+  uint32_t Offset;
+} ADC_ChannelConfTypeDef;
+
 
 #endif /*__STM32F3xx_ADC_H */
-
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
-
-
-#endif  // !APP_STM_INC_STM_HAL_ADC_DEFS_H_
