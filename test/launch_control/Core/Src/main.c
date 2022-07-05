@@ -172,6 +172,8 @@ WATCHDOG_Activation();
   mode = MMR_AS_MODE_MANUAL;
   while (1) {
     mode = MMR_AS_Run(mode);
+    //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
+
 #ifdef ASSI_TEST
     AS_LED_ASSI(as_state);
 #endif
