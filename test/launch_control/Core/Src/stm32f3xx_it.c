@@ -200,9 +200,11 @@ void SysTick_Handler(void)
 	  static uint16_t APPS_counter = 0;
 	  static _Bool APPS_startCounter = 0;
 	  static uint8_t APPS_ctr = 0;
+
 	  static uint16_t TPS_counter = 0;
 	  static _Bool TPS_startCounter = 0;
 	  static uint8_t TPS_ctr = 0;
+
 	  HAL_IncTick();
 
 
@@ -233,16 +235,17 @@ if(mode == MMR_AS_MODE_MANUAL)
 }
 
 
-TPS_Flag = TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2()); // I DUE VALORI DI ADC DA RIMPIAZZERE CON I VALORI DI TPS 1&2
+TPS_Flag = TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2());
 
-if (TPS_Flag == 1 && !TPS_startCounter) {
+if (TPS_Flag == 1 && !TPS_startCounter)
+{
 	  TPS_startCounter = true;
 	  TPS_counter++;
 }
 	  if (TPS_startCounter) {
 	  	  TPS_counter++;
 
-	  	  TPS_ctr += TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2()); // da aggiungere la seconda lettura via CAN ATH2
+	  	  TPS_ctr += TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2());
 	  	  if (TPS_ctr >= 100)
 	  		  HAL_DMA_Abort(&hdma_dac_ch1); // DA MODIFICARE, CAPIRE COME SPEGNERE LVMS SE CI SONO PROBLEMI --->>> EBS ???
 
