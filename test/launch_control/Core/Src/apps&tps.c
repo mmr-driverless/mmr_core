@@ -9,28 +9,15 @@
 #include "stm32f3xx_it.h"
 
 #include <stdbool.h>
-
+#include "math.h"
 
 
 
 
 _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 {
-	if (APPS1 <= APPS1_TH_LOW ||APPS1 >= APPS1_TH_HIGH) {
-		if( (APPS1 <= (1 - THRESHOLD)*APPS1_TH_LOW) || (APPS1 >= (1 + THRESHOLD)*APPS1_TH_HIGH) ){
-
-			return true;
-		}
-	}
-
-	if (APPS2 <= APPS2_TH_LOW ||APPS2 >= APPS2_TH_HIGH) {
-		if( (APPS2 <= (1 - THRESHOLD)*APPS2_TH_LOW) || (APPS2 >= (1 + THRESHOLD)*APPS2_TH_HIGH) ) {
-
-			return true;
-		}
-	}
-
-	return false;
+	if((APPS1 - 2*APPS2) <= THRESHOLD) return false;
+	else return true;
 
 }
 
@@ -57,5 +44,7 @@ _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 
 _Bool TPS_check(uint32_t TPS1, uint32_t TPS2)
 {
-	return 1; // modficiare
+	 uint32_t tps_buff = TPS1 + TPS2;
+	if (fabs(tps_buff - 5) <= THRESHOLD) return false;
+	else return true;
 }

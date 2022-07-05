@@ -233,7 +233,7 @@ if(mode == MMR_AS_MODE_MANUAL)
 }
 
 
-TPS_Flag = TPS_check(adc[0],adc[1]); // I DUE VALORI DI ADC DA RIMPIAZZERE CON I VALORI DI TPS 1&2
+TPS_Flag = TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2()); // I DUE VALORI DI ADC DA RIMPIAZZERE CON I VALORI DI TPS 1&2
 
 if (TPS_Flag == 1 && !TPS_startCounter) {
 	  TPS_startCounter = true;
