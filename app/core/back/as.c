@@ -9,6 +9,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+#define APPS_offset 650
+#define APPS_slope 716
+
 static bool handlePreStart(MmrLaunchControlMode *mode);
 
 
@@ -52,7 +56,7 @@ void MMR_AS_Init(
   __gearDown = gearDown;
   __changeModeButton = MMR_Button(changeMode);
   __state = (struct MmrLaunchControl){
-    .lap = 1,
+    .lap = 0,
     .clutch = MMR_CLUTCH_UNKNOWN,
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
   };
@@ -98,8 +102,14 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
 
     case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
       __state.infoSpeed = *(float*)(buffer);
-      break;
+
+
+    case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
+     	__state.lap = *(uint8_t *)(buffer);
+     	break;
+
     }
+
   }
 
   bool canStart = handlePreStart(&mode);
@@ -199,5 +209,5 @@ uint16_t MMR_AS_GetAth() {
 }
 
 uint32_t MMR_AS_GetInfoSpeed() {
-  return __state.infoSpeed;
+  return APPS_slope*(__state.infoSpeed) + APPS_offset;
 }

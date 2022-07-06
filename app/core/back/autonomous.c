@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define autAppsSlope ()
+
 static MmrAutonomousState waiting(MmrAutonomousState state);
 static MmrAutonomousState pullClutch(MmrAutonomousState state);
 static MmrAutonomousState waitBeforeChangingGear(MmrAutonomousState state);
@@ -280,6 +282,19 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  *__apps = MMR_AS_GetInfoSpeed();
+	  static const uint16_t apps_MIN = 650;
+
+	if(MMR_AS_GetLap() >= 1)
+
+  {
+	*__apps = MMR_AS_GetInfoSpeed();
   return MMR_AUTONOMOUS_DONE;
+  }
+  else
+	  {
+	  *__apps = apps_MIN;
+	  return MMR_AUTONOMOUS_DONE;
+
+	  }
+
 }
