@@ -66,7 +66,7 @@ struct lowpass32_data{
 #define ADC_SIZE 50
 #define POSITION_SAMPLES_NUMBER 5
 
-const float MAX_STEERING_ANGLE = 21.5f*6.5625f; // [deg]
+const float MAX_STEERING_ANGLE = 22.8f*6.5625f; // [deg]
 const float ADC_MAX_VALUE = 1024.0f;
 const float ADC_MAX_VOLTAGE = 3.6f; // [V]
 const float DEGREES_PER_VOLT = 20.0f; // [deg/V]

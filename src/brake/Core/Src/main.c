@@ -49,12 +49,12 @@ struct lowpass32_data{
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define ADC_SIZE 50
-#define POSITION_SAMPLES_NUMBER 5
+#define PRESSURE_SAMPLES_NUMBER 5
 
 const float ADC_MAX_VALUE = 1024.0f;
 const float ADC_MAX_VOLTAGE = 3.6f; // [V]
 const float VOLTAGE_RATIO = 3.3f/5.0f;
-const float TOLERANCE = 0.5f; // [bar]
+const float TOLERANCE = 0.1f; // [bar]
 const float STD_DEVIATION_LIMIT = 2.5f;
 const float AMBIENT_PRESSURE_VOLTAGE = 0.5f; // [V]
 const float BARS_PER_VOLT = 40.0f; // [bar/V]
@@ -80,24 +80,23 @@ struct proportional_data p_data_pressure_error;
 struct lowpass_data lowpass_data_pressure, lowpass_data_angle;
 struct lowpass32_data lowpass32_data;
 
-float target_pressure=0; // [deg]
-float speed=10; // [m/s]
-
-float current_pressure=0; // [deg]
+float target_pressure=0; // [bar]
+float current_pressure=0; // [bar]
 float tension=0; // [V]
-float pressure_error=0; // [deg]
+float pressure_error=0; // [bar]
 uint16_t prescaler=100-1;
 uint16_t ADC2_Value[ADC_SIZE];
 uint16_t filtered_ADC_pressure = 0;
 uint16_t filtered_ADC_angle = 0;
 uint32_t target_psc = 500;
-uint16_t position_samples[POSITION_SAMPLES_NUMBER];
+uint16_t pressure_samples[PRESSURE_SAMPLES_NUMBER];
 uint16_t k=0;
 uint16_t cansendflag=0;
 
 float flag=0;
 float sigma=0;
-float limitOffset=0.0f;
+uint16_t released_pedal_ADC=0; // must be set based on filtered_ADC_angle evaluated in fully released conditions
+uint16_t released_pedal_ADC_tolerance=20;
 float max_pressure = 12.0f; // [bar]
 
 bool isActive = true;
@@ -113,7 +112,7 @@ static void MX_TIM7_Init(void);
 static void MX_CAN1_Init(void);
 /* USER CODE BEGIN PFP */
 void Autoset(){
-	limitOffset=filtered_ADC_angle;
+	released_pedal_ADC=filtered_ADC_angle;
 
 	MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_BRK_ZERO_PRESSURE_AUTOSET_OK);
 	MmrCanMessage autosetOkMsg = MMR_CAN_OutMessage(header);
@@ -123,7 +122,7 @@ void Autoset(){
 
 float Average(uint16_t p[], int length){
     float avg=0;
-    for (int i =0; i<length; i+=2){
+    for (int i =0; i<length; i++){
         avg+=p[i];
     }
     return avg/(length);
@@ -164,11 +163,23 @@ static void brake(
 }
 
 static void press() {
-  brake(GPIO_PIN_SET, GPIO_PIN_RESET);
+	brake(GPIO_PIN_SET, GPIO_PIN_RESET);
 }
 
 static void release() {
-  brake(GPIO_PIN_RESET, GPIO_PIN_SET);
+
+	/*
+	 *  // SAFETY CHECK WITH POTENTIOMETER
+	 *
+	if(fabsf((float)filtered_ADC_angle -(float)released_pedal_ADC) < (float)released_pedal_ADC_tolerance){
+		TIM2-CCR1=0;
+	} else {
+		brake(GPIO_PIN_RESET, GPIO_PIN_SET);
+	}
+	*/
+
+	// NO SAFETY CHECK - NEEDS REPLACEMENT
+	brake(GPIO_PIN_RESET, GPIO_PIN_SET);
 }
 
 uint16_t Lowpass(uint16_t input, struct lowpass_data *lp_data){
@@ -188,33 +199,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check which version of the timer triggered this callback
   if (htim == &htim7)
   {
-	filtered_ADC_pressure=Lowpass(ADC2_Value[0], &lowpass_data_pressure);
-	filtered_ADC_angle=Lowpass(ADC2_Value[1], &lowpass_data_angle);
+	filtered_ADC_pressure=Lowpass(ADC2_Value[0], &lowpass_data_pressure); // A4 PA5 SPOT1
+	filtered_ADC_angle=Lowpass(ADC2_Value[1], &lowpass_data_angle); //A5 PA6 SPOT2
 
     tension = ((filtered_ADC_pressure / ADC_MAX_VALUE) * ADC_MAX_VOLTAGE)/(VOLTAGE_RATIO);
 
-    current_pressure = (tension - AMBIENT_PRESSURE_VOLTAGE) * BARS_PER_VOLT;
+    //current_pressure = (tension - AMBIENT_PRESSURE_VOLTAGE) * BARS_PER_VOLT;
 
-    pressure_error = -(target_pressure - current_pressure); // We calculate the error compared to the target
+    pressure_error = (target_pressure - current_pressure); // We calculate the error compared to the target
 
-    if(k>=POSITION_SAMPLES_NUMBER-1){
+    if(k>=PRESSURE_SAMPLES_NUMBER-1){
     	k=0;
     } else k++;
-    position_samples[k]=filtered_ADC_pressure;
-    sigma = StandardDeviation(position_samples, POSITION_SAMPLES_NUMBER);
+    pressure_samples[k]=current_pressure;
+    sigma = StandardDeviation(pressure_samples, PRESSURE_SAMPLES_NUMBER);
     if(sigma<STD_DEVIATION_LIMIT) {
     	target_psc=p_data_pressure_error.left_y;
     	lowpass32_data.output=target_psc;
     }
 
     if (pressure_error > TOLERANCE) {
-    // Add here safety control with filtered_ADC_angle
       press();
       target_psc=Proportional(pressure_error, p_data_pressure_error);
       TIM2->PSC = Lowpass32(target_psc, &lowpass32_data);
     }
     else if (pressure_error < -TOLERANCE) {
-    // Add here safety control with filtered_ADC_angle
       release();
       target_psc=Proportional(pressure_error, p_data_pressure_error);
       TIM2->PSC = Lowpass32(target_psc, &lowpass32_data);
@@ -227,7 +236,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 
     //if (filtered_ADC_angle) set the duty cycle to zero if going too far back
-    // CAN LOGGING
+    // CAN LOGGING - SKIPPED AS CURRENTLY BRAKE PRESSURE IS PUBLISHED BY ECU @ID199
+    /*
     if (cansendflag==5){
     	    uint8_t *data = (uint8_t*)(&current_pressure);
 
@@ -241,7 +251,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     } else {
     	cansendflag++;
     }
-
+	*/
 
   }
 }
@@ -326,8 +336,8 @@ int main(void)
     lowpass32_data.cutoff_frequency=15.0f; // [rad/s]
     lowpass32_data.dt=0.0125f; // TIM3 time period
 
-    for (int i=0; i<POSITION_SAMPLES_NUMBER; i++){
-    	position_samples[i]=0;
+    for (int i=0; i<PRESSURE_SAMPLES_NUMBER; i++){
+    	pressure_samples[i]=0;
     }
 
     if(isActive) {
@@ -342,8 +352,13 @@ int main(void)
 	  	      MmrCanHeader header = MMR_CAN_MESSAGE_GetHeader(&message);
 
 	  	      switch (header.messageId) {
+	  	      case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
+	  	    	  current_pressure = (*(uint16_t*)buffer)/200.0f;
+	  	    	  break;
+
 	  	      case MMR_CAN_MESSAGE_ID_BRK_TARGET_PRESSURE:
-	  	        target_pressure = (*(float*)buffer) * max_pressure;
+	  	        // target_pressure = (((*(uint16_t*)buffer)-1000)/9000.0f) * max_pressure; // ECU, EMA
+	  	    	target_pressure=(*(float*)buffer) * max_pressure;
 	  	        break;
 
 	  	      case MMR_CAN_MESSAGE_ID_BRK_PROPORTIONAL_ERROR_LEFT_X:
