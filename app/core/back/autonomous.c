@@ -280,6 +280,6 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  *__apps = *__adc;
+  *__apps = MMR_AS_GetInfoSpeed();
   return MMR_AUTONOMOUS_DONE;
 }

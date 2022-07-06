@@ -13,6 +13,7 @@ static bool handlePreStart(MmrLaunchControlMode *mode);
 
 
 struct MmrLaunchControl {
+  float infoSpeed;
   int16_t steeringAngle;
   uint8_t lap;
   uint16_t ath; //<--farfalla
@@ -95,8 +96,8 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       __state.clutch = MMR_CLUTCH_RELEASED;
       break;
 
-    case MMR_CAN_MESSAGE_ID_D_AS_CHANGE_MODE:
-      mode = MMR_BUFFER_ReadByte(buffer, 0);
+    case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
+      __state.infoSpeed = *(float*)(buffer);
       break;
     }
   }
@@ -195,4 +196,8 @@ uint8_t MMR_AS_GetLap() {
 
 uint16_t MMR_AS_GetAth() {
   return __state.ath;
+}
+
+uint32_t MMR_AS_GetInfoSpeed() {
+  return __state.infoSpeed;
 }
