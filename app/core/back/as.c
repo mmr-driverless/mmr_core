@@ -13,10 +13,15 @@
 #include "stm32f3xx_hal.h"
 
 
+
+#define APPS_offset 650
+#define APPS_slope 716
+
 static bool handlePreStart(MmrLaunchControlMode *mode);
 
 
 struct MmrLaunchControl {
+  float infoSpeed;
   int16_t steeringAngle;
   uint8_t lap;
   uint16_t ath;//<-- primo valore farfalla
@@ -64,7 +69,7 @@ void MMR_AS_Init(
   __gearDown = gearDown;
   __changeModeButton = MMR_Button(changeMode);
   __state = (struct MmrLaunchControl){
-    .lap = 1,
+    .lap = 0,
     .clutch = MMR_CLUTCH_UNKNOWN,
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
   };
@@ -91,6 +96,7 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       __state.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       __state.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
       __state.ath = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
+
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
@@ -107,7 +113,17 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     case MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK:
       __state.clutch = MMR_CLUTCH_RELEASED;
       break;
+
+    case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
+      __state.infoSpeed = *(float*)(buffer);
+
+
+    case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
+     	__state.lap = *(uint8_t *)(buffer);
+     	break;
+
     }
+
   }
 
   bool canStart = handlePreStart(&mode);
@@ -301,3 +317,8 @@ void AS_LED_ASSI(AS_state AS_state)
 
 void Buzzer_activation(void){HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);}
 void Buzzer_disactivation(void){HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);}
+
+
+uint32_t MMR_AS_GetInfoSpeed() {
+  return APPS_slope*(__state.infoSpeed) + APPS_offset;
+}

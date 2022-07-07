@@ -1,4 +1,4 @@
-#ifndef APP_BACK_INC_AS_H_
+ #ifndef APP_BACK_INC_AS_H_
 #define APP_BACK_INC_AS_H_
 
 #include <can.h>
@@ -77,6 +77,7 @@ void MMR_AS_SetLap(uint8_t lap);
 uint16_t MMR_AS_GetAth();
 uint16_t MMR_AS_GetAth2();
 int16_t MMR_AS_GetSteeringAngle();
+uint32_t MMR_AS_GetInfoSpeed();
 MmrClutchState MMR_AS_GetClutchState();
 MmrLaunchControlState MMR_AS_GetLaunchControlState();
 

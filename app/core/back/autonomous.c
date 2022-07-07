@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+
 static MmrAutonomousState waiting(MmrAutonomousState state);
 static MmrAutonomousState pullClutch(MmrAutonomousState state);
 static MmrAutonomousState waitBeforeChangingGear(MmrAutonomousState state);
@@ -77,12 +79,11 @@ static MmrAutonomousState pullClutch(MmrAutonomousState state) {
   MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL);
   MmrCanMessage clutchPullMsg = MMR_CAN_OutMessage(header);
 
-  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
-
   if (MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &clutchPullMsg);
   }
 
+  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
   if (isClutchPulled) {
     return MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR;
   }
@@ -237,7 +238,7 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
 
 
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
-  static const uint16_t DAC_0 = 620;
+  static const uint16_t DAC_0 = 650;
   static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
@@ -281,6 +282,19 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  *__apps = *__adc;
+	  static const uint16_t apps_MIN = 650;
+
+	if(MMR_AS_GetLap() >= 1)
+
+  {
+	*__apps = MMR_AS_GetInfoSpeed();
   return MMR_AUTONOMOUS_DONE;
+  }
+  else
+	  {
+	  *__apps = apps_MIN;
+	  return MMR_AUTONOMOUS_DONE;
+
+	  }
+
 }
