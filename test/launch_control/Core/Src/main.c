@@ -88,6 +88,9 @@ static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
+
+void Buzzer_activation(void){HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);}
+void Buzzer_disactivation(void){HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -167,8 +170,8 @@ WATCHDOG_Activation();
 
   MMR_SetTickProvider(HAL_GetTick);
   MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
-  MMR_ASSI_Init(&LABpin,&LAYpin,&ASSI_Delay,&Buzzer_Delay);
-
+  MMR_ASSI_Init(&LABpin,&LAYpin,&ASSI_Delay);
+  Buzzer_Delay = MMR_Delay(9000);
   mode = MMR_AS_MODE_MANUAL;
   while (1) {
     mode = MMR_AS_Run(mode);
@@ -176,6 +179,12 @@ WATCHDOG_Activation();
 
 #ifdef ASSI_TEST
     AS_LED_ASSI(as_state);
+    if(as_state == AS_EMERGENCY)
+    	{
+    		Buzzer_activation();
+    		if(MMR_DELAY_WaitAsync(&Buzzer_Delay))Buzzer_disactivation();
+    	}
+
 #endif
 
     /* USER CODE END WHILE */

@@ -1,4 +1,4 @@
-#include "stm32f3xx_hal.h"
+
 #include "inc/gear_change.h"
 #include "inc/autonomous.h"
 #include "inc/manual.h"
@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "stm_pin.h"
-#include "stm32f3xx_hal.h"
 
 
 
@@ -45,8 +44,6 @@ static uint32_t *__adc;
 static MmrPin *__AssiBlue;
 static MmrPin *__AssiYellow;
 static MmrDelay *__assi_delay;
-static MmrDelay *__buzzer_delay;
-extern TIM_HandleTypeDef htim17;
 
 /**/
 static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
@@ -96,6 +93,7 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       __state.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       __state.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
       __state.ath = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
+      // da aggiungere qui la seconda lettura ath2?
 
       break;
 
@@ -226,15 +224,13 @@ uint16_t MMR_AS_GetAth2() {
 	return __state.ath2;
 }
 
-void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay, MmrDelay *buzz_delay)
+void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay)
 {
 	__AssiBlue = AssiBlue;
 	__AssiYellow = AssiYellow;
 	__assi_delay = assi_delay;
-	__buzzer_delay = buzz_delay;
 
 	*__assi_delay = MMR_Delay(20);
-    *__buzzer_delay = MMR_Delay(9000);
 
 }
 
@@ -256,58 +252,54 @@ void LED_YELLOW_ASSI(ASSI_state assi_state)
 
 void AS_LED_ASSI(AS_state AS_state)
 {
-	if(AS_state == AS_EMERGENCY)
-	{
-		Buzzer_activation();
-		if(MMR_DELAY_WaitAsync(__buzzer_delay))Buzzer_disactivation();  // da chiedere a stefano questa cosa
-	}
+
 
    switch(AS_state)
    {
-   case AS_OFF: {
+   case AS_OFF:
 	             LED_BLUE_ASSI(LED_ASSI_OFF);
 	             LED_YELLOW_ASSI(LED_ASSI_OFF);
 	             break;
-	             }
+
 
    case AS_READY:
-                {
+
                   LED_BLUE_ASSI(LED_ASSI_OFF);
                   LED_YELLOW_ASSI(LED_ASSI_ON);
                   break;
-                }
+
 
    case AS_DRIVING:
-                {
+
 	              LED_BLUE_ASSI(LED_ASSI_OFF);
 	              LED_YELLOW_ASSI(LED_ASSI_ON);
 	              MMR_DELAY_Reset(__assi_delay);
 	              if(MMR_DELAY_WaitAsync(__assi_delay)) LED_YELLOW_ASSI(LED_ASSI_OFF);
 	              if(MMR_DELAY_WaitAsync(__assi_delay)) break;
 
-                 }
+
 
    case AS_EMERGENCY:
-                 {
+
                   LED_BLUE_ASSI(LED_ASSI_ON);
                   LED_YELLOW_ASSI(LED_ASSI_OFF);
                   MMR_DELAY_Reset(__assi_delay);
                   if(MMR_DELAY_WaitAsync(__assi_delay)) LED_BLUE_ASSI(LED_ASSI_ON);
                   if(MMR_DELAY_WaitAsync(__assi_delay)) break;
-                 }
+
 
    case AS_FINISHED:
-                 {
+
                    LED_BLUE_ASSI(LED_ASSI_ON);
                    LED_YELLOW_ASSI(LED_ASSI_OFF);
-                 }
+
 
    case AS_IDLE:
-                 {
+
                 	LED_BLUE_ASSI(LED_ASSI_OFF);
                 	LED_YELLOW_ASSI(LED_ASSI_OFF);
                 	break;
-                 }
+
 
 
     }
@@ -315,8 +307,7 @@ void AS_LED_ASSI(AS_state AS_state)
 
 }
 
-void Buzzer_activation(void){HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);}
-void Buzzer_disactivation(void){HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);}
+
 
 
 uint32_t MMR_AS_GetInfoSpeed() {

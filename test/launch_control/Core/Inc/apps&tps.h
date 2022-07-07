@@ -16,7 +16,7 @@
 #define APPS1_TH_HIGH 4000 // upper threshold for APPS2
 #define APPS2_TH_LOW 500  // low threshold for APPS1
 #define APPS2_TH_HIGH 2000 // upper threshold for APPS2
-#define THRESHOLD 0.10f
+#define THRESHOLD 0.50f
 
 
 

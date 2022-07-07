@@ -66,7 +66,7 @@ void LED_YELLOW_ASSI(ASSI_state assi_state);
 void Buzzer_activation(void);
 void Buzzer_disactivation(void);
 
-void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow,MmrDelay *assi_delay,MmrDelay *buzz_delay);
+void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow,MmrDelay *assi_delay);
 MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode);
 
 uint16_t MMR_AS_GetRpm();

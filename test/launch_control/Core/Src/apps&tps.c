@@ -16,7 +16,7 @@
 
 _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 {
-	if((APPS1 - 2*APPS2) <= THRESHOLD) return false;
+	if(fabs((APPS1 - 2*APPS2)) <= THRESHOLD) return false;
 	else return true;
 
 }
