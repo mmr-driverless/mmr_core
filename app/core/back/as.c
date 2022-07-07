@@ -21,6 +21,7 @@ struct MmrLaunchControl {
   int16_t steeringAngle;
   uint8_t lap;
   uint16_t ath; //<--farfalla
+  uin16_t ath2;
   uint16_t gear;
   uint16_t rpm;
   uint16_t speed;
@@ -83,6 +84,7 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       __state.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       __state.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
       __state.ath = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
+
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
@@ -207,6 +209,8 @@ uint8_t MMR_AS_GetLap() {
 uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }
+
+
 
 uint32_t MMR_AS_GetInfoSpeed() {
   return APPS_slope*(__state.infoSpeed) + APPS_offset;

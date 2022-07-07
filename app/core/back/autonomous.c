@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define autAppsSlope ()
+
 
 static MmrAutonomousState waiting(MmrAutonomousState state);
 static MmrAutonomousState pullClutch(MmrAutonomousState state);
