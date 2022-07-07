@@ -30,6 +30,11 @@ struct MmrLaunchControl {
   uint16_t speed;
   uint8_t uthrottle;
   uint8_t uthrottleb;
+  uint16_t ebs1;
+  uint16_t ebs2;
+  uint16_t brkp1;
+  uint16_t brkp2;
+
   MmrClutchState clutch;
   MmrLaunchControlState launchControl;
 } __state = {};
@@ -127,6 +132,13 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
      	__state.lap = *(uint8_t *)(buffer);
      	break;
+
+    case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
+    	//da aggiungere lettura messaggi can sensori di pressione
+    	break;
+    case MMR_CAN_MESSAGE_ID_ECU_EBS_PRESSURES:
+    	//da aggiungere letura messaggi can ebs
+    	break;
 
     }
 
@@ -238,6 +250,25 @@ uint8_t MMR_AS_GetUthrottleb()
 	return __state.uthrottleb;
 }
 
+uint16_t MMR_AS_GetEbs1()
+{
+	return __state.ebs1;
+}
+
+uint16_t MMR_AS_GetEbs2()
+{
+	return __state.ebs2;
+}
+
+uint16_t MMR_AS_GetBreakP1()
+{
+
+}
+
+uint16_t MMR_AS_GetBreakP2()
+{
+
+}
 
 void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay)
 {

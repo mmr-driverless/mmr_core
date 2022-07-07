@@ -79,6 +79,11 @@ uint8_t MMR_AS_GetUthrottle();
 uint8_t MMR_AS_GetUthrottleb();
 int16_t MMR_AS_GetSteeringAngle();
 uint32_t MMR_AS_GetInfoSpeed();
+uint16_t MMR_AS_GetEbs2();
+uint16_t MMR_AS_GetEbs1();
+uint16_t MMR_AS_GetBreakP1();
+uint16_t MMR_AS_GetBreakP2();
+
 MmrClutchState MMR_AS_GetClutchState();
 MmrLaunchControlState MMR_AS_GetLaunchControlState();
 

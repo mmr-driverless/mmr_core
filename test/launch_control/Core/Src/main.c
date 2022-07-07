@@ -27,7 +27,7 @@
 #include <timing.h>
 #include <can0.h>
 #include <stm_pin.h>
-#include "ebs.h"
+#include "EBS.h"
 #include "delay.h"
 #include "stdbool.h"
 
@@ -158,11 +158,16 @@ WATCHDOG_Activation();
   MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin);
   MmrPin changeModeBtn = MMR_Pin(B1_GPIO_Port, B1_Pin);
   /* LED ASSI variables (LAB == LED ASSI BLUE) (LAY == LED ASSI YELLOW) */
-  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port,LSW_ASSI_BLUE_Pin);
-  MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin);
   MmrDelay ASSI_Delay;
   MmrDelay Buzzer_Delay;
+  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port,LSW_ASSI_BLUE_Pin);
+  MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin);
   /**/
+  MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin);
+  MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin);
+  MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin);
+
+  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin);
 
 
   if (!MMR_CAN0_Start(&hcan)) {
