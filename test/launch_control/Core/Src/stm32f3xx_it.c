@@ -235,7 +235,7 @@ if(mode == MMR_AS_MODE_MANUAL)
 }
 
 
-TPS_Flag = TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2());
+TPS_Flag = TPS_check(MMR_AS_GetUthrottle(),MMR_AS_GetUthrottleb());
 
 if (TPS_Flag == 1 && !TPS_startCounter)
 {
@@ -245,7 +245,7 @@ if (TPS_Flag == 1 && !TPS_startCounter)
 	  if (TPS_startCounter) {
 	  	  TPS_counter++;
 
-	  	  TPS_ctr += TPS_check(MMR_AS_GetAth(),MMR_AS_GetAth2());
+	  	  TPS_ctr += TPS_check(MMR_AS_GetUthrottle(),MMR_AS_GetUthrottleb());
 	  	  if (TPS_ctr >= 100)
 	  		  HAL_DMA_Abort(&hdma_dac_ch1); // DA MODIFICARE, CAPIRE COME SPEGNERE LVMS SE CI SONO PROBLEMI --->>> EBS ???
 

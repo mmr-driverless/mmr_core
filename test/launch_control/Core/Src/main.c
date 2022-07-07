@@ -30,6 +30,7 @@
 #include <stm_pin.h>
 #include "ebs.h"
 #include "delay.h"
+#include "stdbool.h"
 
 /* USER CODE END Includes */
 
@@ -91,6 +92,7 @@ static void MX_TIM17_Init(void);
 
 void Buzzer_activation(void){HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);}
 void Buzzer_disactivation(void){HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);}
+bool buzzerflag = false;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -181,8 +183,13 @@ WATCHDOG_Activation();
     AS_LED_ASSI(as_state);
     if(as_state == AS_EMERGENCY)
     	{
-    		Buzzer_activation();
-    		if(MMR_DELAY_WaitAsync(&Buzzer_Delay))Buzzer_disactivation();
+    	if(buzzerflag == false) Buzzer_activation();
+
+    		if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
+    		{
+    			buzzerflag = true;
+    			Buzzer_disactivation();
+    		}
     	}
 
 #endif

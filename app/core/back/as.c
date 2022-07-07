@@ -28,6 +28,8 @@ struct MmrLaunchControl {
   uint16_t gear;
   uint16_t rpm;
   uint16_t speed;
+  uint8_t uthrottle;
+  uint8_t uthrottleb;
   MmrClutchState clutch;
   MmrLaunchControlState launchControl;
 } __state = {};
@@ -88,12 +90,18 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
   if (MMR_CAN_ReceiveAsync(__can, &msg) == MMR_TASK_COMPLETED) {
     MmrCanHeader header = MMR_CAN_MESSAGE_GetHeader(&msg);
     switch (header.messageId) {
+
+    case MMR_CAN_MESSAGE_ID_ECU_PEDAL_THROTTLE:
+       __state.uthrottle = MMR_BUFFER_ReadUint16(buffer,4,MMR_ENCODING_LITTLE_ENDIAN);
+       __state.uthrottleb = MMR_BUFFER_ReadUint16(buffer,6,MMR_ENCODING_LITTLE_ENDIAN);
+    	break;
+
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN1:
       __state.rpm = MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
       __state.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       __state.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
       __state.ath = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
-      // da aggiungere qui la seconda lettura ath2?
+
 
       break;
 
@@ -220,9 +228,16 @@ uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }
 
-uint16_t MMR_AS_GetAth2() {
-	return __state.ath2;
+uint8_t MMR_AS_GetUthrottle()
+{
+	return __state.uthrottle;
 }
+
+uint8_t MMR_AS_GetUthrottleb()
+{
+	return __state.uthrottleb;
+}
+
 
 void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay)
 {
