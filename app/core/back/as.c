@@ -21,7 +21,7 @@ struct MmrLaunchControl {
   int16_t steeringAngle;
   uint8_t lap;
   uint16_t ath; //<--farfalla
-  uin16_t ath2;
+  uint16_t ath2;
   uint16_t gear;
   uint16_t rpm;
   uint16_t speed;
@@ -84,7 +84,6 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       __state.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       __state.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
       __state.ath = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
-
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
@@ -102,17 +101,18 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       __state.clutch = MMR_CLUTCH_RELEASED;
       break;
 
-    case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
+    case MMR_CAN_MESSAGE_ID_D_ACCELERATOR_PERCENTAGE:
       __state.infoSpeed = *(float*)(buffer);
-
+      break;
 
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
      	__state.lap = *(uint8_t *)(buffer);
      	break;
-
     }
-
   }
+
+  *__apps = MMR_AS_GetInfoSpeed();
+  return mode;
 
   bool canStart = handlePreStart(&mode);
   if (!canStart) {
@@ -211,7 +211,6 @@ uint16_t MMR_AS_GetAth() {
 }
 
 
-
 uint32_t MMR_AS_GetInfoSpeed() {
-  return APPS_slope*(__state.infoSpeed) + APPS_offset;
+  return APPS_slope * (__state.infoSpeed) + APPS_offset;
 }

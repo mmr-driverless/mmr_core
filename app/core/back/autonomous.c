@@ -282,19 +282,11 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-	  static const uint16_t apps_MIN = 650;
+	static const uint16_t apps_MIN = 650;
 
-	if(MMR_AS_GetLap() >= 1)
+	*__apps = MMR_AS_GetLap() >= 1
+    ? MMR_AS_GetInfoSpeed()
+    : apps_MIN;
 
-  {
-	*__apps = MMR_AS_GetInfoSpeed();
   return MMR_AUTONOMOUS_DONE;
-  }
-  else
-	  {
-	  *__apps = apps_MIN;
-	  return MMR_AUTONOMOUS_DONE;
-
-	  }
-
 }
