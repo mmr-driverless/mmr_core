@@ -72,6 +72,7 @@ uint32_t adc[2];
 uint32_t dac;
 
 AS_state as_state = AS_IDLE;
+EbsStates Ebsstate = EBS_IDLE;
 
 
 /* USER CODE END PV */

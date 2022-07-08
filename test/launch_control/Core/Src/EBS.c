@@ -9,13 +9,13 @@
 #include "EBS.h"
 #include "delay.h"
 #include "timing.h"
+#include "as.h"
 
 
 extern TIM_HandleTypeDef htim16;
 static MmrPin *__ebs1;
 static MmrPin *__ebs2;
 static MmrPin* __asclSDC;
-
 
 
 
@@ -73,55 +73,150 @@ void AS_Close_SDC(MmrPin* asClSDC)
 	HAL_GPIO_WritePin(asClSDC->port, asClSDC->pin, GPIO_PIN_SET);
 }
 
-uint8_t EBS_check(uint8_t EBS1_Value, uint8_t EBS2_value, uint8_t Brake1_value, uint8_t Brake2_value,uint16_t RPM, uint8_t gear)
-{
-/*---------------------------------------------  PUNTO 2-3 */
+//uint8_t EBS_check(uint8_t EBS1_Value, uint8_t EBS2_value, uint8_t Brake1_value, uint8_t Brake2_value,uint16_t RPM, uint8_t gear)
+//{
+///*---------------------------------------------  PUNTO 2-3 */
+//
+//	if(SDC_is_Ready() == true) WATCHDOG_Disable(); // disabilito il watchdog
+//	else return EBS_NOT_ENDED;
+///*----------------------------------------------- PUNTO 4-5*/
+//	if(SDC_is_Ready() == false)
+//	{
+//		// invio mex alla scheda del display con ok ;
+//		WATCHDOG_Activation();
+//	}
+//	else
+//		{
+//		//invio mex can alla scheda display con errore
+//		return EBS_ERROR;
+//		}
+//
+///*-------------------------------------------------PUNTO 6-7-8-9*/
+//if(BRAKE_pressure_check(Brake1_value,Brake2_value) && EBS_sensor_check(EBS1_Value, EBS2_value))
+//	{
+//	AS_Close_SDC(__asclSDC);
+//	//invio mex can true al display ts_Ebs()
+//	}
+//	else return EBS_ERROR;
+///*---------------------------------------------------- PUNTO 10-11-12-13 */
+//
+//  if(TS_Activation(RPM, gear)) EBS_Management(__ebs1, OPEN);
+//  else return EBS_NOT_ENDED;
+//
+//  if(BRAKE_pressure_check(Brake1_value,Brake2_value))
+//	  {
+//	  EBS_Management(__ebs1, CLOSE);
+//	  EBS_Management(__ebs2, OPEN);
+//	  }
+//  //ACCENDERE LED EBS FAIL
+//  else return EBS_ERROR;
+//
+//  /*--------------------------------------------------------- PUNTO 14-15-16*/
+//
+//  if(BRAKE_pressure_check(Brake1_value,Brake2_value))
+//	   {
+//	    EBS_Management(__ebs2, CLOSE);
+//	    return EBS_ENDED;
+//	   }
+//  //ACCENDERE LED EBS FAIL
+//  else return EBS_ERROR;
+//
+//
+//}
 
-	if(SDC_is_Ready() == true) WATCHDOG_Disable(); // disabilito il watchdog
-	else return EBS_NOT_ENDED;
-/*----------------------------------------------- PUNTO 4-5*/
-	if(SDC_is_Ready() == false)
+EbsStates ebsCheck(EbsStates state)
+{
+	switch(state)
 	{
-		// invio mex alla scheda del display con ok ;
-		WATCHDOG_Activation();
-	}
-	else
-		{
-		//invio mex can alla scheda display con errore
-		return EBS_ERROR;
+
+	case EBS_IDLE: if(SDC_is_Ready() == GPIO_PIN_SET)
+	               {
+		            WATCHDOG_Disable();
+		            HAL_Delay(250);
+		            return EBS_SDC_IS_READY;
+		            break;
+		            }
+	                else
+	                	{
+
+	                	return EBS_CHECK_NOT_ENDED;
+	                	break;
+
+	                	}
+
+	case EBS_SDC_IS_READY: if(SDC_is_Ready() == GPIO_PIN_RESET)
+	                         {
+
+		                      WATCHDOG_Activation();
+		                      return EBS_PRESSURE_CHECK;break;
+	                         }
+	                         else
+	                        	 {return EBS_SDC_IS_NOT_READY;
+	                        	 break;}
+
+
+   case EBS_SDC_IS_NOT_READY:  HAL_Delay(250);
+	                        if(SDC_is_Ready() == GPIO_PIN_RESET)
+	                        {
+	                          WATCHDOG_Activation();
+	                          return EBS_PRESSURE_CHECK;break;
+	                         }
+	                        else
+	                        	{return EBS_ERROR;
+	                        	break;}
+
+	case EBS_PRESSURE_CHECK: HAL_Delay(500);
+	                         if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()) && EBS_sensor_check(MMR_AS_GetEbs1(),MMR_AS_GetEbs2()))
+		                      {
+	                        	 AS_Close_SDC(__asclSDC);
+		                       return EBS_TS_CHECK; break;
+		                       }
+		                      else {return EBS_ERROR;
+		                      break;}
+
+	case EBS_TS_CHECK: if(TS_Activation(MMR_AS_GetRpm(), MMR_AS_GetGear()))
+		{return EBS1_CONTROL;
+		break;
 		}
 
-/*-------------------------------------------------PUNTO 6-7-8-9*/
-if(BRAKE_pressure_check(Brake1_value,Brake2_value) && EBS_sensor_check(EBS1_Value, EBS2_value))
-	{
-	AS_Close_SDC(__asclSDC);
-	//invio mex can true al display ts_Ebs()
+	case EBS1_CONTROL: EBS_Management(__ebs1, OPEN);
+	                HAL_Delay(20);
+		            if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()))
+		            	{
+		            	EBS_Management(__ebs1, CLOSE);
+		          	    return EBS2_CONTROL;
+		          	    break;
+		            	}
+		              else {return EBS_ERROR;
+		              break;}
+
+	case EBS2_CONTROL: 	  EBS_Management(__ebs2, OPEN);
+	                      HAL_Delay(20);
+	                   if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()))
+	                 	   {
+	               	      EBS_Management(__ebs2, CLOSE);
+
+	                 	   return EBS_OK; break;
+	                 	   }
+	                   else  {
+	                	   return EBS_ERROR;
+	                	   break;
+	                   }
+
+	case EBS_ERROR: Error_Handler();
+
+	case EBS_CHECK_NOT_ENDED: HAL_Delay(100);
+	                          if(SDC_is_Ready() == GPIO_PIN_SET)
+	                           {
+	                             return EBS_IDLE;
+	                             break;
+	                           }
+	                          else {
+	                        	  return EBS_ERROR;
+	                        	  break;
+	                          }
+
+
 	}
-	else return EBS_ERROR;
-/*---------------------------------------------------- PUNTO 10-11-12-13 */
-
-  if(TS_Activation(RPM, gear)) EBS_Management(__ebs1, OPEN);
-  else return EBS_NOT_ENDED;
-
-  if(BRAKE_pressure_check(Brake1_value,Brake2_value))
-	  {
-	  EBS_Management(__ebs1, CLOSE);
-	  EBS_Management(__ebs2, OPEN);
-	  }
-  //ACCENDERE LED EBS FAIL
-  else return EBS_ERROR;
-
-  /*--------------------------------------------------------- PUNTO 14-15-16*/
-
-  if(BRAKE_pressure_check(Brake1_value,Brake2_value))
-	   {
-	    EBS_Management(__ebs2, CLOSE);
-	    return EBS_ENDED;
-	   }
-  //ACCENDERE LED EBS FAIL
-  else return EBS_ERROR;
-
-
 }
-
 
