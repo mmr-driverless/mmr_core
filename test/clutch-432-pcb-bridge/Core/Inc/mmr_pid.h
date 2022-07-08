@@ -7,6 +7,8 @@
 
 // #define INVERT_ERROR
 
+// #define TOLERANCE 0.04f
+
 typedef struct PIDSaturation {
   float max;
   float min;

@@ -17,6 +17,7 @@ Clutch clutchInit(ClutchIndexes indexes, ClutchPID clutchPID, AdcValue *adcValue
 	clutchPID: clutchPID,
     indexes: indexes,
 	mode: MANUAL,
+	state: OK,
 	_adcValues: adcValues,
 	_lpDataAngle: lpDataAngle,
 	_lpDataCurrent: lpDataCurrent,
@@ -29,22 +30,29 @@ void setDrivingMode(Clutch *clutch, DrivingMode mode) {
 	clutch->mode = mode;
 }
 
+void setErrorState(Clutch *clutch, ErrorState state){
+	clutch->state = state;
+}
+
 void setTargetAngle(Clutch *clutch, float angle) {
 	clutch->targetAngle = angle;
 }
 
 float getMotorDutyCycle(Clutch *clutch) {
   clutch->measuredAngle = getPotMotAngle(clutch);//lowpassFilter(getPotMotAngle(clutch), &clutch->_lpDataMeasured);
-  clutch->targetAngle = getLeverAngle(clutch);
+  //clutch->targetAngle = getLeverAngle(clutch);
   clutch->current = getCurrent(clutch);
 
-  /*if(clutch->mode == MANUAL){
-	    //clutch->targetAngle =  getLeverAngle(clutch);
-	  clutch->targetAngle = 2.0f;
-  }*/
+  if(clutch->mode == MANUAL){
+	  clutch->targetAngle =  getLeverAngle(clutch);
+  }
 
+  if (clutch->measuredAngle>ENGAGED_CLUTCH_ANGLE || clutch->measuredAngle<OPEN_CLUTCH_ANGLE){
+	  setErrorState(clutch, POTENTIOMETER_OUT_OF_RANGE);
+	  return 0.5f;
+  }
 
-
+  setErrorState(clutch, OK);
 // return PIDCompute(clutch->clutchPID.pid2, /*clutch->targetAngle*/voltageTarget, /*clutch->measuredAngle*/ clutch->current);
   return PIDCascade(
 		  clutch->clutchPID.pid1,

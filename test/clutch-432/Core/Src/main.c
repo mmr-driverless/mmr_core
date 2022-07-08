@@ -78,6 +78,7 @@ int tick;
 
 bool engage = false;
 DrivingMode mode = MANUAL;
+ErrorState state = OK;
 //PID POSIZIONE
 const PIDSaturation saturations1 = {
 		min: -0.8f,
@@ -210,6 +211,18 @@ int main(void)
 			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK,
 	  };
 
+	  MmrCanPacket packetErrorState = {
+	  		  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_POTENTIOMETER_OUT_OF_RANGE,
+	  };
+
+	  // ALL MODES
+
+	  if(uwTick - start >= 100) {
+		  start = uwTick;
+		  if(clutch.state == POTENTIOMETER_OUT_OF_RANGE) {
+			  MMR_CAN_Send(&hcan1, packetErrorState);
+		  }
+	  }
 
 	  //AUTONOMOUS
 

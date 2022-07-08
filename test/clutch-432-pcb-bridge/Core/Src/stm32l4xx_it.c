@@ -251,12 +251,12 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
-		/*if(clutch.mode == AUTONOMOUS) {
+		if(clutch.mode == AUTONOMOUS) {
 			if(engage)
 				engagedClutch(&clutch);
 			else
 				openClutch(&clutch);
-		}*/
+		}
 
 		dt = (uint32_t)(getMotorDutyCycle(&clutch) * TIM1->ARR);
 		TIM1->CCR1 = dt;

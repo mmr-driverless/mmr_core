@@ -76,14 +76,18 @@ int delay;
 int tick;
 float currentError;
 extern float current;
+float tolerance = 0.04f;
+float lower_tolerance = 0.04f;
+float additional_tolerance = 0.06f;
 
 
 bool engage = false;
 DrivingMode mode = MANUAL;
+ErrorState state = OK;
 //PID POSITION
 const PIDSaturation saturations1 = {
-		min: 1.0f,
-		max: 2.20f,
+		min: 1.2f,
+		max: 2.0f,
 };
 
 const PIDParameters parameters1 = {
@@ -236,6 +240,18 @@ int main(void)
 			  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK,
 	  };
 
+	  MmrCanPacket packetErrorState = {
+	  		  .header.messageId = MMR_CAN_MESSAGE_ID_CS_CLUTCH_POTENTIOMETER_OUT_OF_RANGE,
+	  };
+
+	  // ALL MODES
+
+	  if(uwTick - start >= 100) {
+		  start = uwTick;
+		  if(clutch.state == POTENTIOMETER_OUT_OF_RANGE) {
+			  MMR_CAN_Send(&hcan1, packetErrorState);
+		  }
+	  }
 
 	  //AUTONOMOUS
 

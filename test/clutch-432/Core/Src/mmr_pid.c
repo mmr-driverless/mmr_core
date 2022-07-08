@@ -1,8 +1,6 @@
 #include "mmr_pid.h"
 #include "stm32l4xx_hal.h"
 
-#define LOWER_TOLERANCE 0.04f
-
 extern float currentTarget;
 extern float errorPos;
 

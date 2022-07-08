@@ -44,6 +44,13 @@ struct lowpass32_data{
 	uint32_t  input, output;
 	float cutoff_frequency, dt;
 };
+
+enum Mode {
+	RUN,
+	CHECK_ASB,
+};
+
+typedef enum Mode Mode;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -54,7 +61,7 @@ struct lowpass32_data{
 const float ADC_MAX_VALUE = 1024.0f;
 const float ADC_MAX_VOLTAGE = 3.6f; // [V]
 const float VOLTAGE_RATIO = 3.3f/5.0f;
-const float TOLERANCE = 0.1f; // [bar]
+const float TOLERANCE = 0.5f; // [bar]
 const float STD_DEVIATION_LIMIT = 2.5f;
 const float AMBIENT_PRESSURE_VOLTAGE = 0.5f; // [V]
 const float BARS_PER_VOLT = 40.0f; // [bar/V]
@@ -88,7 +95,7 @@ uint16_t prescaler=100-1;
 uint16_t ADC2_Value[ADC_SIZE];
 uint16_t filtered_ADC_pressure = 0;
 uint16_t filtered_ADC_angle = 0;
-uint32_t target_psc = 500;
+uint32_t target_psc = 400;
 uint16_t pressure_samples[PRESSURE_SAMPLES_NUMBER];
 uint16_t k=0;
 uint16_t cansendflag=0;
@@ -97,7 +104,10 @@ float flag=0;
 float sigma=0;
 uint16_t released_pedal_ADC=0; // must be set based on filtered_ADC_angle evaluated in fully released conditions
 uint16_t released_pedal_ADC_tolerance=20;
-float max_pressure = 12.0f; // [bar]
+float max_pressure = 6.0f; // [bar]
+
+Mode mode = RUN;
+uint16_t asbCheckCycles = 0;
 
 bool isActive = true;
 /* USER CODE END PV */
@@ -111,6 +121,39 @@ static void MX_TIM2_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_CAN1_Init(void);
 /* USER CODE BEGIN PFP */
+void ASB_Check(){
+	if(current_pressure >= target_pressure - TOLERANCE){
+	    		uint8_t *data = (uint8_t*)(1);
+
+	    		MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_ASB_CHECK);
+	    		MmrCanMessage asbCheckMessage = MMR_CAN_OutMessage(header);
+	    		MMR_CAN_MESSAGE_SetPayload(&asbCheckMessage, data, sizeof(uint8_t));
+
+	    		MMR_CAN_Send(&can0, &asbCheckMessage);
+
+	    		mode = RUN;
+	    		target_pressure=0.0f;
+	    		asbCheckCycles=0;
+	    	} else {
+	    		asbCheckCycles++;
+	    	}
+
+	    	if(asbCheckCycles>=400){
+	    		uint8_t *data = (uint8_t*)(0);
+
+	    		MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_ASB_CHECK);
+	    		MmrCanMessage asbCheckMessage = MMR_CAN_OutMessage(header);
+	    		MMR_CAN_MESSAGE_SetPayload(&asbCheckMessage, data, sizeof(uint8_t));
+
+	    		MMR_CAN_Send(&can0, &asbCheckMessage);
+
+	    		mode = RUN;
+	    		target_pressure=0.0f;
+	    		asbCheckCycles=0;
+	    	}
+
+}
+
 void Autoset(){
 	released_pedal_ADC=filtered_ADC_angle;
 
@@ -252,6 +295,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	cansendflag++;
     }
 	*/
+    if (mode == CHECK_ASB){
+    	ASB_Check();
+    }
 
   }
 }
@@ -316,9 +362,9 @@ int main(void)
 
     // Definition of proportional parameters
     p_data_pressure_error.left_x=0.0f;
-    p_data_pressure_error.left_y=500;
+    p_data_pressure_error.left_y=400;
     p_data_pressure_error.right_x=2.0f;
-    p_data_pressure_error.right_y=200;
+    p_data_pressure_error.right_y=100;
 
     // Definition of lowpass parameters
     lowpass_data_pressure.input=ADC2_Value[0];
@@ -331,8 +377,8 @@ int main(void)
     lowpass_data_angle.cutoff_frequency=20.0f; // [rad/s]
     lowpass_data_angle.dt=0.0125f; // TIM3 time period
 
-    lowpass32_data.input=500;
-    lowpass32_data.output=500;
+    lowpass32_data.input=400;
+    lowpass32_data.output=400;
     lowpass32_data.cutoff_frequency=15.0f; // [rad/s]
     lowpass32_data.dt=0.0125f; // TIM3 time period
 
@@ -388,6 +434,11 @@ int main(void)
 		  	  case MMR_CAN_MESSAGE_ID_BRK_MAX_PRESSURE:
 		  	   	  max_pressure=(*(float*)buffer);
 		  	   	  break;
+
+		  	  case MMR_CAN_MESSAGE_ID_BRK_CHECK_ASB_STATE:
+		  		  target_pressure=max_pressure/2;
+		  		  mode = CHECK_ASB;
+		  		  break;
 	  	      }
 	  	    }
 

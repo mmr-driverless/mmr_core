@@ -8,8 +8,8 @@
 #define VOLTAGE_RATIO (5.0f/3.3f)
 
 #define CURRENT_CORRECTIVE_FACTOR 0.95f
-#define OPEN_CLUTCH_ANGLE (0.69f)//(0.83f+0.025f) // [rad]
-#define ENGAGED_CLUTCH_ANGLE (1.62f) // [rad]
+#define OPEN_CLUTCH_ANGLE 0.32f//(0.83f+0.025f) // [rad]
+#define ENGAGED_CLUTCH_ANGLE 1.676f // [rad]
 
 #define OPEN_LEVER_ANGLE 0.60f // [rad] // 1350
 #define ENGAGED_LEVER_ANGLE 1.02f // [rad] // 2160
@@ -22,7 +22,13 @@ enum DrivingMode {
 	AUTONOMOUS,
 };
 
+enum ErrorState {
+	OK,
+	POTENTIOMETER_OUT_OF_RANGE,
+};
+
 typedef enum DrivingMode DrivingMode;
+typedef enum ErrorState ErrorState;
 typedef uint8_t AdcIndex;
 typedef uint8_t BufferLength;
 typedef uint16_t AdcValue;
@@ -46,6 +52,7 @@ typedef struct Clutch {
     float targetAngle;
     float current;
 	DrivingMode mode;
+	ErrorState state;
 	bool inProgress;
 	LowpassData _lpDataAngle;
 	LowpassData _lpDataCurrent;
@@ -56,6 +63,7 @@ void openClutch(Clutch *clutch);
 void engagedClutch(Clutch *clutch);
 
 void setDrivingMode(Clutch *clutch, DrivingMode mode);
+void setErrorState(Clutch *clutch, ErrorState state);
 void setTargetAngle(Clutch *clutch, float angle);
 
 float getPotMotAngle(Clutch *clutch);

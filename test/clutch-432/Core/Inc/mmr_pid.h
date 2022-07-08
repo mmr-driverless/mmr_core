@@ -8,6 +8,8 @@
 #define INVERT_ERROR
 #define INTEGRAL_ANTI_WINDUP
 
+#define LOWER_TOLERANCE 0.04f
+
 typedef struct PIDSaturation {
   float max;
   float min;

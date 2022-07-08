@@ -21,7 +21,13 @@ enum DrivingMode {
 	AUTONOMOUS,
 };
 
+enum ErrorState {
+	OK,
+	POTENTIOMETER_OUT_OF_RANGE,
+};
+
 typedef enum DrivingMode DrivingMode;
+typedef enum ErrorState ErrorState;
 typedef uint8_t AdcIndex;
 typedef uint8_t BufferLength;
 typedef uint16_t AdcValue;
@@ -45,6 +51,7 @@ typedef struct Clutch {
     float targetAngle;
     float current;
 	DrivingMode mode;
+	ErrorState state;
 	bool inProgress;
 	LowpassData _lpDataMeasured;
 } Clutch;
@@ -54,6 +61,7 @@ void openClutch(Clutch *clutch);
 void engagedClutch(Clutch *clutch);
 
 void setDrivingMode(Clutch *clutch, DrivingMode mode);
+void setErrorState(Clutch *clutch, ErrorState state);
 void setTargetAngle(Clutch *clutch, float angle);
 
 float getPotMotAngle(Clutch *clutch);

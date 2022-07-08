@@ -2,13 +2,14 @@
 #include "stm32l4xx_hal.h"
 #include <math.h>
 
-#define TOLERANCE 0.04f
-
 extern float currentTarget;
 extern float errorPos;
 extern float voltageTarget;
 extern float current;
 extern float currentError;
+extern float tolerance;
+extern float lower_tolerance;
+extern float additional_tolerance;
 
 bool _isLastOutputSaturated(PID* pid) {
   return 
@@ -100,11 +101,13 @@ float PIDCompute(PID* pid, float reference, float measured) {
 float PIDCascade(PID* pid1, PID* pid2, float reference, float measured1, float measured2) {
 	const float pid1Result = PIDCompute(pid1, reference, measured1);
 	//currentTarget = pid1Result;
-	if (fabsf(reference - measured1)<=TOLERANCE){
+	if (fabsf(reference - measured1)<=tolerance){
+		tolerance = lower_tolerance + additional_tolerance;
 		return 0.5f;
 	}
 	else{
-	return PIDCompute(pid2, pid1Result, measured2);
+		tolerance = lower_tolerance;
+		return PIDCompute(pid2, pid1Result, measured2);
 	}
 }
 
