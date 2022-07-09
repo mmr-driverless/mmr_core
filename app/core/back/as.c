@@ -81,25 +81,31 @@ static MmrMission manual() {
 
 static MmrMission skidpad() {
   
+  return MMR_MISSION_SKIDPAD;
 }
 
 static MmrMission ebsTest() {
 
+  return MMR_MISSION_EBS_TEST;
 }
 
 static MmrMission autocross() {
 
+  return MMR_MISSION_AUTOCROSS;
 }
 
 static MmrMission inspection() {
 
+  return MMR_MISSION_INSPECTION;
 }
 
 static MmrMission trackdrive() {
-
+  
+  return MMR_MISSION_TRACKDRIVE;
 }
 
 static MmrMission acceleration() {
 
+  return MMR_MISSION_ACCELERATION;
 }
 
