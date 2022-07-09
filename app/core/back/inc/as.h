@@ -38,7 +38,11 @@ typedef enum MmrAsState {
   AS_FINISHED,
 } MmrAsState;
 
-
+typedef enum asStatus
+{
+	OFF = 0U,
+	ON,
+}asStatus;
 void MMR_AS_Init(MmrCan *can, MmrPin *gearUp, MmrPin *gearDown, MmrPin *gearN, MmrPin *changeMode, uint32_t *apps, uint32_t *adc);
 void Buzzer_activation(void);
 void Buzzer_disactivation(void);

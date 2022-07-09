@@ -16,7 +16,7 @@
 
 _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 {
-	if(fabs((APPS1 - 2*APPS2)) <= THRESHOLD) return false;
+	if(fabs((APPS1 - 2*APPS2)) <= 0.5)return false;
 	else return true;
 
 }
@@ -45,6 +45,6 @@ _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 _Bool TPS_check(uint32_t TPS1, uint32_t TPS2)
 {
 	 uint32_t tps_buff = TPS1 + TPS2;
-	if (fabs(tps_buff - 5) <= THRESHOLD) return false;
+	if (fabs(tps_buff - 5) <= 0.5) return false;
 	else return true;
 }

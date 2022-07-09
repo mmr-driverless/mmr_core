@@ -18,7 +18,7 @@ static MmrPin *__ebs2;
 static MmrPin* __asclSDC;
 static MmrPin *__EBSLedPin;
 static ebsflag EBSflag;
-
+extern  uint8_t TS_EBS;
 
 void WATCHDOG_Activation() { HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1); }
 void WATCHDOG_Disable() { HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1);}
@@ -141,6 +141,8 @@ void AS_Close_SDC(MmrPin* asClSDC)
 
 EbsStates ebsCheck(EbsStates state)
 {
+
+
 	switch(state)
 	{
 
@@ -185,9 +187,14 @@ EbsStates ebsCheck(EbsStates state)
 	                        	}
 
 	case EBS_PRESSURE_CHECK: HAL_Delay(200); // ma modificare
-	                         if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()) && EBS_sensor_check(MMR_GS_GetEbs1(),MMR_GS_GetEbs2()))
+	                         if(EBS_sensor_check(MMR_GS_GetEbs1(),MMR_GS_GetEbs2()))
+	                        	 EBS_Management(__ebs1, OPEN);
+	                             EBS_Management(__ebs2, OPEN);
+	                             HAL_Delay(250);
+	                        	 if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
 		                      {
 	                        	 EBSflag = EBS_STATE_ARMED;
+	                        	 TS_EBS = 1;
 	                        	 AS_Close_SDC(__asclSDC);
 		                       return EBS_TS_CHECK; break;
 		                       }
@@ -197,16 +204,17 @@ EbsStates ebsCheck(EbsStates state)
 		                      break;}
 
 	case EBS_TS_CHECK: if(TS_Activation(MMR_GS_GetRpm(), MMR_GS_GetGear()))
-		{return EBS1_CONTROL;
+		{
+		return EBS1_CONTROL;
 		break;
 		}
 
-	case EBS1_CONTROL: EBS_Management(__ebs1, OPEN);
+	case EBS1_CONTROL: EBS_Management(__ebs1, CLOSE);
 
                        HAL_Delay(20); // ma modificare
 		            if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
 		            	{
-		            	EBS_Management(__ebs1, CLOSE);
+		            	EBS_Management(__ebs1, OPEN);
 		          	    return EBS2_CONTROL;
 		          	    break;
 		            	}
@@ -215,14 +223,14 @@ EbsStates ebsCheck(EbsStates state)
 		            	  return EBS_ERROR;
 		              break;}
 
-	case EBS2_CONTROL: 	  EBS_Management(__ebs2, OPEN);
+	case EBS2_CONTROL: 	  EBS_Management(__ebs2, CLOSE);
 	                      EBSflag = EBS_STATE_ACTIVATED;
 	                      HAL_Delay(20); // ma modificare
 	                   if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
 	                 	   {
-	               	      EBS_Management(__ebs2, CLOSE);
+	               	      EBS_Management(__ebs2, OPEN);
 
-	                 	   return EBS_OK; break;
+	                 	   return EBS_FINAL_CHECK; break;
 	                 	   }
 	                   else  {
 			            	  EBSflag = EBS_STATE_UNAVAILABLE;
@@ -244,6 +252,30 @@ EbsStates ebsCheck(EbsStates state)
 	                          }
 
 
+
+	case EBS_FINAL_CHECK:
+		                 EBS_Management(__ebs1, OPEN);
+			              EBS_Management(__ebs2, OPEN);
+			              return EBS_OK;
+			              break;
 	}
 }
+
+ebsflag EBS_Activation(MmrMission currentMission, bool Missionflag, bool ResEMergencyflag)
+{
+	if(Missionflag || ResEMergencyflag)
+	{
+		if(currentMission != MMR_MISSION_INSPECTION || currentMission != MMR_MISSION_MANUAL)
+		{
+        	EBS_Management(__ebs2, OPEN);
+        	EBS_Management(__ebs2, OPEN);
+            return EBS_STATE_ACTIVATED;
+
+		}
+		else  return EBS_STATE_DISACTIVATED;
+	}
+
+}
+
+
 

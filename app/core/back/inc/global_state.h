@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <can.h>
+#include <as.h>
 
 typedef enum MmrClutchState {
   MMR_CLUTCH_UNKNOWN,
@@ -19,6 +20,8 @@ typedef enum MmrLaunchControlState {
 
 void MMR_GS_Init();
 void MMR_GS_UpdateFromCan(MmrCan *can);
+void MMR_GS_SendfromCan(MmrCan* can, MmrDelay *delay);
+
 
 uint16_t MMR_GS_GetRpm();
 uint16_t MMR_GS_GetGear();
@@ -34,6 +37,14 @@ uint16_t MMR_GS_GetEbs2();
 uint16_t MMR_GS_GetEbs1();
 uint16_t MMR_GS_GetBreakP1();
 uint16_t MMR_GS_GetBreakP2();
+uint8_t MMR_AS_MissionReady();
+uint8_t MMR_AS_MissionFinished();
+uint8_t MMR_AS_Go_Signal();
+uint8_t MMR_AS_ASB_Check();
+MmrMission MMR_AS_GetMission();
+void MMR_AS_asConversion(MmrAsState state);
+
+
 
 MmrClutchState MMR_GS_GetClutchState();
 MmrLaunchControlState MMR_GS_GetLaunchControlState();

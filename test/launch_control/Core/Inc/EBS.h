@@ -14,6 +14,7 @@
 #include "main.h"
 #include <can0.h>
 #include "stm_pin.h"
+#include "as.h"
 
 
 #define EBS_min_Pressure 10 // indica la pressione minima che la linea EBS deve raggiungere quando attiviamo tale sistema
@@ -37,6 +38,7 @@ typedef enum EbsStates
 	EBS1_CONTROL,
 	EBS2_CONTROL,
 	EBS_ERROR,
+	EBS_FINAL_CHECK,
 	EBS_OK,
 
 
@@ -47,7 +49,7 @@ typedef enum ebsflag
 	EBS_STATE_UNAVAILABLE,
 	EBS_STATE_ARMED,
 	EBS_STATE_ACTIVATED,
-
+	EBS_STATE_DISACTIVATED,
 }ebsflag;
 
 
@@ -64,6 +66,8 @@ bool EBS_sensor_check(uint8_t EBS1_Value, uint8_t EBS2_value);
 void AS_Close_SDC(MmrPin* asClSDC);
 bool BRAKE_pressure_check(uint8_t Brake1_value, uint8_t Brake2_value);
 ebsflag MMR_AS_GetEbsStates();
+ebsflag EBS_Activation(MmrMission currentMission, bool Missionflag, bool ResEMergencyflag);
+uint8_t MMR_Get_AS_GetResEB();
 
 
 bool TS_Activation(uint16_t RPM, uint8_t gear);

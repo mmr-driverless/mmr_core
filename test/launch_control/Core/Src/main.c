@@ -30,6 +30,7 @@
 #include "EBS.h"
 #include "delay.h"
 #include "stdbool.h"
+#include <global_state.h>
 
 /* USER CODE END Includes */
 
@@ -51,7 +52,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-// boiade
+// suca
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -71,8 +72,15 @@ TIM_HandleTypeDef htim17;
 uint32_t adc[2];
 uint32_t dac;
 
+
 MmrAsState as_state = AS_IDLE;
 EbsStates Ebsstate = EBS_IDLE;
+ebsflag EBSflag = EBS_STATE_UNAVAILABLE;
+asStatus R2D = OFF;
+asStatus CHECK_ASB_STATE = OFF;
+uint8_t TS_EBS;
+
+
 
 
 /* USER CODE END PV */
@@ -189,16 +197,18 @@ WATCHDOG_Activation();
     if(as_state == AS_EMERGENCY)
     	{
     	if(buzzerflag == false) Buzzer_activation();
-
     		if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
     		{
     			buzzerflag = true;
     			Buzzer_disactivation();
     		}
     	}
-
+#endif
+#ifdef EBS_TEST
+    EBSflag = MMR_AS_GetEbsStates();
 #endif
 
+ MMR_GS_SendByCan(&hcan);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
