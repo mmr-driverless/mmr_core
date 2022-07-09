@@ -111,8 +111,8 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     }
   }
 
-  *__apps = MMR_AS_GetInfoSpeed();
-  return mode;
+  //*__apps = MMR_AS_GetInfoSpeed();
+
 
   bool canStart = handlePreStart(&mode);
   if (!canStart) {
