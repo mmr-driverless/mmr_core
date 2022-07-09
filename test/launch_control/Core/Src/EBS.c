@@ -141,6 +141,7 @@ void AS_Close_SDC(MmrPin* asClSDC)
 
 EbsStates ebsCheck(EbsStates state)
 {
+	static MmrDelay delay = { .ms = 200 };
 
 
 	switch(state)
@@ -149,8 +150,7 @@ EbsStates ebsCheck(EbsStates state)
 	case EBS_IDLE: if(SDC_is_Ready() == GPIO_PIN_SET)
 	               {
 		            WATCHDOG_Disable();
-		            HAL_Delay(250); // ma modificare
-		            return EBS_SDC_IS_READY;
+		            if( MMR_DELAY_WaitAsync(&delay))return EBS_SDC_IS_READY;
 		            break;
 		            }
 	                else
@@ -172,7 +172,7 @@ EbsStates ebsCheck(EbsStates state)
 	                        	 break;}
 
 
-   case EBS_SDC_IS_NOT_READY:  HAL_Delay(250); // ma modificare
+   case EBS_SDC_IS_NOT_READY:
 	                        if(SDC_is_Ready() == GPIO_PIN_RESET)
 	                        {
 	                          WATCHDOG_Activation();
@@ -186,7 +186,7 @@ EbsStates ebsCheck(EbsStates state)
 	                        	break;
 	                        	}
 
-	case EBS_PRESSURE_CHECK: HAL_Delay(200); // ma modificare
+	case EBS_PRESSURE_CHECK:  while( MMR_DELAY_WaitAsync(&delay) != 0){} // ma modificare
 	                         if(EBS_sensor_check(MMR_GS_GetEbs1(),MMR_GS_GetEbs2()))
 	                        	 EBS_Management(__ebs1, OPEN);
 	                             EBS_Management(__ebs2, OPEN);
@@ -208,6 +208,7 @@ EbsStates ebsCheck(EbsStates state)
 		return EBS1_CONTROL;
 		break;
 		}
+	else break;
 
 	case EBS1_CONTROL: EBS_Management(__ebs1, CLOSE);
 
@@ -225,7 +226,7 @@ EbsStates ebsCheck(EbsStates state)
 
 	case EBS2_CONTROL: 	  EBS_Management(__ebs2, CLOSE);
 	                      EBSflag = EBS_STATE_ACTIVATED;
-	                      HAL_Delay(20); // ma modificare
+	                     while( MMR_DELAY_WaitAsync(&delay) != 0){}
 	                   if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
 	                 	   {
 	               	      EBS_Management(__ebs2, OPEN);
@@ -238,9 +239,9 @@ EbsStates ebsCheck(EbsStates state)
 	                	      break;
 	                   }
 
-	case EBS_ERROR: LSW_EBSLed(__EBSLedPin,OPEN);
+	case EBS_ERROR: LSW_EBSLed(__EBSLedPin,OPEN); break;
 
-	case EBS_CHECK_NOT_ENDED: HAL_Delay(100);
+	case EBS_CHECK_NOT_ENDED: while( MMR_DELAY_WaitAsync(&delay) != 0){}
 	                          if(SDC_is_Ready() == GPIO_PIN_SET)
 	                           {
 	                             return EBS_IDLE;
