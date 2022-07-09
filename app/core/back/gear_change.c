@@ -31,7 +31,7 @@ void MMR_GEAR_CHANGE_Run() {
 
   // TODO ask info
   uint8_t lap = MMR_AS_GetLap();
-  if (lap == 1)
+  if (lap <= 1)
     return;
 
   uint16_t currentSpeed = MMR_AS_GetSpeed();

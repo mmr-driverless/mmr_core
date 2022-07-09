@@ -71,7 +71,7 @@ TIM_HandleTypeDef htim17;
 uint32_t adc[2];
 uint32_t dac;
 
-AS_state as_state = AS_IDLE;
+MmrAsState as_state = AS_IDLE;
 EbsStates Ebsstate = EBS_IDLE;
 
 
@@ -177,7 +177,7 @@ WATCHDOG_Activation();
 
   MMR_SetTickProvider(HAL_GetTick);
   MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
-  MMR_ASSI_Init(&LABpin,&LAYpin,&ASSI_Delay);
+  MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
   Buzzer_Delay = MMR_Delay(9000);
   mode = MMR_AS_MODE_MANUAL;
   while (1) {
@@ -185,7 +185,7 @@ WATCHDOG_Activation();
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 #ifdef ASSI_TEST
-    AS_LED_ASSI(as_state);
+    MMR_AXIS_LEDS_Run(as_state);
     if(as_state == AS_EMERGENCY)
     	{
     	if(buzzerflag == false) Buzzer_activation();

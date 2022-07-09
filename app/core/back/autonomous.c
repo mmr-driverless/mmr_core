@@ -1,5 +1,6 @@
 #include "inc/autonomous.h"
 #include "inc/as.h"
+#include "inc/apps.h"
 #include "message_id.h"
 #include <delay.h>
 #include <pin.h>
@@ -170,10 +171,9 @@ static MmrAutonomousState waitBeforeAccelerating(MmrAutonomousState state) {
 
 
 static MmrAutonomousState accelerate(MmrAutonomousState state) {
-  static const uint16_t DAC_30 = 865;
   static MmrDelay delay = { .ms = 1000 };
 
-  *__apps = DAC_30;
+  *__apps = MMR_APPS_ComputeSpeed(0.3);
   if (MMR_DELAY_WaitAsync(&delay)) {
     return MMR_AUTONOMOUS_RELEASE_CLUTCH;
   }
@@ -238,11 +238,10 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
 
 
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
-  static const uint16_t DAC_0 = 650;
   static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *__apps = DAC_0;
+    *__apps = MMR_APPS_ComputeSpeed(0.0);
     return MMR_AUTONOMOUS_CLUTCH_SET_MANUAL;
   }
 
@@ -282,19 +281,11 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-	  static const uint16_t apps_MIN = 650;
+  static const uint16_t apps_MIN = 650;
 
-	if(MMR_AS_GetLap() >= 1)
+  *__apps = MMR_AS_GetLap() >= 1
+    ? MMR_APPS_ComputeSpeed(MMR_AS_GetInfoSpeed())
+    : APPS_MIN;
 
-  {
-	*__apps = MMR_AS_GetInfoSpeed();
   return MMR_AUTONOMOUS_DONE;
-  }
-  else
-	  {
-	  *__apps = apps_MIN;
-	  return MMR_AUTONOMOUS_DONE;
-
-	  }
-
 }

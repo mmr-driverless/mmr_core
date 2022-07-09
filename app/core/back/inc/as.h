@@ -41,32 +41,20 @@ typedef enum MmrMission {
   MMR_MISSION_MANUAL,
 } MmrMission;
 
-typedef enum AS_state
-{
-AS_IDLE,
-AS_OFF,
-AS_READY,
-AS_DRIVING,
-AS_EMERGENCY,
-AS_FINISHED,
-}AS_state;
-
-
-typedef enum ASSI_state
-{
-	LED_ASSI_ON = 0U,
-	LED_ASSI_OFF
-}ASSI_state;
+typedef enum MmrAsState {
+  AS_IDLE,
+  AS_OFF,
+  AS_READY,
+  AS_DRIVING,
+  AS_EMERGENCY,
+  AS_FINISHED,
+} MmrAsState;
 
 
 void MMR_AS_Init(MmrCan *can, MmrPin *gearUp, MmrPin *gearDown, MmrPin *gearN, MmrPin *changeMode, uint32_t *apps, uint32_t *adc);
-void AS_LED_ASSI(uint8_t AS_state);
-void LED_BLUE_ASSI(ASSI_state assi_state);
-void LED_YELLOW_ASSI(ASSI_state assi_state);
 void Buzzer_activation(void);
 void Buzzer_disactivation(void);
 
-void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow,MmrDelay *assi_delay);
 MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode);
 
 uint16_t MMR_AS_GetRpm();
