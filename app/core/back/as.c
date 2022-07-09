@@ -12,9 +12,6 @@
 #include <stdbool.h>
 
 
-static bool handlePreStart(MmrLaunchControlMode *mode);
-
-
 struct MmrLaunchControl {
   float infoSpeed;
   int16_t steeringAngle;
@@ -132,12 +129,6 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     }
   }
 
-  bool canStart = handlePreStart(&mode);
-  if (!canStart) {
-    as = MMR_AUTONOMOUS_WAITING;
-    ms = MMR_MANUAL_WAITING;
-    return mode;
-  }
 
   switch (mode) {
   case MMR_AS_MODE_MANUAL:
@@ -158,37 +149,6 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
   }
 
   return mode;
-}
-
-
-static bool handlePreStart(MmrLaunchControlMode *mode) {
-  static bool waitForStart = true;
-  static MmrDelay waitForStartDelay = { .ms = 10000 };
-
-  if (MMR_BUTTON_Read(&__changeModeButton) == MMR_BUTTON_JUST_RELEASED) {
-    waitForStart = true;
-    MMR_DELAY_Reset(&waitForStartDelay);
-    *mode += 1;
-    *mode %= 3;
-    return false;
-  }
-
-
-  bool isInAutonomous = *mode == MMR_AS_MODE_AUTONOMOUS;
-  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
-
-  if (isInAutonomous && isClutchPulled && waitForStart) {
-    waitForStart = true;
-    MMR_DELAY_Reset(&waitForStartDelay);
-    *mode = MMR_AS_MODE_MANUAL;
-  }
-
-  bool canStart = waitForStart && MMR_DELAY_WaitAsync(&waitForStartDelay);
-  if (canStart) {
-    waitForStart = false;
-  }
-
-  return !waitForStart;
 }
 
 
