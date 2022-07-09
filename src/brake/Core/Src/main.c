@@ -108,6 +108,7 @@ float max_pressure = 6.0f; // [bar]
 
 Mode mode = RUN;
 uint16_t asbCheckCycles = 0;
+uint16_t checkDone = 0;
 
 bool isActive = true;
 /* USER CODE END PV */
@@ -134,6 +135,7 @@ void ASB_Check(){
 	    		mode = RUN;
 	    		target_pressure=0.0f;
 	    		asbCheckCycles=0;
+	    		checkDone=1;
 	    	} else {
 	    		asbCheckCycles++;
 	    	}
@@ -150,6 +152,7 @@ void ASB_Check(){
 	    		mode = RUN;
 	    		target_pressure=0.0f;
 	    		asbCheckCycles=0;
+	    		checkDone=1;
 	    	}
 
 }
@@ -436,8 +439,10 @@ int main(void)
 		  	   	  break;
 
 		  	  case MMR_CAN_MESSAGE_ID_BRK_CHECK_ASB_STATE:
-		  		  target_pressure=max_pressure/2;
-		  		  mode = CHECK_ASB;
+		  		  if(checkDone < 1){
+			  		  target_pressure=max_pressure/2;
+			  		  mode = CHECK_ASB;
+		  		  }
 		  		  break;
 	  	      }
 	  	    }

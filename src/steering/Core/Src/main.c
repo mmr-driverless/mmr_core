@@ -177,11 +177,11 @@ static void steer(
 }
 
 static void steerRight() {
-  steer(GPIO_PIN_SET, GPIO_PIN_RESET);
+  steer(GPIO_PIN_RESET, GPIO_PIN_SET);
 }
 
 static void steerLeft() {
-  steer(GPIO_PIN_RESET, GPIO_PIN_SET);
+  steer(GPIO_PIN_SET, GPIO_PIN_RESET);
 }
 
 uint16_t Lowpass(uint16_t input, struct lowpass_data *lp_data){
@@ -351,7 +351,7 @@ int main(void)
 	  position_samples[i]=0;
   }
 
-  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_RESET);
   while (1)
   {
 	    if (MMR_CAN_ReceiveAsync(&can0, &message) == MMR_TASK_COMPLETED) {
