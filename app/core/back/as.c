@@ -12,9 +12,8 @@
 #include "stm_pin.h"
 
 
-
-#define APPS_offset 650
-#define APPS_slope 716
+const uint32_t APPS_OFFSET = 650;
+const uint32_t APPS_SLOPE = 716;
 
 static bool handlePreStart(MmrLaunchControlMode *mode);
 
@@ -47,15 +46,13 @@ static MmrPin *__gearDown;
 static MmrButton __changeModeButton;
 static uint32_t *__apps;
 static uint32_t *__adc;
-/*ASSI VARIABLE*/
+
 static MmrPin *__AssiBlue;
 static MmrPin *__AssiYellow;
 static MmrDelay *__assi_delay;
 
-/**/
 static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
 static MmrManualState ms = MMR_MANUAL_WAITING;
-
 
 
 void MMR_AS_Init(
@@ -139,9 +136,7 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     case MMR_CAN_MESSAGE_ID_ECU_EBS_PRESSURES:
     	//da aggiungere letura messaggi can ebs
     	break;
-
     }
-
   }
 
   bool canStart = handlePreStart(&mode);
@@ -240,12 +235,12 @@ uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }
 
-uint8_t MMR_AS_GetUthrottle()
+uint8_t MMR_AS_GetUThrottle()
 {
 	return __state.uthrottle;
 }
 
-uint8_t MMR_AS_GetUthrottleb()
+uint8_t MMR_AS_GetUThrottleB()
 {
 	return __state.uthrottleb;
 }
@@ -357,5 +352,5 @@ void AS_LED_ASSI(AS_state AS_state)
 
 
 uint32_t MMR_AS_GetInfoSpeed() {
-  return APPS_slope*(__state.infoSpeed) + APPS_offset;
+  return APPS_SLOPE * (__state.infoSpeed) + APPS_OFFSET;
 }
