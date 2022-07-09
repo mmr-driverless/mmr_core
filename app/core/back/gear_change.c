@@ -1,10 +1,11 @@
 #include "inc/gear_change.h"
-#include "inc/as.h"
+#include "inc/global_state.h"
 #include <pin.h>
 #include <delay.h>
 #include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
+
 
 const int N_UP_MIN = 4500;   // Limite minimo di cambiata Up
 const int N_UP_MAX = 10000;  // Limite massimo di cambiata Up

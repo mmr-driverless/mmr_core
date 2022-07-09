@@ -1,5 +1,5 @@
 #include "inc/autonomous.h"
-#include "inc/as.h"
+#include "inc/global_state.h"
 #include "inc/apps.h"
 #include "message_id.h"
 #include <delay.h>
@@ -281,11 +281,9 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  static const uint16_t apps_MIN = 650;
-
   *__apps = MMR_GS_GetLap() >= 1
     ? MMR_APPS_ComputeSpeed(MMR_GS_GetInfoSpeed())
-    : APPS_MIN;
+    : MMR_APPS_ComputeSpeed(0.0);
 
   return MMR_AUTONOMOUS_DONE;
 }

@@ -1,5 +1,5 @@
 #include "inc/manual.h"
-#include "inc/as.h"
+#include "inc/global_state.h"
 #include <delay.h>
 #include "message_id.h"
 
