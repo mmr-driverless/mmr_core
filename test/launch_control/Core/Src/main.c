@@ -74,8 +74,8 @@ uint32_t dac;
 
 
 MmrAsState as_state = AS_IDLE;
-EbsStates Ebsstate = EBS_IDLE;
-ebsflag EBSflag = EBS_STATE_UNAVAILABLE;
+MmrEbsCheck Ebsstate = EBS_IDLE;
+MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
 asStatus R2D = OFF;
 asStatus CHECK_ASB_STATE = OFF;
 uint8_t TS_EBS;
@@ -106,7 +106,7 @@ bool buzzerflag = false;
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-MmrLaunchControlMode mode = MMR_AS_MODE_MANUAL; // IDEM TO IDLE ?
+MmrMission mission = MMR_MISSION_IDLE;
 
 /* USER CODE END 0 */
 
@@ -187,9 +187,10 @@ WATCHDOG_Activation();
   MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
   MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
   Buzzer_Delay = MMR_Delay(9000);
-  mode = MMR_AS_MODE_MANUAL;
+
+  mission = MMR_MISSION_MANUAL;
   while (1) {
-    mode = MMR_AS_Run(mode);
+    mission = MMR_AS_Run(mission);
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 #ifdef ASSI_TEST

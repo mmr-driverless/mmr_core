@@ -11,7 +11,6 @@
 #include <stdbool.h>
 
 
-
 static MmrAutonomousState waiting(MmrAutonomousState state);
 static MmrAutonomousState pullClutch(MmrAutonomousState state);
 static MmrAutonomousState waitBeforeChangingGear(MmrAutonomousState state);
@@ -84,7 +83,7 @@ static MmrAutonomousState pullClutch(MmrAutonomousState state) {
     MMR_CAN_Send(__can, &clutchPullMsg);
   }
 
-  bool isClutchPulled = MMR_GS_GetClutchState() == MMR_CLUTCH_PULLED;
+  bool isClutchPulled = gs.clutch == MMR_CLUTCH_PULLED;
   if (isClutchPulled) {
     return MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR;
   }
@@ -109,7 +108,7 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
   static MmrDelay gearChangingDelay = { .ms = 350 };
   static bool changingGear = false;
 
-  bool isGearSet = MMR_GS_GetGear() == 1;
+  bool isGearSet = gs.gear == 1;
   if (isGearSet && !changingGear) {
     MMR_PIN_Write(__gearN, MMR_PIN_LOW);
     return MMR_AUTONOMOUS_SET_LAUNCH_CONTROL;
@@ -143,9 +142,9 @@ static MmrAutonomousState setLaunchControl(MmrAutonomousState state) {
   MMR_CAN_MESSAGE_SetStandardId(&setLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&setLaunchMsg, buffer, 8);
 
-  bool rpmOk = MMR_GS_GetRpm() >= 1000;
-  bool isLaunchSet = MMR_GS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_SET;
-  bool isInFirstGear = MMR_GS_GetGear() == 1;
+  bool rpmOk = gs.rpm >= 1000;
+  bool isLaunchSet = gs.launchControl == MMR_LAUNCH_CONTROL_SET;
+  bool isInFirstGear = gs.gear == 1;
 
   if (rpmOk && isInFirstGear && !isLaunchSet && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &setLaunchMsg);
@@ -191,7 +190,7 @@ static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
     MMR_CAN_Send(__can, &clutchReleaseMsg);
   }
 
-  bool isClutchReleased = MMR_GS_GetClutchState() == MMR_CLUTCH_RELEASED;
+  bool isClutchReleased = gs.clutch == MMR_CLUTCH_RELEASED;
   if (isClutchReleased) {
     return MMR_AUTONOMOUS_UNSET_LAUNCH;
   }
@@ -209,8 +208,8 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
   MMR_CAN_MESSAGE_SetStandardId(&unsetLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&unsetLaunchMsg, buffer, 8);
 
-  bool clutchReleased = MMR_GS_GetClutchState() == MMR_CLUTCH_RELEASED;
-  bool launchUnset = MMR_GS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_NOT_SET;
+  bool clutchReleased = gs.clutch == MMR_CLUTCH_RELEASED;
+  bool launchUnset = gs.launchControl == MMR_LAUNCH_CONTROL_NOT_SET;
 
   if (clutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &unsetLaunchMsg);
@@ -281,8 +280,8 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  *__apps = MMR_GS_GetLap() >= 1
-    ? MMR_APPS_ComputeSpeed(MMR_GS_GetInfoSpeed())
+  *__apps = gs.lap >= 1
+    ? MMR_APPS_ComputeSpeed(gs.infoSpeed)
     : MMR_APPS_ComputeSpeed(0.0);
 
   return MMR_AUTONOMOUS_DONE;

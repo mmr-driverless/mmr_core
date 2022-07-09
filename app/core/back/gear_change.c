@@ -31,15 +31,15 @@ void MMR_GEAR_CHANGE_Run() {
   static bool enableGearDn = false;
 
   // TODO ask info
-  uint8_t lap = MMR_GS_GetLap();
+  uint8_t lap = gs.lap;
   if (lap <= 1)
     return;
 
-  uint16_t currentSpeed = MMR_GS_GetSpeed();
-  int16_t steeringAngle = MMR_GS_GetSteeringAngle();
-  uint16_t ath = MMR_GS_GetAth();
-  uint16_t gear = MMR_GS_GetGear();
-  uint16_t rpm = MMR_GS_GetRpm();
+  uint16_t currentSpeed = gs.speed;
+  int16_t steeringAngle = gs.steeringAngle;
+  uint16_t ath = gs.ath;
+  uint16_t gear = gs.gear;
+  uint16_t rpm = gs.rpm;
 
   currentSpeed = round(currentSpeed / 2) * 2;
   int deltaSpeed = currentSpeed - previousSpeed;

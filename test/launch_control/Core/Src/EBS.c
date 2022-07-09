@@ -17,13 +17,13 @@ static MmrPin *__ebs1;
 static MmrPin *__ebs2;
 static MmrPin* __asclSDC;
 static MmrPin *__EBSLedPin;
-static ebsflag EBSflag;
+static MmrEbsState EBSflag;
 extern  uint8_t TS_EBS;
 
 void WATCHDOG_Activation() { HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1); }
 void WATCHDOG_Disable() { HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1);}
 
-ebsflag MMR_AS_GetEbsStates()
+MmrEbsState MMR_AS_GetEbsStates()
 {
 return EBSflag;
 }
@@ -139,7 +139,7 @@ void AS_Close_SDC(MmrPin* asClSDC)
 //
 //}
 
-EbsStates ebsCheck(EbsStates state)
+MmrEbsCheck ebsCheck(MmrEbsCheck state)
 {
 	static MmrDelay delay = { .ms = 200 };
 
@@ -262,7 +262,7 @@ EbsStates ebsCheck(EbsStates state)
 	}
 }
 
-ebsflag EBS_Activation(MmrMission currentMission, bool Missionflag, bool ResEMergencyflag)
+MmrEbsState EBS_Activation(MmrMission currentMission, bool Missionflag, bool ResEMergencyflag)
 {
 	if(Missionflag || ResEMergencyflag)
 	{

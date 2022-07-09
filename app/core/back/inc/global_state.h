@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <can.h>
-#include <as.h>
+#include "as.h"
 
 typedef enum MmrClutchState {
   MMR_CLUTCH_UNKNOWN,
@@ -18,35 +18,39 @@ typedef enum MmrLaunchControlState {
 } MmrLaunchControlState;
 
 
+typedef struct MmrGlobalState {
+  float infoSpeed;
+  int16_t steeringAngle;
+  uint8_t lap;
+  uint16_t ath;//<-- primo valore farfalla
+  uint16_t ath2;//<-- secondo valore farfalla
+  uint16_t gear;
+  uint16_t rpm;
+  float speed;
+  uint8_t uThrottle;
+  uint8_t uThrottleB;
+  uint16_t ebs1;
+  uint16_t ebs2;
+  float brakePf;
+  float brakePr;
+
+  MmrClutchState clutch;
+  MmrLaunchControlState launchControl;
+} MmrGlobalState;
+
+
+extern MmrGlobalState gs;
+
+
 void MMR_GS_Init();
 void MMR_GS_UpdateFromCan(MmrCan *can);
-void MMR_GS_SendfromCan(MmrCan* can, MmrDelay *delay);
+void MMR_GS_SendToCan(MmrCan* can);
 
 
-uint16_t MMR_GS_GetRpm();
-uint16_t MMR_GS_GetGear();
-uint16_t MMR_GS_GetSpeed();
-uint8_t MMR_GS_GetLap();
-void MMR_GS_SetLap(uint8_t lap);
-uint16_t MMR_GS_GetAth();
-uint8_t MMR_GS_GetUThrottle();
-uint8_t MMR_GS_GetUThrottleB();
-int16_t MMR_GS_GetSteeringAngle();
-uint32_t MMR_GS_GetInfoSpeed();
-uint16_t MMR_GS_GetEbs2();
-uint16_t MMR_GS_GetEbs1();
-uint16_t MMR_GS_GetBreakP1();
-uint16_t MMR_GS_GetBreakP2();
 uint8_t MMR_AS_MissionReady();
 uint8_t MMR_AS_MissionFinished();
 uint8_t MMR_AS_Go_Signal();
 uint8_t MMR_AS_ASB_Check();
 MmrMission MMR_AS_GetMission();
-void MMR_AS_asConversion(MmrAsState state);
-
-
-
-MmrClutchState MMR_GS_GetClutchState();
-MmrLaunchControlState MMR_GS_GetLaunchControlState();
 
 #endif // !APP_CORE_BACK_INC_GLOBAL_STATE_H_

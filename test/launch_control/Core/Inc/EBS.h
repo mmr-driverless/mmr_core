@@ -27,7 +27,7 @@
 
 
 
-typedef enum EbsStates
+typedef enum MmrEbsCheck
 {
 	EBS_IDLE,
 	EBS_SDC_IS_READY,
@@ -42,15 +42,15 @@ typedef enum EbsStates
 	EBS_OK,
 
 
-}EbsStates;
+}MmrEbsCheck;
 
-typedef enum ebsflag
+typedef enum MmrEbsState
 {
 	EBS_STATE_UNAVAILABLE,
 	EBS_STATE_ARMED,
 	EBS_STATE_ACTIVATED,
 	EBS_STATE_DISACTIVATED,
-}ebsflag;
+}MmrEbsState;
 
 
 
@@ -60,13 +60,13 @@ void WATCHDOG_Disable(); // funzione per disabilitare il watchdog
 void EBS_Management(MmrPin* EBS_pin, bool state); // funzione per controllare i due attuatatori dell EBS
 void EBS_Init(MmrPin* pin1, MmrPin* pin2, MmrPin* asClSDC, MmrPin* ebsledPin);
 void LSW_EBSLed (MmrPin* led,bool state);
-EbsStates ebsCheck(EbsStates state);
+MmrEbsCheck ebsCheck(MmrEbsCheck state);
 
 bool EBS_sensor_check(uint8_t EBS1_Value, uint8_t EBS2_value);
 void AS_Close_SDC(MmrPin* asClSDC);
 bool BRAKE_pressure_check(uint8_t Brake1_value, uint8_t Brake2_value);
-ebsflag MMR_AS_GetEbsStates();
-ebsflag EBS_Activation(MmrMission currentMission, bool Missionflag, bool ResEMergencyflag);
+MmrEbsState MMR_AS_GetEbsStates();
+MmrEbsState EBS_Activation(MmrMission currentMission, bool Missionflag, bool ResEMergencyflag);
 uint8_t MMR_Get_AS_GetResEB();
 
 

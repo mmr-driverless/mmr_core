@@ -12,6 +12,14 @@
 #include <stdbool.h>
 
 
+static MmrMission manual();
+static MmrMission skidpad();
+static MmrMission ebsTest();
+static MmrMission autocross();
+static MmrMission inspection();
+static MmrMission trackdrive();
+static MmrMission acceleration();
+
 
 static MmrCan *__can;
 static MmrPin *__gearN;
@@ -49,26 +57,49 @@ void MMR_AS_Init(
   MMR_AUTONOMOUS_Init(can, gearN, apps, adc);
 }
 
-MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
+MmrMission MMR_AS_Run(MmrMission mission) {
   MMR_GS_UpdateFromCan(__can);
 
-  switch (mode) {
-  case MMR_AS_MODE_MANUAL:
-    MMR_GS_SetLap(1);
-    ms = MMR_MANUAL_Run(ms);
-    break;
-
-  case MMR_AS_MODE_GEAR_CHANGE:
-    MMR_GS_SetLap(2);
-    MMR_GEAR_CHANGE_Run();
-    ms = MMR_MANUAL_Run(ms);
-    break;
-
-  case MMR_AS_MODE_AUTONOMOUS:
-    MMR_GS_SetLap(1);
-    as = MMR_AUTONOMOUS_Run(as);
-    break;
+  switch (mission) {
+  case MMR_MISSION_IDLE: return mission;
+  case MMR_MISSION_MANUAL: return manual();
+  case MMR_MISSION_SKIDPAD: return skidpad();
+  case MMR_MISSION_EBS_TEST: return ebsTest();
+  case MMR_MISSION_AUTOCROSS: return autocross();
+  case MMR_MISSION_INSPECTION: return inspection();
+  case MMR_MISSION_TRACKDRIVE: return trackdrive();
+  case MMR_MISSION_ACCELERATION: return acceleration();
+  default: return mission;
   }
-
-  return mode;
 }
+
+
+static MmrMission manual() {
+  ms = MMR_MANUAL_Run(ms);
+  return MMR_MISSION_MANUAL;
+}
+
+static MmrMission skidpad() {
+  
+}
+
+static MmrMission ebsTest() {
+
+}
+
+static MmrMission autocross() {
+
+}
+
+static MmrMission inspection() {
+
+}
+
+static MmrMission trackdrive() {
+
+}
+
+static MmrMission acceleration() {
+
+}
+

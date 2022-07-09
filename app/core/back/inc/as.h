@@ -7,17 +7,6 @@
 #include "delay.h"
 
 
-typedef struct MmrGlobalState MmrGlobalState;
-
-
-typedef enum MmrLaunchControlMode {
-//  MMR_AS_MODE_IDLE = 0,
-  MMR_AS_MODE_MANUAL = 0,
-  MMR_AS_MODE_GEAR_CHANGE = 1,
-  MMR_AS_MODE_AUTONOMOUS = 2,
-} MmrLaunchControlMode;
-
-
 typedef enum MmrMission {
   MMR_MISSION_IDLE,
   MMR_MISSION_ACCELERATION,
@@ -47,6 +36,6 @@ void MMR_AS_Init(MmrCan *can, MmrPin *gearUp, MmrPin *gearDown, MmrPin *gearN, M
 void Buzzer_activation(void);
 void Buzzer_disactivation(void);
 
-MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode);
+MmrMission MMR_AS_Run(MmrMission mission);
 
 #endif // !APP_BACK_INC_AS_H_

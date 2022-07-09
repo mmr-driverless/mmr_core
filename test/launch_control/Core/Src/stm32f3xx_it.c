@@ -29,6 +29,7 @@
 #include <timing.h>
 #include <can0.h>
 #include <stm_pin.h>
+#include <global_state.h>
 #include "ebs.h"
 #include "delay.h"
 #include "stdbool.h"
@@ -70,7 +71,7 @@ extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_dac_ch1;
 /* USER CODE BEGIN EV */
-extern MmrLaunchControlMode mode;
+extern MmrMission mission;
 extern uint32_t adc[2];
 /* USER CODE END EV */
 
@@ -208,7 +209,7 @@ void SysTick_Handler(void)
 	  HAL_IncTick();
 
 
-if(mode == MMR_AS_MODE_MANUAL)
+if(mission == MMR_MISSION_MANUAL)
 {
 	 APPS_Flag = APPS_check(adc[0],adc[1]);
 
@@ -235,7 +236,7 @@ if(mode == MMR_AS_MODE_MANUAL)
 }
 
 
-TPS_Flag = TPS_check(MMR_GS_GetUThrottle(),MMR_GS_GetUThrottleB());
+TPS_Flag = TPS_check(gs.uThrottle, gs.uThrottleB);
 
 if (TPS_Flag == 1 && !TPS_startCounter)
 {
@@ -245,7 +246,7 @@ if (TPS_Flag == 1 && !TPS_startCounter)
 	  if (TPS_startCounter) {
 	  	  TPS_counter++;
 
-	  	  TPS_ctr += TPS_check(MMR_GS_GetUThrottle(),MMR_GS_GetUThrottleB());
+	  	  TPS_ctr += TPS_check(gs.uThrottle, gs.uThrottleB);
 	  	  if (TPS_ctr >= 100)
 	  		  HAL_DMA_Abort(&hdma_dac_ch1); // DA MODIFICARE, CAPIRE COME SPEGNERE LVMS SE CI SONO PROBLEMI --->>> EBS ???
 
