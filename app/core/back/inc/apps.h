@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-const uint32_t APPS_MIN = 650;
-const uint32_t APPS_SLOPE = 716;
 
 uint32_t MMR_APPS_ComputeSpeed(float percentage);
 
