@@ -186,7 +186,7 @@ MMR_CAN_MESSAGE_SetId(&APPSmexCAN, MMR_CAN_MESSAGE_ID_S_APPS);
 MMR_CAN_MESSAGE_SetStandardId(&R2DmexCAN, true);
 MMR_CAN_MESSAGE_SetPayload(&APPSmexCAN, &dac, sizeof(dac));
 MMR_CAN_Send(can, &APPSmexCAN);
-
+// delay millisecondi 2/3
 MMR_CAN_MESSAGE_SetId(&AS_OFFmexCAN,   MMR_CAN_MESSAGE_ID_AS_OFF);
 MMR_CAN_MESSAGE_SetStandardId(&AS_OFFmexCAN, true);
 MMR_AS_asConversion(as_state);
