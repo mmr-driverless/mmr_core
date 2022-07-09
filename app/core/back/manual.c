@@ -49,9 +49,9 @@ static MmrManualState setLaunchControl(MmrManualState state) {
   MMR_CAN_MESSAGE_SetStandardId(&setLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&setLaunchMsg, buffer, 8);
 
-  bool rpmOk = MMR_AS_GetRpm() >= 1000;
-  bool isLaunchSet = MMR_AS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_SET;
-  bool isInFirstGear = MMR_AS_GetGear() == 1;
+  bool rpmOk = MMR_GS_GetRpm() >= 1000;
+  bool isLaunchSet = MMR_GS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_SET;
+  bool isInFirstGear = MMR_GS_GetGear() == 1;
 
   if (rpmOk && isInFirstGear && !isLaunchSet && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &setLaunchMsg);
@@ -74,8 +74,8 @@ static MmrManualState stopLaunchControl(MmrManualState state) {
   MMR_CAN_MESSAGE_SetStandardId(&unsetLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&unsetLaunchMsg, buffer, 8);
 
-  bool isClutchReleased = MMR_AS_GetClutchState() == MMR_CLUTCH_RELEASED;
-  bool launchUnset = MMR_AS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_NOT_SET;
+  bool isClutchReleased = MMR_GS_GetClutchState() == MMR_CLUTCH_RELEASED;
+  bool launchUnset = MMR_GS_GetLaunchControlState() == MMR_LAUNCH_CONTROL_NOT_SET;
 
   if (isClutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &unsetLaunchMsg);

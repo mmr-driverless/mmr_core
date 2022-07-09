@@ -185,7 +185,7 @@ EbsStates ebsCheck(EbsStates state)
 	                        	}
 
 	case EBS_PRESSURE_CHECK: HAL_Delay(200); // ma modificare
-	                         if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()) && EBS_sensor_check(MMR_AS_GetEbs1(),MMR_AS_GetEbs2()))
+	                         if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()) && EBS_sensor_check(MMR_GS_GetEbs1(),MMR_GS_GetEbs2()))
 		                      {
 	                        	 EBSflag = EBS_STATE_ARMED;
 	                        	 AS_Close_SDC(__asclSDC);
@@ -196,7 +196,7 @@ EbsStates ebsCheck(EbsStates state)
                                     return EBS_ERROR;
 		                      break;}
 
-	case EBS_TS_CHECK: if(TS_Activation(MMR_AS_GetRpm(), MMR_AS_GetGear()))
+	case EBS_TS_CHECK: if(TS_Activation(MMR_GS_GetRpm(), MMR_GS_GetGear()))
 		{return EBS1_CONTROL;
 		break;
 		}
@@ -204,7 +204,7 @@ EbsStates ebsCheck(EbsStates state)
 	case EBS1_CONTROL: EBS_Management(__ebs1, OPEN);
 
                        HAL_Delay(20); // ma modificare
-		            if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()))
+		            if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
 		            	{
 		            	EBS_Management(__ebs1, CLOSE);
 		          	    return EBS2_CONTROL;
@@ -218,7 +218,7 @@ EbsStates ebsCheck(EbsStates state)
 	case EBS2_CONTROL: 	  EBS_Management(__ebs2, OPEN);
 	                      EBSflag = EBS_STATE_ACTIVATED;
 	                      HAL_Delay(20); // ma modificare
-	                   if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()))
+	                   if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
 	                 	   {
 	               	      EBS_Management(__ebs2, CLOSE);
 

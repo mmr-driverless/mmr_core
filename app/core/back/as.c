@@ -1,4 +1,4 @@
-
+#include "inc/global_state.h"
 #include "inc/gear_change.h"
 #include "inc/autonomous.h"
 #include "inc/manual.h"
@@ -11,26 +11,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
-struct MmrLaunchControl {
-  float infoSpeed;
-  int16_t steeringAngle;
-  uint8_t lap;
-  uint16_t ath;//<-- primo valore farfalla
-  uint16_t ath2;//<-- secondo valore farfalla
-  uint16_t gear;
-  uint16_t rpm;
-  uint16_t speed;
-  uint8_t uthrottle;
-  uint8_t uthrottleb;
-  uint16_t ebs1;
-  uint16_t ebs2;
-  uint16_t brkp1;
-  uint16_t brkp2;
-
-  MmrClutchState clutch;
-  MmrLaunchControlState launchControl;
-} __state = {};
 
 
 static MmrCan *__can;
@@ -60,11 +40,6 @@ void MMR_AS_Init(
   __gearUp = gearUp;
   __gearDown = gearDown;
   __changeModeButton = MMR_Button(changeMode);
-  __state = (struct MmrLaunchControl){
-    .lap = 0,
-    .clutch = MMR_CLUTCH_UNKNOWN,
-    .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
-  };
 
   __apps = apps;
   __adc = adc;
@@ -75,143 +50,25 @@ void MMR_AS_Init(
 }
 
 MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
-  static MmrCanBuffer buffer = {};
-  static MmrCanMessage msg = {
-    .payload = buffer,
-  };
-
-  if (MMR_CAN_ReceiveAsync(__can, &msg) == MMR_TASK_COMPLETED) {
-    MmrCanHeader header = MMR_CAN_MESSAGE_GetHeader(&msg);
-    switch (header.messageId) {
-
-    case MMR_CAN_MESSAGE_ID_ECU_PEDAL_THROTTLE:
-      __state.uthrottle = MMR_BUFFER_ReadUint16(buffer,4,MMR_ENCODING_LITTLE_ENDIAN);
-      __state.uthrottleb = MMR_BUFFER_ReadUint16(buffer,6,MMR_ENCODING_LITTLE_ENDIAN);
-      break;
-
-    case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN1:
-      __state.rpm = MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
-      __state.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
-      __state.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
-      __state.ath = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
-      break;
-
-    case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
-      __state.launchControl = MMR_BUFFER_ReadByte(buffer, 6) == 0x1
-        ? MMR_LAUNCH_CONTROL_SET
-        : MMR_LAUNCH_CONTROL_NOT_SET;
-
-      break;
-
-    case MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL_OK:
-      __state.clutch = MMR_CLUTCH_PULLED;
-      break;
-
-    case MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK:
-      __state.clutch = MMR_CLUTCH_RELEASED;
-      break;
-
-    case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
-      __state.infoSpeed = *(float*)(buffer);
-      break;
-
-    case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
-      __state.lap = *(uint8_t *)(buffer);
-      break;
-
-    case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
-      //da aggiungere lettura messaggi can sensori di pressione
-      break;
-
-    case MMR_CAN_MESSAGE_ID_ECU_EBS_PRESSURES:
-      //da aggiungere letura messaggi can ebs
-      break;
-    }
-  }
-
+  MMR_GS_UpdateFromCan(__can);
 
   switch (mode) {
   case MMR_AS_MODE_MANUAL:
-    MMR_AS_SetLap(1);
+    MMR_GS_SetLap(1);
     ms = MMR_MANUAL_Run(ms);
     break;
 
   case MMR_AS_MODE_GEAR_CHANGE:
-    MMR_AS_SetLap(2);
+    MMR_GS_SetLap(2);
     MMR_GEAR_CHANGE_Run();
     ms = MMR_MANUAL_Run(ms);
     break;
 
   case MMR_AS_MODE_AUTONOMOUS:
-    MMR_AS_SetLap(1);
+    MMR_GS_SetLap(1);
     as = MMR_AUTONOMOUS_Run(as);
     break;
   }
 
   return mode;
-}
-
-
-MmrClutchState MMR_AS_GetClutchState() {
-  return __state.clutch;
-}
-
-MmrLaunchControlState MMR_AS_GetLaunchControlState() {
-  return __state.launchControl;
-}
-
-uint16_t MMR_AS_GetGear() {
-  return __state.gear;
-}
-
-uint16_t MMR_AS_GetRpm() {
-  return __state.rpm;
-}
-
-uint16_t MMR_AS_GetSpeed() {
-  return __state.speed;
-}
-
-int16_t MMR_AS_GetSteeringAngle() {
-  return __state.steeringAngle;
-}
-
-void MMR_AS_SetLap(uint8_t lap) {
-  __state.lap = lap;
-}
-
-uint8_t MMR_AS_GetLap() {
-  return __state.lap;
-}
-
-uint16_t MMR_AS_GetAth() {
-  return __state.ath;
-}
-
-uint8_t MMR_AS_GetUThrottle() {
-  return __state.uthrottle;
-}
-
-uint8_t MMR_AS_GetUThrottleB() {
-  return __state.uthrottleb;
-}
-
-uint16_t MMR_AS_GetEbs1() {
-  return __state.ebs1;
-}
-
-uint16_t MMR_AS_GetEbs2() {
-  return __state.ebs2;
-}
-
-uint16_t MMR_AS_GetBreakP1() {
-
-}
-
-uint16_t MMR_AS_GetBreakP2() {
-
-}
-
-uint32_t MMR_AS_GetInfoSpeed() {
-  return __state.infoSpeed;
 }
