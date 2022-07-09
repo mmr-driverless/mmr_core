@@ -15,8 +15,8 @@ struct MmrGlobalState {
   uint8_t uThrottleB;
   uint16_t ebs1;
   uint16_t ebs2;
-  uint16_t brkp1;
-  uint16_t brkp2;
+  uint16_t brakeP1;
+  uint16_t brakeP2;
 
   MmrClutchState clutch;
   MmrLaunchControlState launchControl;
