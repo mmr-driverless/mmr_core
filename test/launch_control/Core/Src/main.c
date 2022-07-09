@@ -167,8 +167,8 @@ WATCHDOG_Activation();
   MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin);
   MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin);
   MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin);
-
-  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin);
+  MmrPin ebsLedpin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin);
+  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
 
 
   if (!MMR_CAN0_Start(&hcan)) {
@@ -628,12 +628,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SDC_READY_Pin */
-  GPIO_InitStruct.Pin = SDC_READY_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SDC_READY_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : LSW_ASSI_BLUE_Pin LSW_ASSI_YELLOW_Pin EBS_CONTROL1_Pin CTR_LED1_Pin
                            CTR_LED2_Pin CTR_LED3_Pin */
   GPIO_InitStruct.Pin = LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|EBS_CONTROL1_Pin|CTR_LED1_Pin
@@ -649,11 +643,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ASMS_SUPPLY_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BUTTON1_Pin */
-  GPIO_InitStruct.Pin = BUTTON1_Pin;
+  /*Configure GPIO pins : BUTTON1_Pin SDC_IS_READY_Pin */
+  GPIO_InitStruct.Pin = BUTTON1_Pin|SDC_IS_READY_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : AS_SDC_CLOSE_Pin AS_DRIVING_MODE_Pin */
   GPIO_InitStruct.Pin = AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin;

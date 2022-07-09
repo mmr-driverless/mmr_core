@@ -16,11 +16,17 @@ extern TIM_HandleTypeDef htim16;
 static MmrPin *__ebs1;
 static MmrPin *__ebs2;
 static MmrPin* __asclSDC;
-
+static MmrPin *__EBSLedPin;
+static ebsflag EBSflag;
 
 
 void WATCHDOG_Activation() { HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1); }
-void WATCHDOG_Disable() { HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1); }
+void WATCHDOG_Disable() { HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1);}
+
+ebsflag MMR_AS_GetEbsStates()
+{
+return EBSflag;
+}
 
 bool EBS_sensor_check(uint8_t EBS1_value, uint8_t EBS2_value)
 {
@@ -42,11 +48,12 @@ bool TS_Activation(uint16_t RPM, uint8_t gear)
 }
 
 
-void EBS_Init(MmrPin* Epin1, MmrPin* Epin2, MmrPin* asClSDC)
+void EBS_Init(MmrPin* Epin1, MmrPin* Epin2, MmrPin* asClSDC, MmrPin* ebsledPin)
 {
 	__ebs1 = Epin1;
 	__ebs2 = Epin2;
 	__asclSDC = asClSDC;
+	__EBSLedPin = ebsledPin;
 }
 void EBS_Management(MmrPin* EBS_pin, bool state)
 {
@@ -65,6 +72,14 @@ void EBS_Management(MmrPin* EBS_pin, bool state)
 						if(state == OPEN) HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin,GPIO_PIN_RESET);
 
 		}
+
+}
+
+void LSW_EBSLed (MmrPin* led,bool state)
+{
+	if(state == CLOSE)HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_SET);
+	else
+		if(state == OPEN)HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_RESET);
 
 }
 
@@ -132,7 +147,7 @@ EbsStates ebsCheck(EbsStates state)
 	case EBS_IDLE: if(SDC_is_Ready() == GPIO_PIN_SET)
 	               {
 		            WATCHDOG_Disable();
-		            HAL_Delay(250);
+		            HAL_Delay(250); // ma modificare
 		            return EBS_SDC_IS_READY;
 		            break;
 		            }
@@ -155,23 +170,30 @@ EbsStates ebsCheck(EbsStates state)
 	                        	 break;}
 
 
-   case EBS_SDC_IS_NOT_READY:  HAL_Delay(250);
+   case EBS_SDC_IS_NOT_READY:  HAL_Delay(250); // ma modificare
 	                        if(SDC_is_Ready() == GPIO_PIN_RESET)
 	                        {
 	                          WATCHDOG_Activation();
-	                          return EBS_PRESSURE_CHECK;break;
+	                          return EBS_PRESSURE_CHECK;
+	                          break;
 	                         }
 	                        else
-	                        	{return EBS_ERROR;
-	                        	break;}
+	                        	{
+	                        	EBSflag = EBS_STATE_UNAVAILABLE;
+	                        	return EBS_ERROR;
+	                        	break;
+	                        	}
 
-	case EBS_PRESSURE_CHECK: HAL_Delay(500);
+	case EBS_PRESSURE_CHECK: HAL_Delay(200); // ma modificare
 	                         if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()) && EBS_sensor_check(MMR_AS_GetEbs1(),MMR_AS_GetEbs2()))
 		                      {
+	                        	 EBSflag = EBS_STATE_ARMED;
 	                        	 AS_Close_SDC(__asclSDC);
 		                       return EBS_TS_CHECK; break;
 		                       }
-		                      else {return EBS_ERROR;
+		                      else {
+		                        	EBSflag = EBS_STATE_UNAVAILABLE;
+                                    return EBS_ERROR;
 		                      break;}
 
 	case EBS_TS_CHECK: if(TS_Activation(MMR_AS_GetRpm(), MMR_AS_GetGear()))
@@ -180,18 +202,22 @@ EbsStates ebsCheck(EbsStates state)
 		}
 
 	case EBS1_CONTROL: EBS_Management(__ebs1, OPEN);
-	                HAL_Delay(20);
+
+                       HAL_Delay(20); // ma modificare
 		            if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()))
 		            	{
 		            	EBS_Management(__ebs1, CLOSE);
 		          	    return EBS2_CONTROL;
 		          	    break;
 		            	}
-		              else {return EBS_ERROR;
+		              else {
+		            	  EBSflag = EBS_STATE_UNAVAILABLE;
+		            	  return EBS_ERROR;
 		              break;}
 
 	case EBS2_CONTROL: 	  EBS_Management(__ebs2, OPEN);
-	                      HAL_Delay(20);
+	                      EBSflag = EBS_STATE_ACTIVATED;
+	                      HAL_Delay(20); // ma modificare
 	                   if(BRAKE_pressure_check(MMR_AS_GetBreakP1(),MMR_AS_GetBreakP2()))
 	                 	   {
 	               	      EBS_Management(__ebs2, CLOSE);
@@ -199,11 +225,12 @@ EbsStates ebsCheck(EbsStates state)
 	                 	   return EBS_OK; break;
 	                 	   }
 	                   else  {
-	                	   return EBS_ERROR;
-	                	   break;
+			            	  EBSflag = EBS_STATE_UNAVAILABLE;
+			            	  return EBS_ERROR;
+	                	      break;
 	                   }
 
-	case EBS_ERROR: Error_Handler();
+	case EBS_ERROR: LSW_EBSLed(__EBSLedPin,OPEN);
 
 	case EBS_CHECK_NOT_ENDED: HAL_Delay(100);
 	                          if(SDC_is_Ready() == GPIO_PIN_SET)

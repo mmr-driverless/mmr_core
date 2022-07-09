@@ -22,7 +22,7 @@
 #define NEUTRAL 0
 #define OPEN 1
 #define CLOSE 0
-#define SDC_is_Ready() HAL_GPIO_ReadPin(SDC_READY_GPIO_Port, SDC_READY_Pin)
+#define SDC_is_Ready() HAL_GPIO_ReadPin(SDC_IS_READY_GPIO_Port, SDC_IS_READY_Pin)
 
 
 
@@ -39,7 +39,16 @@ typedef enum EbsStates
 	EBS_ERROR,
 	EBS_OK,
 
+
 }EbsStates;
+
+typedef enum ebsflag
+{
+	EBS_STATE_UNAVAILABLE,
+	EBS_STATE_ARMED,
+	EBS_STATE_ACTIVATED,
+
+}ebsflag;
 
 
 
@@ -47,12 +56,15 @@ typedef enum EbsStates
 void WATCHDOG_Activation(); // funzione per  attivazione il  watchdog
 void WATCHDOG_Disable(); // funzione per disabilitare il watchdog
 void EBS_Management(MmrPin* EBS_pin, bool state); // funzione per controllare i due attuatatori dell EBS
-void EBS_Init(MmrPin* pin1, MmrPin* pin2, MmrPin* asClSDC);
+void EBS_Init(MmrPin* pin1, MmrPin* pin2, MmrPin* asClSDC, MmrPin* ebsledPin);
+void LSW_EBSLed (MmrPin* led,bool state);
 EbsStates ebsCheck(EbsStates state);
 
 bool EBS_sensor_check(uint8_t EBS1_Value, uint8_t EBS2_value);
 void AS_Close_SDC(MmrPin* asClSDC);
 bool BRAKE_pressure_check(uint8_t Brake1_value, uint8_t Brake2_value);
+ebsflag MMR_AS_GetEbsStates();
+
 
 bool TS_Activation(uint16_t RPM, uint8_t gear);
 
