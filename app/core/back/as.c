@@ -96,7 +96,7 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
     case MMR_CAN_MESSAGE_ID_ECU_PEDAL_THROTTLE:
        __state.uthrottle = MMR_BUFFER_ReadUint16(buffer,4,MMR_ENCODING_LITTLE_ENDIAN);
        __state.uthrottleb = MMR_BUFFER_ReadUint16(buffer,6,MMR_ENCODING_LITTLE_ENDIAN);
-    	break;
+        break;
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN1:
       __state.rpm = MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
@@ -127,15 +127,15 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
 
 
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
-     	__state.lap = *(uint8_t *)(buffer);
-     	break;
+         __state.lap = *(uint8_t *)(buffer);
+         break;
 
     case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
-    	//da aggiungere lettura messaggi can sensori di pressione
-    	break;
+        //da aggiungere lettura messaggi can sensori di pressione
+        break;
     case MMR_CAN_MESSAGE_ID_ECU_EBS_PRESSURES:
-    	//da aggiungere letura messaggi can ebs
-    	break;
+        //da aggiungere letura messaggi can ebs
+        break;
     }
   }
 
@@ -235,122 +235,107 @@ uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }
 
-uint8_t MMR_AS_GetUThrottle()
-{
-	return __state.uthrottle;
+uint8_t MMR_AS_GetUThrottle() {
+  return __state.uthrottle;
 }
 
-uint8_t MMR_AS_GetUThrottleB()
-{
-	return __state.uthrottleb;
+uint8_t MMR_AS_GetUThrottleB() {
+  return __state.uthrottleb;
 }
 
-uint16_t MMR_AS_GetEbs1()
-{
-	return __state.ebs1;
+uint16_t MMR_AS_GetEbs1() {
+  return __state.ebs1;
 }
 
-uint16_t MMR_AS_GetEbs2()
-{
-	return __state.ebs2;
+uint16_t MMR_AS_GetEbs2() {
+  return __state.ebs2;
 }
 
-uint16_t MMR_AS_GetBreakP1()
-{
+uint16_t MMR_AS_GetBreakP1() {
 
 }
 
-uint16_t MMR_AS_GetBreakP2()
-{
+uint16_t MMR_AS_GetBreakP2() {
 
 }
-
-void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay)
-{
-	__AssiBlue = AssiBlue;
-	__AssiYellow = AssiYellow;
-	__assi_delay = assi_delay;
-
-	*__assi_delay = MMR_Delay(20);
-
-}
-
-void LED_BLUE_ASSI(ASSI_state assi_state)
-{
-	if(assi_state == LED_ASSI_ON) HAL_GPIO_WritePin(__AssiBlue->port,__AssiBlue->pin, GPIO_PIN_RESET);
-	else
-	if(assi_state == LED_ASSI_OFF) HAL_GPIO_WritePin(__AssiBlue->port,__AssiBlue->pin, GPIO_PIN_SET);
-}
-
-
-void LED_YELLOW_ASSI(ASSI_state assi_state)
-{
-	if(assi_state == LED_ASSI_ON) HAL_GPIO_WritePin(__AssiYellow->port,__AssiYellow->pin, GPIO_PIN_RESET);
-		else
-		if(assi_state == LED_ASSI_OFF) HAL_GPIO_WritePin(__AssiYellow->port,__AssiYellow->pin, GPIO_PIN_SET);
-
-}
-
-void AS_LED_ASSI(AS_state AS_state)
-{
-
-
-   switch(AS_state)
-   {
-   case AS_OFF:
-	             LED_BLUE_ASSI(LED_ASSI_OFF);
-	             LED_YELLOW_ASSI(LED_ASSI_OFF);
-	             break;
-
-
-   case AS_READY:
-
-                  LED_BLUE_ASSI(LED_ASSI_OFF);
-                  LED_YELLOW_ASSI(LED_ASSI_ON);
-                  break;
-
-
-   case AS_DRIVING:
-
-	              LED_BLUE_ASSI(LED_ASSI_OFF);
-	              LED_YELLOW_ASSI(LED_ASSI_ON);
-	              MMR_DELAY_Reset(__assi_delay);
-	              if(MMR_DELAY_WaitAsync(__assi_delay)) LED_YELLOW_ASSI(LED_ASSI_OFF);
-	              if(MMR_DELAY_WaitAsync(__assi_delay)) break;
-
-
-
-   case AS_EMERGENCY:
-
-                  LED_BLUE_ASSI(LED_ASSI_ON);
-                  LED_YELLOW_ASSI(LED_ASSI_OFF);
-                  MMR_DELAY_Reset(__assi_delay);
-                  if(MMR_DELAY_WaitAsync(__assi_delay)) LED_BLUE_ASSI(LED_ASSI_ON);
-                  if(MMR_DELAY_WaitAsync(__assi_delay)) break;
-
-
-   case AS_FINISHED:
-
-                   LED_BLUE_ASSI(LED_ASSI_ON);
-                   LED_YELLOW_ASSI(LED_ASSI_OFF);
-
-
-   case AS_IDLE:
-
-                	LED_BLUE_ASSI(LED_ASSI_OFF);
-                	LED_YELLOW_ASSI(LED_ASSI_OFF);
-                	break;
-
-
-
-    }
-
-
-}
-
-
-
 
 uint32_t MMR_AS_GetInfoSpeed() {
   return APPS_SLOPE * (__state.infoSpeed) + APPS_OFFSET;
+}
+
+
+void MMR_ASSI_Init(MmrPin *AssiBlue, MmrPin *AssiYellow, MmrDelay *assi_delay) {
+  __AssiBlue = AssiBlue;
+  __AssiYellow = AssiYellow;
+  __assi_delay = assi_delay;
+
+  *__assi_delay = MMR_Delay(20);
+}
+
+void LED_BLUE_ASSI(ASSI_state assi_state) {
+  if (assi_state == LED_ASSI_ON) {
+    HAL_GPIO_WritePin(__AssiBlue->port,__AssiBlue->pin, GPIO_PIN_RESET);
+  }
+  else if (assi_state == LED_ASSI_OFF) {
+    HAL_GPIO_WritePin(__AssiBlue->port,__AssiBlue->pin, GPIO_PIN_SET);
+  }
+}
+
+
+void LED_YELLOW_ASSI(ASSI_state assi_state) {
+  if (assi_state == LED_ASSI_ON) {
+    HAL_GPIO_WritePin(__AssiYellow->port,__AssiYellow->pin, GPIO_PIN_RESET);
+  }
+  else if (assi_state == LED_ASSI_OFF) {
+    HAL_GPIO_WritePin(__AssiYellow->port,__AssiYellow->pin, GPIO_PIN_SET);
+  }
+}
+
+void AS_LED_ASSI(AS_state AS_state) {
+  switch (AS_state) {
+  case AS_OFF:
+    LED_BLUE_ASSI(LED_ASSI_OFF);
+    LED_YELLOW_ASSI(LED_ASSI_OFF);
+    break;
+
+
+  case AS_READY:
+    LED_BLUE_ASSI(LED_ASSI_OFF);
+    LED_YELLOW_ASSI(LED_ASSI_ON);
+    break;
+
+  case AS_DRIVING:
+    LED_BLUE_ASSI(LED_ASSI_OFF);
+    LED_YELLOW_ASSI(LED_ASSI_ON);
+    MMR_DELAY_Reset(__assi_delay);
+    
+    if (MMR_DELAY_WaitAsync(__assi_delay)) {
+      LED_YELLOW_ASSI(LED_ASSI_OFF);
+    }
+    if (MMR_DELAY_WaitAsync(__assi_delay)) {
+      break;
+    }
+
+  case AS_EMERGENCY:
+    LED_BLUE_ASSI(LED_ASSI_ON);
+    LED_YELLOW_ASSI(LED_ASSI_OFF);
+    MMR_DELAY_Reset(__assi_delay);
+
+    if(MMR_DELAY_WaitAsync(__assi_delay)) {
+      LED_BLUE_ASSI(LED_ASSI_ON);
+    }
+
+    if(MMR_DELAY_WaitAsync(__assi_delay)) {
+      break;
+    }
+
+  case AS_FINISHED:
+    LED_BLUE_ASSI(LED_ASSI_ON);
+    LED_YELLOW_ASSI(LED_ASSI_OFF);
+
+  case AS_IDLE:
+    LED_BLUE_ASSI(LED_ASSI_OFF);
+    LED_YELLOW_ASSI(LED_ASSI_OFF);
+    break;
+  }
 }
