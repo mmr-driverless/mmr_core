@@ -170,7 +170,7 @@ static MmrAutonomousState waitBeforeAccelerating(MmrAutonomousState state) {
 
 
 static MmrAutonomousState accelerate(MmrAutonomousState state) {
-  static const uint16_t DAC_30 = 865;
+  static const uint16_t DAC_30 = 880;
   static MmrDelay delay = { .ms = 1000 };
 
   *__apps = DAC_30;
@@ -225,11 +225,11 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
 
 
 static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
-  static const uint16_t DAC_15 = 700;
+  static const uint16_t DAC_20 = 785;
   static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *__apps = DAC_15;
+    *__apps = DAC_20;
     return MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM;
   }
 

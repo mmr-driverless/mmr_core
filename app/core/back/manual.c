@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 static MmrManualState waiting(MmrManualState state);
+static MmrManualState clutchSetManual(MmrManualState state);
 static MmrManualState setLaunchControl(MmrManualState state);
 static MmrManualState stopLaunchControl(MmrManualState state);
 static MmrManualState done(MmrManualState state);
@@ -28,6 +29,7 @@ MmrManualState MMR_MANUAL_Run(MmrManualState state) {
 
   switch (state) {
   case MMR_MANUAL_WAITING: return waiting(state);
+  case MMR_MANUAL_CLUTCH_SET_MANUAL: return clutchSetManual(state);
   case MMR_MANUAL_SET_LAUNCH_CONTROL: return setLaunchControl(state);
   case MMR_MANUAL_STOP_LAUNCH: return stopLaunchControl(state);
   case MMR_MANUAL_DONE: return done(state);
@@ -37,7 +39,25 @@ MmrManualState MMR_MANUAL_Run(MmrManualState state) {
 
 
 static MmrManualState waiting(MmrManualState state) {
-  return MMR_MANUAL_SET_LAUNCH_CONTROL;
+  return MMR_MANUAL_CLUTCH_SET_MANUAL;
+}
+
+static MmrManualState clutchSetManual(MmrManualState state) {
+  static MmrDelay delay = { .ms = 10 };
+  static uint8_t clutchMessages = 0;
+
+  MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_SET_MANUAL);
+  MmrCanMessage clutchManualMsg = MMR_CAN_OutMessage(header);
+
+  if (clutchMessages <= 10 && MMR_DELAY_WaitAsync(&delay)) {
+    MMR_CAN_Send(__can, &clutchManualMsg);
+  }
+
+  if (clutchMessages++ > 10) {
+    return MMR_MANUAL_SET_LAUNCH_CONTROL;
+  }
+
+  return state;
 }
 
 static MmrManualState setLaunchControl(MmrManualState state) {
