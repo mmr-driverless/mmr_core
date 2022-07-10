@@ -12,6 +12,18 @@
 #include "as.h"
 
 
+static MmrEbsCheck ebsIdle();
+static MmrEbsCheck ebsSdcIsReady();
+static MmrEbsCheck ebsSdcIsNotReady();
+static MmrEbsCheck ebsPressureCheck();
+static MmrEbsCheck ebsTsCheck();
+static MmrEbsCheck ebs1Control();
+static MmrEbsCheck ebs2Control();
+static MmrEbsCheck ebsError();
+static MmrEbsCheck ebsCheckNotEnded();
+static MmrEbsCheck ebsFinalCheck();
+
+
 extern TIM_HandleTypeDef htim16;
 static MmrPin *__ebs1;
 static MmrPin *__ebs2;
@@ -20,262 +32,229 @@ static MmrPin *__EBSLedPin;
 static MmrEbsState EBSflag;
 extern  uint8_t TS_EBS;
 
-void WATCHDOG_Activation() { HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1); }
-void WATCHDOG_Disable() { HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1);}
-
-MmrEbsState MMR_AS_GetEbsStates()
-{
-return EBSflag;
+void WATCHDOG_Activation() {
+  HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
 }
 
-bool EBS_sensor_check(uint8_t EBS1_value, uint8_t EBS2_value)
-{
-	if(EBS1_value >= EBS_min_Pressure && EBS2_value >= EBS_min_Pressure) return 1;
-	  else return 0;
+void WATCHDOG_Disable() {
+  HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1);
 }
 
 
-bool BRAKE_pressure_check(uint8_t Brake1_value, uint8_t Brake2_value)
-{
-	if(Brake1_value >= BRAKE_pressure && Brake2_value >= BRAKE_pressure) return 1;
-      else return 0;
+MmrEbsState MMR_AS_GetEbsStates() {
+  return EBSflag;
 }
 
-bool TS_Activation(uint16_t RPM, uint8_t gear)
-{
-	if(RPM >= min_RPM && gear == NEUTRAL) return 1;
-	else return 0;
+bool EBS_sensor_check(uint8_t EBS1_value, uint8_t EBS2_value) {
+  return
+    EBS1_value >= EBS_min_Pressure &&
+    EBS2_value >= EBS_min_Pressure;
+}
+
+bool BRAKE_pressure_check(uint8_t Brake1_value, uint8_t Brake2_value) {
+  return
+    Brake1_value >= BRAKE_pressure &&
+    Brake2_value >= BRAKE_pressure;
+}
+
+bool TS_Activation(uint16_t RPM, uint8_t gear) {
+  return RPM >= min_RPM && gear == NEUTRAL;
 }
 
 
-void EBS_Init(MmrPin* Epin1, MmrPin* Epin2, MmrPin* asClSDC, MmrPin* ebsledPin)
-{
-	__ebs1 = Epin1;
-	__ebs2 = Epin2;
-	__asclSDC = asClSDC;
-	__EBSLedPin = ebsledPin;
-}
-void EBS_Management(MmrPin* EBS_pin, bool state)
-{
-	if(EBS_pin->pin== EBS_CONTROL1_Pin)
-	{
-		if(state == CLOSE) HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_SET);
-		else
-			if(state == OPEN) HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_RESET);
-
-	}
-	else
-		if(EBS_pin->pin == EBS_CONTROL2_Pin)
-		{
-			if(state == CLOSE) HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_SET);
-					else
-						if(state == OPEN) HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin,GPIO_PIN_RESET);
-
-		}
-
+void EBS_Init(MmrPin *Epin1, MmrPin *Epin2, MmrPin *asClSDC, MmrPin *ebsledPin) {
+  __ebs1 = Epin1;
+  __ebs2 = Epin2;
+  __asclSDC = asClSDC;
+  __EBSLedPin = ebsledPin;
 }
 
-void LSW_EBSLed (MmrPin* led,bool state)
-{
-	if(state == CLOSE)HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_SET);
-	else
-		if(state == OPEN)HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_RESET);
 
+void EBS_Management(MmrPin *EBS_pin, bool state) {
+  if (EBS_pin->pin== EBS_CONTROL1_Pin) {
+    if (state == CLOSE) {
+      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_SET);
+    }
+    else if (state == OPEN) {
+      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_RESET);
+    }
+  }
+  else if(EBS_pin->pin == EBS_CONTROL2_Pin) {
+    if (state == CLOSE) {
+      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_SET);
+    }
+    else if (state == OPEN) {
+      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin,GPIO_PIN_RESET);
+    }
+  }
 }
 
-void AS_Close_SDC(MmrPin* asClSDC)
-{
-	HAL_GPIO_WritePin(asClSDC->port, asClSDC->pin, GPIO_PIN_SET);
+void LSW_EBSLed (MmrPin *led, bool state) {
+  if (state == CLOSE) {
+    HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_SET);
+  }
+  else if(state == OPEN) {
+    HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_RESET);
+  }
 }
 
-//uint8_t EBS_check(uint8_t EBS1_Value, uint8_t EBS2_value, uint8_t Brake1_value, uint8_t Brake2_value,uint16_t RPM, uint8_t gear)
-//{
-///*---------------------------------------------  PUNTO 2-3 */
-//
-//	if(SDC_is_Ready() == true) WATCHDOG_Disable(); // disabilito il watchdog
-//	else return EBS_NOT_ENDED;
-///*----------------------------------------------- PUNTO 4-5*/
-//	if(SDC_is_Ready() == false)
-//	{
-//		// invio mex alla scheda del display con ok ;
-//		WATCHDOG_Activation();
-//	}
-//	else
-//		{
-//		//invio mex can alla scheda display con errore
-//		return EBS_ERROR;
-//		}
-//
-///*-------------------------------------------------PUNTO 6-7-8-9*/
-//if(BRAKE_pressure_check(Brake1_value,Brake2_value) && EBS_sensor_check(EBS1_Value, EBS2_value))
-//	{
-//	AS_Close_SDC(__asclSDC);
-//	//invio mex can true al display ts_Ebs()
-//	}
-//	else return EBS_ERROR;
-///*---------------------------------------------------- PUNTO 10-11-12-13 */
-//
-//  if(TS_Activation(RPM, gear)) EBS_Management(__ebs1, OPEN);
-//  else return EBS_NOT_ENDED;
-//
-//  if(BRAKE_pressure_check(Brake1_value,Brake2_value))
-//	  {
-//	  EBS_Management(__ebs1, CLOSE);
-//	  EBS_Management(__ebs2, OPEN);
-//	  }
-//  //ACCENDERE LED EBS FAIL
-//  else return EBS_ERROR;
-//
-//  /*--------------------------------------------------------- PUNTO 14-15-16*/
-//
-//  if(BRAKE_pressure_check(Brake1_value,Brake2_value))
-//	   {
-//	    EBS_Management(__ebs2, CLOSE);
-//	    return EBS_ENDED;
-//	   }
-//  //ACCENDERE LED EBS FAIL
-//  else return EBS_ERROR;
-//
-//
-//}
-
-MmrEbsCheck ebsCheck(MmrEbsCheck state)
-{
-	static MmrDelay delay = { .ms = 200 };
-
-
-	switch(state)
-	{
-
-	case EBS_IDLE: if(SDC_is_Ready() == GPIO_PIN_SET)
-	               {
-		            WATCHDOG_Disable();
-		            if( MMR_DELAY_WaitAsync(&delay))return EBS_SDC_IS_READY;
-		            break;
-		            }
-	                else
-	                	{
-
-	                	return EBS_CHECK_NOT_ENDED;
-	                	break;
-
-	                	}
-
-	case EBS_SDC_IS_READY: if(SDC_is_Ready() == GPIO_PIN_RESET)
-	                         {
-
-		                      WATCHDOG_Activation();
-		                      return EBS_PRESSURE_CHECK;break;
-	                         }
-	                         else
-	                        	 {return EBS_SDC_IS_NOT_READY;
-	                        	 break;}
-
-
-   case EBS_SDC_IS_NOT_READY:
-	                        if(SDC_is_Ready() == GPIO_PIN_RESET)
-	                        {
-	                          WATCHDOG_Activation();
-	                          return EBS_PRESSURE_CHECK;
-	                          break;
-	                         }
-	                        else
-	                        	{
-	                        	EBSflag = EBS_STATE_UNAVAILABLE;
-	                        	return EBS_ERROR;
-	                        	break;
-	                        	}
-
-	case EBS_PRESSURE_CHECK:  while( MMR_DELAY_WaitAsync(&delay) != 0){} // ma modificare
-	                         if(EBS_sensor_check(MMR_GS_GetEbs1(),MMR_GS_GetEbs2()))
-	                        	 EBS_Management(__ebs1, OPEN);
-	                             EBS_Management(__ebs2, OPEN);
-	                             HAL_Delay(250);
-	                        	 if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
-		                      {
-	                        	 EBSflag = EBS_STATE_ARMED;
-	                        	 TS_EBS = 1;
-	                        	 AS_Close_SDC(__asclSDC);
-		                       return EBS_TS_CHECK; break;
-		                       }
-		                      else {
-		                        	EBSflag = EBS_STATE_UNAVAILABLE;
-                                    return EBS_ERROR;
-		                      break;}
-
-	case EBS_TS_CHECK: if(TS_Activation(MMR_GS_GetRpm(), MMR_GS_GetGear()))
-		{
-		return EBS1_CONTROL;
-		break;
-		}
-	else break;
-
-	case EBS1_CONTROL: EBS_Management(__ebs1, CLOSE);
-
-                       HAL_Delay(20); // ma modificare
-		            if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
-		            	{
-		            	EBS_Management(__ebs1, OPEN);
-		          	    return EBS2_CONTROL;
-		          	    break;
-		            	}
-		              else {
-		            	  EBSflag = EBS_STATE_UNAVAILABLE;
-		            	  return EBS_ERROR;
-		              break;}
-
-	case EBS2_CONTROL: 	  EBS_Management(__ebs2, CLOSE);
-	                      EBSflag = EBS_STATE_ACTIVATED;
-	                     while( MMR_DELAY_WaitAsync(&delay) != 0){}
-	                   if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2()))
-	                 	   {
-	               	      EBS_Management(__ebs2, OPEN);
-
-	                 	   return EBS_FINAL_CHECK; break;
-	                 	   }
-	                   else  {
-			            	  EBSflag = EBS_STATE_UNAVAILABLE;
-			            	  return EBS_ERROR;
-	                	      break;
-	                   }
-
-	case EBS_ERROR: LSW_EBSLed(__EBSLedPin,OPEN); break;
-
-	case EBS_CHECK_NOT_ENDED: while( MMR_DELAY_WaitAsync(&delay) != 0){}
-	                          if(SDC_is_Ready() == GPIO_PIN_SET)
-	                           {
-	                             return EBS_IDLE;
-	                             break;
-	                           }
-	                          else {
-	                        	  return EBS_ERROR;
-	                        	  break;
-	                          }
-
-
-
-	case EBS_FINAL_CHECK:
-		                 EBS_Management(__ebs1, OPEN);
-			              EBS_Management(__ebs2, OPEN);
-			              return EBS_OK;
-			              break;
-	}
+void AS_Close_SDC(MmrPin* asClSDC) {
+  HAL_GPIO_WritePin(asClSDC->port, asClSDC->pin, GPIO_PIN_SET);
 }
 
-MmrEbsState EBS_Activation(MmrMission currentMission, bool Missionflag, bool ResEMergencyflag)
+
+
+MmrEbsCheck ebsCheck(MmrEbsCheck state) {
+  switch (state) {
+  case EBS_IDLE: return ebsIdle();
+  case EBS_SDC_IS_READY: return ebsSdcIsReady();
+  case EBS_SDC_IS_NOT_READY: return ebsSdcIsNotReady();
+  case EBS_PRESSURE_CHECK: return ebsPressureCheck();
+  case EBS_TS_CHECK: return ebsTsCheck();
+  case EBS1_CONTROL: return ebs1Control();
+  case EBS2_CONTROL: return ebs2Control();
+  case EBS_ERROR: return ebsError();
+  case EBS_CHECK_NOT_ENDED: return ebsCheckNotEnded();
+  case EBS_FINAL_CHECK: return ebsFinalCheck();
+  }
+}
+
+
+static MmrEbsCheck ebsIdle() {
+  static MmrDelay delay = { .ms = 200 };
+
+  if (SDC_is_Ready() == GPIO_PIN_SET) {
+    WATCHDOG_Disable();
+    if (MMR_DELAY_WaitAsync(&delay)) {
+      return EBS_SDC_IS_READY;
+    }
+  }
+  
+  return EBS_CHECK_NOT_ENDED;
+}
+
+static MmrEbsCheck ebsSdcIsReady() {
+  if (SDC_is_Ready() == GPIO_PIN_RESET) {
+    WATCHDOG_Activation();
+    return EBS_PRESSURE_CHECK;
+  }
+
+  return EBS_SDC_IS_NOT_READY;
+}
+
+static MmrEbsCheck ebsSdcIsNotReady() {
+  if (SDC_is_Ready() == GPIO_PIN_RESET) {
+    WATCHDOG_Activation();
+    return EBS_PRESSURE_CHECK;
+  }
+
+  EBSflag = EBS_STATE_UNAVAILABLE;
+  return EBS_ERROR;
+}
+
+static MmrEbsCheck ebsPressureCheck() {
+  static MmrDelay delay = { .ms = 200 };
+
+  // TODO
+  while (MMR_DELAY_WaitAsync(&delay)) {
+
+  }
+  if (EBS_sensor_check(MMR_GS_GetEbs1(), MMR_GS_GetEbs2())) {
+    EBS_Management(__ebs1, OPEN);
+    EBS_Management(__ebs2, OPEN);
+    HAL_Delay(250);
+
+    if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2())) {
+      EBSflag = EBS_STATE_ARMED;
+      TS_EBS = 1;
+      AS_Close_SDC(__asclSDC);
+      return EBS_TS_CHECK;
+    }
+  }
+
+  EBSflag = EBS_STATE_UNAVAILABLE;
+  return EBS_ERROR;
+}
+
+static MmrEbsCheck ebsTsCheck() {
+  if(TS_Activation(MMR_GS_GetRpm(), MMR_GS_GetGear())) {
+    return EBS1_CONTROL;
+  }
+
+  return EBS_TS_CHECK;
+}
+
+static MmrEbsCheck ebs1Control() {
+  EBS_Management(__ebs1, CLOSE);
+  HAL_Delay(20); // ma modificare
+
+  if (BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2())) {
+    EBS_Management(__ebs1, OPEN);
+    return EBS2_CONTROL;
+  }
+  
+  EBSflag = EBS_STATE_UNAVAILABLE;
+  return EBS_ERROR;
+}
+
+static MmrEbsCheck ebs2Control() {
+  static MmrDelay delay = { .ms = 200 };
+
+  EBS_Management(__ebs2, CLOSE);
+  EBSflag = EBS_STATE_ACTIVATED;
+  
+  while( MMR_DELAY_WaitAsync(&delay) != 0)
+    ;
+
+  if (BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2())) {
+    EBS_Management(__ebs2, OPEN);
+    return EBS_FINAL_CHECK;
+  }
+
+  EBSflag = EBS_STATE_UNAVAILABLE;
+  return EBS_ERROR;
+}
+
+static MmrEbsCheck ebsError() {
+  LSW_EBSLed(__EBSLedPin,OPEN);
+  return EBS_ERROR;
+}
+
+static MmrEbsCheck ebsCheckNotEnded() {
+  static MmrDelay delay = { .ms = 200 };
+
+  while( MMR_DELAY_WaitAsync(&delay) != 0)
+    ;
+
+  if(SDC_is_Ready() == GPIO_PIN_SET) {
+    return EBS_IDLE;
+  }
+
+  return EBS_ERROR;
+}
+
+static MmrEbsCheck ebsFinalCheck() {
+  EBS_Management(__ebs1, OPEN);
+  EBS_Management(__ebs2, OPEN);
+  return EBS_OK;
+}
+
+
+MmrEbsState EBS_Activation(
+  MmrMission currentMission,
+  bool Missionflag /* se la missione è finita */,
+  bool ResEMergencyflag /* emergenza */
+)
 {
-	if(Missionflag || ResEMergencyflag)
-	{
-		if(currentMission != MMR_MISSION_INSPECTION || currentMission != MMR_MISSION_MANUAL)
-		{
-        	EBS_Management(__ebs2, OPEN);
-        	EBS_Management(__ebs2, OPEN);
-            return EBS_STATE_ACTIVATED;
+  if (Missionflag || ResEMergencyflag) {
+    if (currentMission != MMR_MISSION_INSPECTION || currentMission != MMR_MISSION_MANUAL) {
+      EBS_Management(__ebs2, OPEN); // TODO
+      EBS_Management(__ebs2, OPEN);
+      return EBS_STATE_ACTIVATED;
+    }
+  }
 
-		}
-		else  return EBS_STATE_DISACTIVATED;
-	}
-
+  return EBS_STATE_DISACTIVATED;
 }
 
 

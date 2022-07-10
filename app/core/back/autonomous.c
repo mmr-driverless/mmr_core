@@ -1,5 +1,6 @@
 #include "inc/autonomous.h"
 #include "inc/global_state.h"
+#include "inc/peripherals.h"
 #include "inc/apps.h"
 #include "message_id.h"
 #include <delay.h>
@@ -29,19 +30,6 @@ static MmrAutonomousState clutchSetManual(MmrAutonomousState state);
 static MmrAutonomousState setManualApps(MmrAutonomousState state);
 static MmrAutonomousState done(MmrAutonomousState state);
 
-
-static MmrCan *__can;
-static MmrPin *__gearN;
-static uint32_t *__apps;
-static uint32_t *__adc;
-
-
-void MMR_AUTONOMOUS_Init(MmrCan *can, MmrPin *gearN, uint32_t *apps, uint32_t *adc) {
-  __can = can;
-  __gearN = gearN;
-  __apps = apps;
-  __adc = adc;
-}
 
 
 MmrAutonomousState MMR_AUTONOMOUS_Run(MmrAutonomousState state) {

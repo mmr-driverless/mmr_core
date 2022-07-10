@@ -1,5 +1,6 @@
 #include "inc/gear_change.h"
 #include "inc/global_state.h"
+#include "inc/peripherals.h"
 #include <pin.h>
 #include <delay.h>
 #include <stdbool.h>
@@ -11,16 +12,6 @@ const int N_UP_MIN = 4500;   // Limite minimo di cambiata Up
 const int N_UP_MAX = 10000;  // Limite massimo di cambiata Up
 const int N_DN_MIN = 3500;   // Limite minimo di cambiata Down
 const int N_DN_MAX = 7000;   // Limite massimo di cambiata Down
-
-
-static MmrPin *__gearUp;
-static MmrPin *__gearDn;
-
-
-void MMR_GEAR_CHANGE_Init(MmrPin *gearUp, MmrPin *gearDn) {
-  __gearUp = gearUp;
-  __gearDn = gearDn;
-}
 
 
 void MMR_GEAR_CHANGE_Run() {
@@ -56,20 +47,20 @@ void MMR_GEAR_CHANGE_Run() {
       enableGearUp = true;
       enableGearDn = false;
       MMR_DELAY_Reset(&gearChangeDelay);
-      MMR_PIN_Write(__gearUp, MMR_PIN_HIGH);
+      MMR_PIN_Write(asPeripherals.gearUp, MMR_PIN_HIGH);
     }
     else if (deltaSpeed < 0 && rpm <= rpmDn && gear != 1 && abs(steeringAngle) < 15 / 6.25) {
       enableGearUp = false;
       enableGearDn = true;
       MMR_DELAY_Reset(&gearChangeDelay);
-      MMR_PIN_Write(__gearDn, MMR_PIN_HIGH);
+      MMR_PIN_Write(asPeripherals.gearDown, MMR_PIN_HIGH);
     }
   }
 
 
   if (enableGearUp) {
     if (MMR_DELAY_WaitAsync(&gearChangeDelay)) {
-      MMR_PIN_Write(__gearUp, MMR_PIN_LOW);
+      MMR_PIN_Write(asPeripherals.gearUp, MMR_PIN_LOW);
       enableGearUp = false;
       enableGearDn = false;
     }
@@ -77,7 +68,7 @@ void MMR_GEAR_CHANGE_Run() {
 
   if(enableGearDn) {
     if (MMR_DELAY_WaitAsync(&gearChangeDelay)) {
-      MMR_PIN_Write(__gearDn, MMR_PIN_LOW);
+      MMR_PIN_Write(asPeripherals.gearDown, MMR_PIN_LOW);
       enableGearUp = false;
       enableGearDn = false;
     }

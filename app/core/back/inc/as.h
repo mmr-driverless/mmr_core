@@ -1,4 +1,4 @@
- #ifndef APP_BACK_INC_AS_H_
+#ifndef APP_BACK_INC_AS_H_
 #define APP_BACK_INC_AS_H_
 
 #include <can.h>
@@ -6,17 +6,6 @@
 #include "timing.h"
 #include "delay.h"
 
-
-typedef enum MmrMission {
-  MMR_MISSION_IDLE,
-  MMR_MISSION_ACCELERATION,
-  MMR_MISSION_SKIDPAD,
-  MMR_MISSION_AUTOCROSS,
-  MMR_MISSION_TRACKDRIVE,
-  MMR_MISSION_EBS_TEST,
-  MMR_MISSION_INSPECTION,
-  MMR_MISSION_MANUAL,
-} MmrMission;
 
 typedef enum MmrAsState {
   AS_IDLE,
@@ -27,11 +16,11 @@ typedef enum MmrAsState {
   AS_FINISHED,
 } MmrAsState;
 
-typedef enum asStatus
-{
+typedef enum asStatus {
 	OFF = 0U,
 	ON,
-}asStatus;
+} asStatus;
+
 void MMR_AS_Init(MmrCan *can, MmrPin *gearUp, MmrPin *gearDown, MmrPin *gearN, MmrPin *changeMode, uint32_t *apps, uint32_t *adc);
 void Buzzer_activation(void);
 void Buzzer_disactivation(void);
