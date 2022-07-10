@@ -192,7 +192,7 @@ WATCHDOG_Activation();
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 #ifdef ASSI_TEST
-    MMR_AXIS_LEDS_Run(as_state);
+    MMR_AXIS_LEDS_Run(as_state);    
     if(as_state == AS_EMERGENCY)
     	{
     	if(buzzerflag == false) Buzzer_activation();

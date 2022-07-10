@@ -45,6 +45,5 @@ _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 _Bool TPS_check()
 {
 	uint32_t difference = gs.uThrottleA + gs.uThrottleB;
-	if (fabs(difference - 5) <= 0.5) return false;
-	else return true;
+	return fabs(difference - 5) <= 0.5;
 }

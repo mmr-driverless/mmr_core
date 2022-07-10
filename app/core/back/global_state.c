@@ -11,13 +11,11 @@ MmrGlobalState gs = {};
 
 void MMR_GS_Init() {
   gs = (struct MmrGlobalState){
-    .can = {
-      .lap = 0,
-      .clutch = MMR_CLUTCH_UNKNOWN,
-      .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
-      .currentMissionSelected = MMR_MISSION_IDLE,
-      .resEmergencyButton = MMR_BUTTON_RELEASED,
-    },
+    .lap = 0,
+    .clutch = MMR_CLUTCH_UNKNOWN,
+    .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
+    .currentMission = MMR_MISSION_IDLE,
+    .resEmergencyButton = MMR_BUTTON_RELEASED,
   };
 }
 
@@ -94,7 +92,7 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       break;
 
     case MMR_CAN_MESSAGE_ID_M_MISSION_SELECTED:
-      gs.currentMissionSelected = (MmrMission)MMR_BUFFER_ReadByte(buffer, 0);
+      gs.currentMission = (MmrMission)MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGES_ID_RES_EMERGENCY:

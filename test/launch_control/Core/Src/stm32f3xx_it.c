@@ -33,6 +33,7 @@
 #include "ebs.h"
 #include "delay.h"
 #include "stdbool.h"
+#include <apps.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -211,7 +212,7 @@ void SysTick_Handler(void)
 
 if(mission == MMR_MISSION_MANUAL)
 {
-	 APPS_Flag = APPS_check(adc[0],adc[1]);
+	 APPS_Flag = MMR_APPS_Check(adc[0],adc[1]);
 
 	 if (APPS_Flag == 1 && !APPS_startCounter) {
 		  APPS_startCounter = true;
@@ -220,7 +221,7 @@ if(mission == MMR_MISSION_MANUAL)
 		  if (APPS_startCounter) {
 		  	  APPS_counter++;
 
-		  	  APPS_ctr += APPS_check(adc[0],adc[1]);
+		  	  APPS_ctr += MMR_APPS_Check(adc[0],adc[1]);
 		  	  if (APPS_ctr >= 100)
 		  		  HAL_DMA_Abort(&hdma_dac_ch1);
 
@@ -236,7 +237,7 @@ if(mission == MMR_MISSION_MANUAL)
 }
 
 
-TPS_Flag = TPS_check(gs.uThrottleA, gs.uThrottleB);
+TPS_Flag = !TPS_check();
 
 if (TPS_Flag == 1 && !TPS_startCounter)
 {
@@ -246,7 +247,7 @@ if (TPS_Flag == 1 && !TPS_startCounter)
 	  if (TPS_startCounter) {
 	  	  TPS_counter++;
 
-	  	  TPS_ctr += TPS_check();
+	  	  TPS_ctr += !TPS_check();
 	  	  if (TPS_ctr >= 100)
 	  		  HAL_DMA_Abort(&hdma_dac_ch1); // TODO DA MODIFICARE, CAPIRE COME SPEGNERE LVMS SE CI SONO PROBLEMI --->>> EBS ???
 

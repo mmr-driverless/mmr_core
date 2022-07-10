@@ -46,7 +46,7 @@ typedef struct MmrGlobalState {
   uint8_t missionFinished;
   uint8_t missionReady;
   uint8_t asbCheck;
-  MmrMission currentMissionSelected;
+  MmrMission currentMission;
   MmrButtonState resEmergencyButton;
   
   MmrClutchState clutch;
