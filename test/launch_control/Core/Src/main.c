@@ -73,7 +73,7 @@ uint32_t adc[2];
 uint32_t dac;
 
 
-MmrAsState as_state = MMR_AS_IDLE;
+MmrAsState as_state = MMR_AS_OFF;
 MmrEbsCheck Ebsstate = EBS_IDLE;
 MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
 uint8_t TS_EBS;

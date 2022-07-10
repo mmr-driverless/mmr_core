@@ -47,23 +47,23 @@ void MMR_AS_Run() {
 
 
 static MmrAsState computeState() {
-  if (MMR_EBS_Activated) {
-    if (MissionFinished && VehicleAtStandstill) {
-      return MMR_AS_FINISHED;
-    }
-    
-    return MMR_AS_EMERGENCY;
-  }
-
-  if (MissionSelected && ASMSOn && ASBchecksOK && TS Active) {
-    if (R2D) {
-      return MMR_AS_DRIVING;
-    }
-
-    if (BrakesEngaged) {
-      return MMR_AS_READY;
-    }
-  }
+//  if (MMR_EBS_Activated) {
+//    if (MissionFinished && VehicleAtStandstill) {
+//      return MMR_AS_FINISHED;
+//    }
+//
+//    return MMR_AS_EMERGENCY;
+//  }
+//
+//  if (MissionSelected && ASMSOn && ASBchecksOK && TS Active) {
+//    if (R2D) {
+//      return MMR_AS_DRIVING;
+//    }
+//
+//    if (BrakesEngaged) {
+//      return MMR_AS_READY;
+//    }
+//  }
 
   return MMR_AS_OFF;
 }

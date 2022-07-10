@@ -126,7 +126,7 @@ void MMR_GS_SendByCan(MmrCan* can) {
     switch (msgId) {
     case MMR_CAN_MESSAGE_ID_TS_EBS:
       MMR_CAN_MESSAGE_SetHeader(&out, MMR_CAN_NormalHeader(msgId));
-      MMR_CAN_MESSAGE_SetPayload(&out, &)
+      // MMR_CAN_MESSAGE_SetPayload(&out, &)
       break;
     case MMR_CAN_MESSAGE_ID_S_APPS: break;
     }
@@ -172,5 +172,5 @@ void MMR_GS_SendByCan(MmrCan* can) {
 //    MMR_AS_asConversion(as_state);
 //    MMR_CAN_MESSAGE_SetPayload(&AS_FINISHEDmexCAN, &AS_FINISHEDmexCAN, sizeof(AS_FINISHEDmexCAN));
 //    MMR_CAN_Send(can, &AS_FINISHEDmexCAN);
-  }
+//  }
 }
