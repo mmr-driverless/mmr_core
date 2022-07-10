@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-MmrAsPeripherals asPeripherals;
+MmrAsPeripherals asp;
 
 static MmrEbsCheck ebs = EBS_IDLE;
 
@@ -27,7 +27,7 @@ void MMR_AS_Init(
   uint32_t *apps,
   uint32_t *adc
 ) {
-  asPeripherals = (MmrAsPeripherals) {
+  asp = (MmrAsPeripherals) {
     .can = can,
     .gearN = gearN,
     .gearUp = gearUp,

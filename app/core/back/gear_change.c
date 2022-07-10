@@ -47,20 +47,20 @@ void MMR_GEAR_CHANGE_Run() {
       enableGearUp = true;
       enableGearDn = false;
       MMR_DELAY_Reset(&gearChangeDelay);
-      MMR_PIN_Write(asPeripherals.gearUp, MMR_PIN_HIGH);
+      MMR_PIN_Write(asp.gearUp, MMR_PIN_HIGH);
     }
     else if (deltaSpeed < 0 && rpm <= rpmDn && gear != 1 && abs(steeringAngle) < 15 / 6.25) {
       enableGearUp = false;
       enableGearDn = true;
       MMR_DELAY_Reset(&gearChangeDelay);
-      MMR_PIN_Write(asPeripherals.gearDown, MMR_PIN_HIGH);
+      MMR_PIN_Write(asp.gearDown, MMR_PIN_HIGH);
     }
   }
 
 
   if (enableGearUp) {
     if (MMR_DELAY_WaitAsync(&gearChangeDelay)) {
-      MMR_PIN_Write(asPeripherals.gearUp, MMR_PIN_LOW);
+      MMR_PIN_Write(asp.gearUp, MMR_PIN_LOW);
       enableGearUp = false;
       enableGearDn = false;
     }
@@ -68,7 +68,7 @@ void MMR_GEAR_CHANGE_Run() {
 
   if(enableGearDn) {
     if (MMR_DELAY_WaitAsync(&gearChangeDelay)) {
-      MMR_PIN_Write(asPeripherals.gearDown, MMR_PIN_LOW);
+      MMR_PIN_Write(asp.gearDown, MMR_PIN_LOW);
       enableGearUp = false;
       enableGearDn = false;
     }

@@ -244,7 +244,7 @@ static MmrAutonomousState clutchSetManual(MmrAutonomousState state) {
   MmrCanMessage clutchManualMsg = MMR_CAN_OutMessage(header);
 
   if (clutchMessages <= 10 && MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &clutchManualMsg);
+    MMR_CAN_Send(asp.can, &clutchManualMsg);
   }
 
   if (clutchMessages++ > 10) {
@@ -267,8 +267,8 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  *__apps = gs.lap >= 1
-    ? MMR_APPS_ComputeSpeed(gs.infoSpeed)
+  *(asp.apps) = gs.can.lap >= 1
+    ? MMR_APPS_ComputeSpeed(gs.can.infoSpeed)
     : MMR_APPS_ComputeSpeed(0.0);
 
   return MMR_AUTONOMOUS_DONE;

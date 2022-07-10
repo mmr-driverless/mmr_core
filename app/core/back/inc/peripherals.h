@@ -13,6 +13,6 @@ typedef struct MmrAsPeripherals {
   const uint32_t *adc;
 } MmrAsPeripherals;
 
-extern MmrAsPeripherals asPeripherals;
+extern MmrAsPeripherals asp;
 
 #endif // !APP_CORE_BACK_INC_PERIPHERALS_H_
