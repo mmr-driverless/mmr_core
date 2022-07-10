@@ -1,4 +1,4 @@
-#include "inc/manual.h"
+#include "inc/manual_launch.h"
 #include "inc/global_state.h"
 #include <delay.h>
 #include "message_id.h"
@@ -16,28 +16,28 @@ static uint32_t *__adc;
 static uint32_t *__apps;
 
 
-void MMR_MANUAL_Init(MmrCan *can, uint32_t *apps, uint32_t *adc) {
+void MMR_MANUAL_LAUNCH_Init(MmrCan *can, uint32_t *apps, uint32_t *adc) {
   __can = can;
   __adc = adc;
   __apps = apps;
 }
 
 
-MmrManualState MMR_MANUAL_Run(MmrManualState state) {
+MmrManualState MMR_MANUAL_LAUNCH_Run(MmrManualState state) {
   *__apps = *__adc;
 
   switch (state) {
-  case MMR_MANUAL_WAITING: return waiting(state);
-  case MMR_MANUAL_SET_LAUNCH_CONTROL: return setLaunchControl(state);
-  case MMR_MANUAL_STOP_LAUNCH: return stopLaunchControl(state);
-  case MMR_MANUAL_DONE: return done(state);
+  case MMR_MANUAL_LAUNCH_WAITING: return waiting(state);
+  case MMR_MANUAL_LAUNCH_SET_LAUNCH_CONTROL: return setLaunchControl(state);
+  case MMR_MANUAL_LAUNCH_STOP_LAUNCH: return stopLaunchControl(state);
+  case MMR_MANUAL_LAUNCH_DONE: return done(state);
   default: return state;
   }
 }
 
 
 static MmrManualState waiting(MmrManualState state) {
-  return MMR_MANUAL_SET_LAUNCH_CONTROL;
+  return MMR_MANUAL_LAUNCH_SET_LAUNCH_CONTROL;
 }
 
 static MmrManualState setLaunchControl(MmrManualState state) {
@@ -58,7 +58,7 @@ static MmrManualState setLaunchControl(MmrManualState state) {
   }
 
   if (isLaunchSet) {
-    return MMR_MANUAL_STOP_LAUNCH;
+    return MMR_MANUAL_LAUNCH_STOP_LAUNCH;
   }
 
   return state;
@@ -82,7 +82,7 @@ static MmrManualState stopLaunchControl(MmrManualState state) {
   }
 
   if (launchUnset) {
-    return MMR_MANUAL_DONE;
+    return MMR_MANUAL_LAUNCH_DONE;
   }
 
   return state;

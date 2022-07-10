@@ -3,8 +3,8 @@
 
 #include "mission.h"
 #include "as.h"
-#include "manual.h"
-#include "autonomous.h"
+#include "manual_launch.h"
+#include "autonomous_launch.h"
 #include <button.h>
 #include <can.h>
 #include <stdint.h>

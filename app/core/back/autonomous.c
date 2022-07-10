@@ -1,4 +1,4 @@
-#include "inc/autonomous.h"
+#include "inc/autonomous_launch.h"
 #include "inc/global_state.h"
 #include "inc/peripherals.h"
 #include "inc/apps.h"
@@ -32,32 +32,32 @@ static MmrAutonomousState done(MmrAutonomousState state);
 
 
 
-MmrAutonomousState MMR_AUTONOMOUS_Run(MmrAutonomousState state) {
+MmrAutonomousState MMR_AUTONOMOUS_LAUNCH_Run(MmrAutonomousState state) {
   switch (state) {
-  case MMR_AUTONOMOUS_WAITING: return waiting(state);
-  case MMR_AUTONOMOUS_PULL_CLUTCH: return pullClutch(state);
-  case MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR: return waitBeforeChangingGear(state);
+  case MMR_AUTONOMOUS_LAUNCH_WAITING: return waiting(state);
+  case MMR_AUTONOMOUS_LAUNCH_PULL_CLUTCH: return pullClutch(state);
+  case MMR_AUTONOMOUS_LAUNCH_WAIT_BEFORE_CHANGING_GEAR: return waitBeforeChangingGear(state);
 
-  case MMR_AUTONOMOUS_CHANGE_GEAR: return changeGear(state);
-  case MMR_AUTONOMOUS_SET_LAUNCH_CONTROL: return setLaunchControl(state);
-  case MMR_AUTONOMOUS_WAIT_BEFORE_ACCELERATING: return waitBeforeAccelerating(state);
+  case MMR_AUTONOMOUS_LAUNCH_CHANGE_GEAR: return changeGear(state);
+  case MMR_AUTONOMOUS_LAUNCH_SET_LAUNCH_CONTROL: return setLaunchControl(state);
+  case MMR_AUTONOMOUS_LAUNCH_WAIT_BEFORE_ACCELERATING: return waitBeforeAccelerating(state);
 
-  case MMR_AUTONOMOUS_ACCELERATE: return accelerate(state);
-  case MMR_AUTONOMOUS_RELEASE_CLUTCH: return releaseClutch(state);
-  case MMR_AUTONOMOUS_UNSET_LAUNCH: return unsetLaunchControl(state);
-  case MMR_AUTONOMOUS_ACCELERATE_TO_15: return accelerateTo15(state);
-  case MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM: return accelerateToMinimum(state);
+  case MMR_AUTONOMOUS_LAUNCH_ACCELERATE: return accelerate(state);
+  case MMR_AUTONOMOUS_LAUNCH_RELEASE_CLUTCH: return releaseClutch(state);
+  case MMR_AUTONOMOUS_LAUNCH_UNSET_LAUNCH: return unsetLaunchControl(state);
+  case MMR_AUTONOMOUS_LAUNCH_ACCELERATE_TO_15: return accelerateTo15(state);
+  case MMR_AUTONOMOUS_LAUNCH_ACCELERATE_TO_MINIMUM: return accelerateToMinimum(state);
 
-  case MMR_AUTONOMOUS_CLUTCH_SET_MANUAL: return clutchSetManual(state);
-  case MMR_AUTONOMOUS_SET_MANUAL_APPS: return setManualApps(state);
-  case MMR_AUTONOMOUS_DONE: return done(state);
+  case MMR_AUTONOMOUS_LAUNCH_CLUTCH_SET_MANUAL: return clutchSetManual(state);
+  case MMR_AUTONOMOUS_LAUNCH_SET_MANUAL_APPS: return setManualApps(state);
+  case MMR_AUTONOMOUS_LAUNCH_DONE: return done(state);
   default: return state;
   }
 }
 
 
 static MmrAutonomousState waiting(MmrAutonomousState state) {
-  return MMR_AUTONOMOUS_PULL_CLUTCH;
+  return MMR_AUTONOMOUS_LAUNCH_PULL_CLUTCH;
 }
 
 
@@ -73,7 +73,7 @@ static MmrAutonomousState pullClutch(MmrAutonomousState state) {
 
   bool isClutchPulled = gs.clutch == MMR_CLUTCH_PULLED;
   if (isClutchPulled) {
-    return MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR;
+    return MMR_AUTONOMOUS_LAUNCH_WAIT_BEFORE_CHANGING_GEAR;
   }
 
   return state;
@@ -84,7 +84,7 @@ static MmrAutonomousState waitBeforeChangingGear(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    return MMR_AUTONOMOUS_CHANGE_GEAR;
+    return MMR_AUTONOMOUS_LAUNCH_CHANGE_GEAR;
   }
 
   return state;
@@ -99,7 +99,7 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
   bool isGearSet = gs.gear == 1;
   if (isGearSet && !changingGear) {
     MMR_PIN_Write(asp.gearN, MMR_PIN_LOW);
-    return MMR_AUTONOMOUS_SET_LAUNCH_CONTROL;
+    return MMR_AUTONOMOUS_LAUNCH_SET_LAUNCH_CONTROL;
   }
 
   if (!changingGear && !isGearSet && MMR_DELAY_WaitAsync(&gearNotChangedDelay)) {
@@ -139,7 +139,7 @@ static MmrAutonomousState setLaunchControl(MmrAutonomousState state) {
   }
 
   if (isLaunchSet) {
-    return MMR_AUTONOMOUS_WAIT_BEFORE_ACCELERATING;
+    return MMR_AUTONOMOUS_LAUNCH_WAIT_BEFORE_ACCELERATING;
   }
 
   return state;
@@ -150,7 +150,7 @@ static MmrAutonomousState waitBeforeAccelerating(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    return MMR_AUTONOMOUS_ACCELERATE;
+    return MMR_AUTONOMOUS_LAUNCH_ACCELERATE;
   }
 
   return state;
@@ -162,7 +162,7 @@ static MmrAutonomousState accelerate(MmrAutonomousState state) {
 
   *(asp.apps) = MMR_APPS_ComputeSpeed(0.3);
   if (MMR_DELAY_WaitAsync(&delay)) {
-    return MMR_AUTONOMOUS_RELEASE_CLUTCH;
+    return MMR_AUTONOMOUS_LAUNCH_RELEASE_CLUTCH;
   }
 
   return state;
@@ -180,7 +180,7 @@ static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
 
   bool isClutchReleased = gs.clutch == MMR_CLUTCH_RELEASED;
   if (isClutchReleased) {
-    return MMR_AUTONOMOUS_UNSET_LAUNCH;
+    return MMR_AUTONOMOUS_LAUNCH_UNSET_LAUNCH;
   }
 
   return state;
@@ -204,7 +204,7 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
   }
 
   if (launchUnset) {
-    return MMR_AUTONOMOUS_ACCELERATE_TO_15;
+    return MMR_AUTONOMOUS_LAUNCH_ACCELERATE_TO_15;
   }
 
   return state;
@@ -216,7 +216,7 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
 
   if (MMR_DELAY_WaitAsync(&delay)) {
     *(asp.apps) = MMR_APPS_ComputeSpeed(0.15);
-    return MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM;
+    return MMR_AUTONOMOUS_LAUNCH_ACCELERATE_TO_MINIMUM;
   }
 
   return state;
@@ -228,7 +228,7 @@ static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
 
   if (MMR_DELAY_WaitAsync(&delay)) {
     *(asp.apps) = MMR_APPS_ComputeSpeed(0.0);
-    return MMR_AUTONOMOUS_CLUTCH_SET_MANUAL;
+    return MMR_AUTONOMOUS_LAUNCH_CLUTCH_SET_MANUAL;
   }
 
   return state;
@@ -248,7 +248,7 @@ static MmrAutonomousState clutchSetManual(MmrAutonomousState state) {
   }
 
   if (clutchMessages++ > 10) {
-    return MMR_AUTONOMOUS_SET_MANUAL_APPS;
+    return MMR_AUTONOMOUS_LAUNCH_SET_MANUAL_APPS;
   }
 
   return state;
@@ -259,7 +259,7 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 5000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    return MMR_AUTONOMOUS_DONE;
+    return MMR_AUTONOMOUS_LAUNCH_DONE;
   }
 
   return state;
@@ -271,5 +271,5 @@ static MmrAutonomousState done(MmrAutonomousState state) {
     ? MMR_APPS_ComputeSpeed(gs.infoSpeed)
     : MMR_APPS_ComputeSpeed(0.0);
 
-  return MMR_AUTONOMOUS_DONE;
+  return MMR_AUTONOMOUS_LAUNCH_DONE;
 }

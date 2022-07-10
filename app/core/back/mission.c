@@ -1,6 +1,6 @@
 #include "inc/mission.h"
-#include "inc/autonomous.h"
-#include "inc/manual.h"
+#include "inc/autonomous_launch.h"
+#include "inc/manual_launch.h"
 #include "inc/global_state.h"
 #include <EBS.h>
 
@@ -29,7 +29,7 @@ MmrMission MMR_MISSION_Run(MmrMission mission) {
 
 
 static MmrMission manual() {
-  gs.ms = MMR_MANUAL_Run(gs.ms);
+  gs.ms = MMR_MANUAL_LAUNCH_Run(gs.ms);
   return MMR_MISSION_MANUAL;
 }
 
