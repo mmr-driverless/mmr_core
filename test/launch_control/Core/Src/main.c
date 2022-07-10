@@ -73,7 +73,7 @@ uint32_t adc[2];
 uint32_t dac;
 
 
-MmrAsState as_state = AS_IDLE;
+MmrAsState as_state = MMR_AS_IDLE;
 MmrEbsCheck Ebsstate = EBS_IDLE;
 MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
 uint8_t TS_EBS;
@@ -193,7 +193,7 @@ WATCHDOG_Activation();
 
 #ifdef ASSI_TEST
     MMR_AXIS_LEDS_Run(as_state);    
-    if(as_state == AS_EMERGENCY)
+    if(as_state == MMR_AS_EMERGENCY)
     	{
     	if(buzzerflag == false) Buzzer_activation();
     		if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )

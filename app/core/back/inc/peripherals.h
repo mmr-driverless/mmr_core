@@ -18,7 +18,6 @@ typedef struct MmrAsPeripherals {
 
   MmrPin *blueLed;
   MmrPin *yellowLed;
-  MmrDelay *__assi_delay;
 } MmrAsPeripherals;
 
 extern MmrAsPeripherals asp;

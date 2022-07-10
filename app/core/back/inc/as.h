@@ -8,12 +8,12 @@
 
 
 typedef enum MmrAsState {
-  AS_IDLE,
-  AS_OFF,
-  AS_READY,
-  AS_DRIVING,
-  AS_EMERGENCY,
-  AS_FINISHED,
+  MMR_AS_IDLE,
+  MMR_AS_OFF,
+  MMR_AS_READY,
+  MMR_AS_DRIVING,
+  MMR_AS_EMERGENCY,
+  MMR_AS_FINISHED,
 } MmrAsState;
 
 

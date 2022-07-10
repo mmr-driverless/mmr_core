@@ -190,7 +190,7 @@ HalStatus MMR_BB_receiveManager(){
 			  DAC_Value = APPS_MIN;
 		  }
 		  break;
-	  case MMR_CAN_MESSAGE_ID_AS_READY : // frizione rilasciata
+	  case MMR_CAN_MESSAGE_ID_MMR_AS_READY : // frizione rilasciata
 		  clutchSteps =CLUTCH_END;
 		  DAC_Value = APPS_MIN;
 		  status = MMR_BB_sendNoData(MMR_CAN_MESSAGE_ID_AMC_MISSION_FINISHED);

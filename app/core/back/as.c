@@ -13,9 +13,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-MmrAsPeripherals asp;
-
 static MmrEbsCheck ebs = EBS_IDLE;
+
+static MmrAsState idle(MmrAsState state);
+static MmrAsState off(MmrAsState state);
+static MmrAsState ready(MmrAsState state);
+static MmrAsState driving(MmrAsState state);
+static MmrAsState emergency(MmrAsState state);
+static MmrAsState finished(MmrAsState state);
 
 
 MmrAsState MMR_AS_Run(MmrAsState state) {
@@ -28,6 +33,14 @@ MmrAsState MMR_AS_Run(MmrAsState state) {
   if (ebs != EBS_OK)
     return state;
 
+  switch (state) {
+  case MMR_AS_IDLE: return idle(state);
+  case MMR_AS_OFF: return off(state);
+  case MMR_AS_READY: return ready(state);
+  case MMR_AS_DRIVING: return driving(state);
+  case MMR_AS_EMERGENCY: return emergency(state);
+  case MMR_AS_FINISHED: return finished(state);
+  }
+
   return state;
 }
-

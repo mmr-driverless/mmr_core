@@ -12,17 +12,17 @@ void MMR_AXIS_LEDS_Run(MmrAsState state) {
   static MmrDelay delay = { .ms = 20 };
 
   switch (state) {
-  case AS_OFF:
+  case MMR_AS_OFF:
     toggleBlueLed(MMR_AXIS_LED_OFF);
     toggleYellowLed(MMR_AXIS_LED_OFF);
     break;
 
-  case AS_READY:
+  case MMR_AS_READY:
     toggleBlueLed(MMR_AXIS_LED_OFF);
     toggleYellowLed(MMR_AXIS_LED_ON);
     break;
 
-  case AS_DRIVING:
+  case MMR_AS_DRIVING:
     toggleBlueLed(MMR_AXIS_LED_OFF);
     toggleYellowLed(MMR_AXIS_LED_ON);
     
@@ -32,7 +32,7 @@ void MMR_AXIS_LEDS_Run(MmrAsState state) {
     
     break;
 
-  case AS_EMERGENCY:
+  case MMR_AS_EMERGENCY:
     toggleBlueLed(MMR_AXIS_LED_ON);
     toggleYellowLed(MMR_AXIS_LED_OFF);
 
@@ -42,12 +42,12 @@ void MMR_AXIS_LEDS_Run(MmrAsState state) {
 
     break;
 
-  case AS_FINISHED:
+  case MMR_AS_FINISHED:
     toggleBlueLed(MMR_AXIS_LED_ON);
     toggleYellowLed(MMR_AXIS_LED_OFF);
     break;
 
-  case AS_IDLE:
+  case MMR_AS_IDLE:
     toggleBlueLed(MMR_AXIS_LED_OFF);
     toggleYellowLed(MMR_AXIS_LED_OFF);
     break;

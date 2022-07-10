@@ -127,11 +127,11 @@ void MMR_GS_SendByCan(MmrCan* can) {
 //    MMR_CAN_MESSAGE_SetPayload(&APPSmexCAN, &dac, sizeof(dac));
 //    MMR_CAN_Send(can, &APPSmexCAN);
 //
-//    MMR_CAN_MESSAGE_SetId(&AS_OFFmexCAN,   MMR_CAN_MESSAGE_ID_AS_OFF);
-//    MMR_CAN_MESSAGE_SetStandardId(&AS_OFFmexCAN, true);
+//    MMR_CAN_MESSAGE_SetId(&MMR_AS_OFFmexCAN,   MMR_CAN_MESSAGE_ID_MMR_AS_OFF);
+//    MMR_CAN_MESSAGE_SetStandardId(&MMR_AS_OFFmexCAN, true);
 //    MMR_AS_asConversion(as_state);
-//    MMR_CAN_MESSAGE_SetPayload(&AS_OFFmexCAN, &stateAS_OFF, sizeof(stateAS_OFF));
-//    MMR_CAN_Send(can, &AS_OFFmexCAN);
+//    MMR_CAN_MESSAGE_SetPayload(&MMR_AS_OFFmexCAN, &stateMMR_AS_OFF, sizeof(stateMMR_AS_OFF));
+//    MMR_CAN_Send(can, &MMR_AS_OFFmexCAN);
 //
 //    MMR_CAN_MESSAGE_SetId(&AS_DRIVINGmexCAN, MMR_CAN_MESSAGE_ID_AS_DRIVING);
 //    MMR_CAN_MESSAGE_SetStandardId(&AS_DRIVINGmexCAN, true);
@@ -139,11 +139,11 @@ void MMR_GS_SendByCan(MmrCan* can) {
 //    MMR_CAN_MESSAGE_SetPayload(&AS_DRIVINGmexCAN, &stateAS_DRIVING, sizeof(stateAS_DRIVING));
 //    MMR_CAN_Send(can, &AS_DRIVINGmexCAN);
 //
-//    MMR_CAN_MESSAGE_SetId(&AS_READYmexCAN,   MMR_CAN_MESSAGE_ID_AS_READY);
-//    MMR_CAN_MESSAGE_SetStandardId(&AS_READYmexCAN, true);
+//    MMR_CAN_MESSAGE_SetId(&MMR_AS_READYmexCAN,   MMR_CAN_MESSAGE_ID_MMR_AS_READY);
+//    MMR_CAN_MESSAGE_SetStandardId(&MMR_AS_READYmexCAN, true);
 //    MMR_AS_asConversion(as_state);
-//    MMR_CAN_MESSAGE_SetPayload(&AS_READYmexCAN, &stateAS_READY, sizeof(stateAS_READY));
-//    MMR_CAN_Send(can, &AS_READYmexCAN);
+//    MMR_CAN_MESSAGE_SetPayload(&MMR_AS_READYmexCAN, &stateMMR_AS_READY, sizeof(stateMMR_AS_READY));
+//    MMR_CAN_Send(can, &MMR_AS_READYmexCAN);
 //
 //    MMR_CAN_MESSAGE_SetId(&AS_EMERGENCYmexCAN,   MMR_CAN_MESSAGE_ID_AS_EMERGENCY);
 //    MMR_CAN_MESSAGE_SetStandardId(&AS_EMERGENCYmexCAN, true);

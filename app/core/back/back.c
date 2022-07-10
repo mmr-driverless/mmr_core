@@ -1,5 +1,7 @@
 #include "inc/back.h"
 
+MmrAsPeripherals asp;
+
 void MMR_AS_Init(
   MmrCan *can,
   MmrPin *gearUp,
