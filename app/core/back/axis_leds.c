@@ -46,11 +46,6 @@ void MMR_AXIS_LEDS_Run(MmrAsState state) {
     toggleBlueLed(MMR_AXIS_LED_ON);
     toggleYellowLed(MMR_AXIS_LED_OFF);
     break;
-
-  case MMR_AS_IDLE:
-    toggleBlueLed(MMR_AXIS_LED_OFF);
-    toggleYellowLed(MMR_AXIS_LED_OFF);
-    break;
   }
 }
 

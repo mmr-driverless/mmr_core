@@ -15,32 +15,55 @@
 
 static MmrEbsCheck ebs = EBS_IDLE;
 
-static MmrAsState idle(MmrAsState state);
-static MmrAsState off(MmrAsState state);
-static MmrAsState ready(MmrAsState state);
-static MmrAsState driving(MmrAsState state);
-static MmrAsState emergency(MmrAsState state);
-static MmrAsState finished(MmrAsState state);
+
+static MmrAsState computeState();
+static void idle();
+static void off();
+static void ready();
+static void driving();
+static void emergency();
+static void finished();
 
 
-MmrAsState MMR_AS_Run(MmrAsState state) {
+void MMR_AS_Run() {
   MMR_GS_UpdateFromCan(asp.can);
 
   ebs = ebsCheck(ebs);
   if (ebs == EBS_ERROR)
-    ;
+    return;
 
   if (ebs != EBS_OK)
-    return state;
+    return;
 
-  switch (state) {
-  case MMR_AS_IDLE: return idle(state);
-  case MMR_AS_OFF: return off(state);
-  case MMR_AS_READY: return ready(state);
-  case MMR_AS_DRIVING: return driving(state);
-  case MMR_AS_EMERGENCY: return emergency(state);
-  case MMR_AS_FINISHED: return finished(state);
+  // Handbook: https://bit.ly/3bRd49t
+  switch (computeState()) {
+  case MMR_AS_OFF: return off();
+  case MMR_AS_READY: return ready();
+  case MMR_AS_DRIVING: return driving();
+  case MMR_AS_EMERGENCY: return emergency();
+  case MMR_AS_FINISHED: return finished();
+  }
+}
+
+
+static MmrAsState computeState() {
+  if (MMR_EBS_Activated) {
+    if (MissionFinished && VehicleAtStandstill) {
+      return MMR_AS_FINISHED;
+    }
+    
+    return MMR_AS_EMERGENCY;
   }
 
-  return state;
+  if (MissionSelected && ASMSOn && ASBchecksOK && TS Active) {
+    if (R2D) {
+      return MMR_AS_DRIVING;
+    }
+
+    if (BrakesEngaged) {
+      return MMR_AS_READY;
+    }
+  }
+
+  return MMR_AS_OFF;
 }

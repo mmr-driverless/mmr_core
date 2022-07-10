@@ -107,16 +107,32 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
 
 
 void MMR_GS_SendByCan(MmrCan* can) {
-  static MmrDelay messageBatchDelay = { .ms = 250 };
+  static MmrDelay messageDelay = { .ms = 25 };
   static MmrDelay betweenMessagesDelay = { .ms = 1 };
-  static bool isSending = false;
+  static MmrCanMessage out = {};
+  static MmrCanMessageId outMessages[] = {
+    MMR_CAN_MESSAGE_ID_TS_EBS,
+    MMR_CAN_MESSAGE_ID_S_APPS,
+  };
 
+  static int totalMessages = sizeof(outMessages) / sizeof(*outMessages);
+  static int currentMsg = 0;
 
-  if (!isSending && MMR_DELAY_WaitAsync(&messageBatchDelay)) {
-    isSending = true;
+  if (MMR_DELAY_WaitAsync(&messageDelay)) {
+    currentMsg++;
+    currentMsg %= totalMessages;
+    MmrCanMessageId msgId = outMessages[currentMsg];
+
+    switch (msgId) {
+    case MMR_CAN_MESSAGE_ID_TS_EBS:
+      MMR_CAN_MESSAGE_SetHeader(&out, MMR_CAN_NormalHeader(msgId));
+      MMR_CAN_MESSAGE_SetPayload(&out, &)
+      break;
+    case MMR_CAN_MESSAGE_ID_S_APPS: break;
+    }
+
+    MMR_CAN_Send(can, &out);
   }
-
-  if (isSending) {
 //    MMR_CAN_MESSAGE_SetId(&TS_EBSmexCAN, MMR_CAN_MESSAGE_ID_TS_EBS);
 //    MMR_CAN_MESSAGE_SetStandardId(&TS_EBSmexCAN, true);
 //    MMR_CAN_MESSAGE_SetPayload(&TS_EBSmexCAN, &TS_EBS, sizeof(TS_EBS));

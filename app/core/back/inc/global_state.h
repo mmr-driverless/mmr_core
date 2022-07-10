@@ -56,13 +56,6 @@ typedef struct MmrGlobalState {
 
 extern MmrGlobalState gs;
 
-// CAN
-extern MmrAsState as_state;
-extern MmrEbsCheck Ebsstate;
-extern MmrEbsState EBSflag;
-extern uint32_t dac;
-extern uint8_t TS_EBS;
-
 
 void MMR_GS_Init();
 void MMR_GS_UpdateFromCan(MmrCan *can);
