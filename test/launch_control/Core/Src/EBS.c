@@ -243,7 +243,7 @@ MmrEbsState EBS_Activation(
 {
   if (Missionflag || ResEMergencyflag) {
     if (currentMission != MMR_MISSION_INSPECTION || currentMission != MMR_MISSION_MANUAL) {
-      EBS_Management(__ebs2, OPEN); // TODO
+      EBS_Management(__ebs1, OPEN);
       EBS_Management(__ebs2, OPEN);
       return EBS_STATE_ACTIVATED;
     }
