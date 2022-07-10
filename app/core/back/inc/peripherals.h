@@ -5,12 +5,12 @@
 #include <pin.h>
 
 typedef struct MmrAsPeripherals {
-  const MmrCan *can;
-  const MmrPin *gearN;
-  const MmrPin *gearUp;
-  const MmrPin *gearDown;
-  const uint32_t *apps;
-  const uint32_t *adc;
+  MmrCan *can;
+  MmrPin *gearN;
+  MmrPin *gearUp;
+  MmrPin *gearDown;
+  uint32_t *apps;
+  uint32_t *adc;
 } MmrAsPeripherals;
 
 extern MmrAsPeripherals asp;

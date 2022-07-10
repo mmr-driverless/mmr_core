@@ -18,32 +18,16 @@ MmrAsPeripherals asp;
 static MmrEbsCheck ebs = EBS_IDLE;
 
 
-void MMR_AS_Init(
-  MmrCan *can,
-  MmrPin *gearUp,
-  MmrPin *gearDown,
-  MmrPin *gearN,
-  MmrPin *changeMode,
-  uint32_t *apps,
-  uint32_t *adc
-) {
-  asp = (MmrAsPeripherals) {
-    .can = can,
-    .gearN = gearN,
-    .gearUp = gearUp,
-    .gearDown = gearDown,
-    .apps = apps,
-    .adc = adc,
-  };
-}
-
-MmrAsState MMR_AS_Run(MmrAsState mission) {
-  MMR_GS_UpdateFromCan(__can);
+MmrAsState MMR_AS_Run(MmrAsState state) {
+  MMR_GS_UpdateFromCan(asp.can);
 
   ebs = ebsCheck(ebs);
   if (ebs == EBS_ERROR)
     ;
 
-  if (ebs == EBS_OK)
+  if (ebs != EBS_OK)
+    return state;
+
+  return state;
 }
 

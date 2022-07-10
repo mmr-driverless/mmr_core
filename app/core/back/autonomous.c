@@ -68,10 +68,10 @@ static MmrAutonomousState pullClutch(MmrAutonomousState state) {
   MmrCanMessage clutchPullMsg = MMR_CAN_OutMessage(header);
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &clutchPullMsg);
+    MMR_CAN_Send(asp.can, &clutchPullMsg);
   }
 
-  bool isClutchPulled = gs.clutch == MMR_CLUTCH_PULLED;
+  bool isClutchPulled = gs.can.clutch == MMR_CLUTCH_PULLED;
   if (isClutchPulled) {
     return MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR;
   }
@@ -96,9 +96,9 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
   static MmrDelay gearChangingDelay = { .ms = 350 };
   static bool changingGear = false;
 
-  bool isGearSet = gs.gear == 1;
+  bool isGearSet = gs.can.gear == 1;
   if (isGearSet && !changingGear) {
-    MMR_PIN_Write(__gearN, MMR_PIN_LOW);
+    MMR_PIN_Write(asp.gearN, MMR_PIN_LOW);
     return MMR_AUTONOMOUS_SET_LAUNCH_CONTROL;
   }
 
@@ -108,10 +108,10 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
   }
 
   if (!MMR_DELAY_WaitAsync(&gearChangingDelay)) {
-    MMR_PIN_Write(__gearN, MMR_PIN_HIGH);
+    MMR_PIN_Write(asp.gearN, MMR_PIN_HIGH);
   }
   else {
-    MMR_PIN_Write(__gearN, MMR_PIN_LOW);
+    MMR_PIN_Write(asp.gearN, MMR_PIN_LOW);
     MMR_DELAY_Reset(&gearNotChangedDelay);
     changingGear = false;
   }
@@ -130,12 +130,12 @@ static MmrAutonomousState setLaunchControl(MmrAutonomousState state) {
   MMR_CAN_MESSAGE_SetStandardId(&setLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&setLaunchMsg, buffer, 8);
 
-  bool rpmOk = gs.rpm >= 1000;
-  bool isLaunchSet = gs.launchControl == MMR_LAUNCH_CONTROL_SET;
-  bool isInFirstGear = gs.gear == 1;
+  bool rpmOk = gs.can.rpm >= 1000;
+  bool isLaunchSet = gs.can.launchControl == MMR_LAUNCH_CONTROL_SET;
+  bool isInFirstGear = gs.can.gear == 1;
 
   if (rpmOk && isInFirstGear && !isLaunchSet && MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &setLaunchMsg);
+    MMR_CAN_Send(asp.can, &setLaunchMsg);
   }
 
   if (isLaunchSet) {
@@ -160,7 +160,7 @@ static MmrAutonomousState waitBeforeAccelerating(MmrAutonomousState state) {
 static MmrAutonomousState accelerate(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 1000 };
 
-  *__apps = MMR_APPS_ComputeSpeed(0.3);
+  *(asp.apps) = MMR_APPS_ComputeSpeed(0.3);
   if (MMR_DELAY_WaitAsync(&delay)) {
     return MMR_AUTONOMOUS_RELEASE_CLUTCH;
   }
@@ -175,10 +175,10 @@ static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
   MmrCanMessage clutchReleaseMsg = MMR_CAN_OutMessage(header);
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &clutchReleaseMsg);
+    MMR_CAN_Send(asp.can, &clutchReleaseMsg);
   }
 
-  bool isClutchReleased = gs.clutch == MMR_CLUTCH_RELEASED;
+  bool isClutchReleased = gs.can.clutch == MMR_CLUTCH_RELEASED;
   if (isClutchReleased) {
     return MMR_AUTONOMOUS_UNSET_LAUNCH;
   }
@@ -196,11 +196,11 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
   MMR_CAN_MESSAGE_SetStandardId(&unsetLaunchMsg, true);
   MMR_CAN_MESSAGE_SetPayload(&unsetLaunchMsg, buffer, 8);
 
-  bool clutchReleased = gs.clutch == MMR_CLUTCH_RELEASED;
-  bool launchUnset = gs.launchControl == MMR_LAUNCH_CONTROL_NOT_SET;
+  bool clutchReleased = gs.can.clutch == MMR_CLUTCH_RELEASED;
+  bool launchUnset = gs.can.launchControl == MMR_LAUNCH_CONTROL_NOT_SET;
 
   if (clutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &unsetLaunchMsg);
+    MMR_CAN_Send(asp.can, &unsetLaunchMsg);
   }
 
   if (launchUnset) {
@@ -215,7 +215,7 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *__apps = MMR_APPS_ComputeSpeed(0.15);
+    *(asp.apps) = MMR_APPS_ComputeSpeed(0.15);
     return MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM;
   }
 
@@ -227,7 +227,7 @@ static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *__apps = MMR_APPS_ComputeSpeed(0.0);
+    *(asp.apps) = MMR_APPS_ComputeSpeed(0.0);
     return MMR_AUTONOMOUS_CLUTCH_SET_MANUAL;
   }
 

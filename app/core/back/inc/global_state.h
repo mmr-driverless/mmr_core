@@ -60,8 +60,6 @@ extern MmrAsState as_state;
 extern MmrEbsCheck Ebsstate;
 extern MmrEbsState EBSflag;
 extern uint32_t dac;
-extern asStatus R2D;
-extern asStatus CHECK_ASB_STATE;
 extern uint8_t TS_EBS;
 
 
