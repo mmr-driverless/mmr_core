@@ -236,7 +236,7 @@ if(mission == MMR_MISSION_MANUAL)
 }
 
 
-TPS_Flag = TPS_check(gs.uThrottle, gs.uThrottleB);
+TPS_Flag = TPS_check(gs.uThrottleA, gs.uThrottleB);
 
 if (TPS_Flag == 1 && !TPS_startCounter)
 {
@@ -246,9 +246,9 @@ if (TPS_Flag == 1 && !TPS_startCounter)
 	  if (TPS_startCounter) {
 	  	  TPS_counter++;
 
-	  	  TPS_ctr += TPS_check(gs.uThrottle, gs.uThrottleB);
+	  	  TPS_ctr += TPS_check();
 	  	  if (TPS_ctr >= 100)
-	  		  HAL_DMA_Abort(&hdma_dac_ch1); // DA MODIFICARE, CAPIRE COME SPEGNERE LVMS SE CI SONO PROBLEMI --->>> EBS ???
+	  		  HAL_DMA_Abort(&hdma_dac_ch1); // TODO DA MODIFICARE, CAPIRE COME SPEGNERE LVMS SE CI SONO PROBLEMI --->>> EBS ???
 
 	  	  if (TPS_counter >= 100)
 	  	  {

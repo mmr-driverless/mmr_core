@@ -35,7 +35,7 @@ typedef struct MmrGlobalState {
   uint16_t gear;
   uint16_t rpm;
   float speed;
-  uint8_t uThrottle;
+  uint8_t uThrottleA;
   uint8_t uThrottleB;
   uint16_t ebs1;
   uint16_t ebs2;

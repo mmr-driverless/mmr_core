@@ -21,7 +21,7 @@
 
 
 _Bool APPS_check(uint32_t APPS1, uint32_t APPS2);
-_Bool TPS_check(uint32_t TPS1, uint32_t TPS2);
+_Bool TPS_check();
 //_Bool APPS_Handling(uint32_t *ADC_value);
 
 //typedef struct APPS_Struct{

@@ -33,7 +33,7 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
     switch (header.messageId) {
 
     case MMR_CAN_MESSAGE_ID_ECU_PEDAL_THROTTLE:
-      gs.uThrottle = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.uThrottleA = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
       gs.uThrottleB = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 

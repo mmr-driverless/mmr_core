@@ -5,10 +5,9 @@
  *      Author: simon
  */
 #include <apps&tps.h>
-#include "main.h"
-#include "stm32f3xx_it.h"
-
+#include <global_state.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "math.h"
 
 
@@ -43,9 +42,9 @@ _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 //}
 
 
-_Bool TPS_check(uint32_t TPS1, uint32_t TPS2)
+_Bool TPS_check()
 {
-	 uint32_t tps_buff = TPS1 + TPS2;
-	if (fabs(tps_buff - 5) <= 0.5) return false;
+	uint32_t difference = gs.uThrottleA + gs.uThrottleB;
+	if (fabs(difference - 5) <= 0.5) return false;
 	else return true;
 }

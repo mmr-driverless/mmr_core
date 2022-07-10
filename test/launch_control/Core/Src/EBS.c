@@ -39,20 +39,20 @@ MmrEbsState MMR_AS_GetEbsStates() {
   return EBSflag;
 }
 
-bool EBS_sensor_check(uint8_t EBS1_value, uint8_t EBS2_value) {
+bool EBS_sensor_check() {
   return
-    EBS1_value >= EBS_min_Pressure &&
-    EBS2_value >= EBS_min_Pressure;
+    gs.ebs1 >= EBS_min_Pressure &&
+    gs.ebs2 >= EBS_min_Pressure;
 }
 
-bool BRAKE_pressure_check(uint8_t Brake1_value, uint8_t Brake2_value) {
+bool BRAKE_pressure_check() {
   return
-    Brake1_value >= BRAKE_pressure &&
-    Brake2_value >= BRAKE_pressure;
+    gs.brakePf >= BRAKE_pressure &&
+    gs.brakePr >= BRAKE_pressure;
 }
 
-bool TS_Activation(uint16_t RPM, uint8_t gear) {
-  return RPM >= min_RPM && gear == NEUTRAL;
+bool TS_Activation() {
+  return gs.rpm >= min_RPM && gs.gear == NEUTRAL;
 }
 
 
@@ -65,30 +65,31 @@ void EBS_Init(MmrPin *Epin1, MmrPin *Epin2, MmrPin *asClSDC, MmrPin *ebsledPin) 
 
 
 void EBS_Management(MmrPin *EBS_pin, bool state) {
+  // TODO
   if (EBS_pin->pin== EBS_CONTROL1_Pin) {
     if (state == CLOSE) {
-      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_SET);
+      MMR_PIN_Write(EBS_pin, MMR_PIN_HIGH);
     }
     else if (state == OPEN) {
-      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_RESET);
+      MMR_PIN_Write(EBS_pin, MMR_PIN_LOW);
     }
   }
   else if(EBS_pin->pin == EBS_CONTROL2_Pin) {
     if (state == CLOSE) {
-      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin, GPIO_PIN_SET);
+      MMR_PIN_Write(EBS_pin, MMR_PIN_HIGH);
     }
     else if (state == OPEN) {
-      HAL_GPIO_WritePin(EBS_pin->port,EBS_pin->pin,GPIO_PIN_RESET);
+      MMR_PIN_Write(EBS_pin, MMR_PIN_LOW);
     }
   }
 }
 
 void LSW_EBSLed (MmrPin *led, bool state) {
   if (state == CLOSE) {
-    HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_SET);
+    MMR_PIN_Write(led, MMR_PIN_HIGH);
   }
   else if(state == OPEN) {
-    HAL_GPIO_WritePin(led->port,led->pin, GPIO_PIN_RESET);
+    MMR_PIN_Write(led, MMR_PIN_LOW);
   }
 }
 
@@ -153,12 +154,12 @@ static MmrEbsCheck ebsPressureCheck() {
   while (MMR_DELAY_WaitAsync(&delay)) {
 
   }
-  if (EBS_sensor_check(gs.ebs1, gs.ebs2)) {
+  if (EBS_sensor_check()) {
     EBS_Management(__ebs1, OPEN);
     EBS_Management(__ebs2, OPEN);
     HAL_Delay(250);
 
-    if(BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2())) {
+    if(BRAKE_pressure_check()) {
       EBSflag = EBS_STATE_ARMED;
       TS_EBS = 1;
       AS_Close_SDC(__asclSDC);
@@ -171,7 +172,7 @@ static MmrEbsCheck ebsPressureCheck() {
 }
 
 static MmrEbsCheck ebsTsCheck() {
-  if(TS_Activation(MMR_GS_GetRpm(), MMR_GS_GetGear())) {
+  if (TS_Activation()) {
     return EBS1_CONTROL;
   }
 
@@ -182,7 +183,7 @@ static MmrEbsCheck ebs1Control() {
   EBS_Management(__ebs1, CLOSE);
   HAL_Delay(20); // ma modificare
 
-  if (BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2())) {
+  if (BRAKE_pressure_check()) {
     EBS_Management(__ebs1, OPEN);
     return EBS2_CONTROL;
   }
@@ -200,7 +201,7 @@ static MmrEbsCheck ebs2Control() {
   while( MMR_DELAY_WaitAsync(&delay) != 0)
     ;
 
-  if (BRAKE_pressure_check(MMR_GS_GetBreakP1(),MMR_GS_GetBreakP2())) {
+  if (BRAKE_pressure_check()) {
     EBS_Management(__ebs2, OPEN);
     return EBS_FINAL_CHECK;
   }
