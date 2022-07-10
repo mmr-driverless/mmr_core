@@ -1,10 +1,10 @@
 #ifndef APP_CORE_BACK_INC_BACK_H_
 #define APP_CORE_BACK_INC_BACK_H_
 
+#include "peripherals.h"
 #include <can.h>
 #include <pin.h>
 #include <stdint.h>
-#include "inc/peripherals.h"
 
 void MMR_BACK_Init(
   MmrCan *can,

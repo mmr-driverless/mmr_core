@@ -1,11 +1,5 @@
-/*
- * EBS.c
- *
- *  Created on: 7 lug 2022
- *      Author: Maxmi
- */
-
-
+#include <mission.h>
+#include <global_state.h>
 #include "EBS.h"
 #include "delay.h"
 #include "timing.h"
@@ -159,7 +153,7 @@ static MmrEbsCheck ebsPressureCheck() {
   while (MMR_DELAY_WaitAsync(&delay)) {
 
   }
-  if (EBS_sensor_check(MMR_GS_GetEbs1(), MMR_GS_GetEbs2())) {
+  if (EBS_sensor_check(gs.ebs1, gs.ebs2)) {
     EBS_Management(__ebs1, OPEN);
     EBS_Management(__ebs2, OPEN);
     HAL_Delay(250);

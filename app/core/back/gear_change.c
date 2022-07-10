@@ -22,15 +22,15 @@ void MMR_GEAR_CHANGE_Run() {
   static bool enableGearDn = false;
 
   // TODO ask info
-  uint8_t lap = gs.can.lap;
+  uint8_t lap = gs.lap;
   if (lap <= 1)
     return;
 
-  uint16_t currentSpeed = gs.can.speed;
-  int16_t steeringAngle = gs.can.steeringAngle;
-  uint16_t ath = gs.can.ath;
-  uint16_t gear = gs.can.gear;
-  uint16_t rpm = gs.can.rpm;
+  uint16_t currentSpeed = gs.speed;
+  int16_t steeringAngle = gs.steeringAngle;
+  uint16_t ath = gs.ath;
+  uint16_t gear = gs.gear;
+  uint16_t rpm = gs.rpm;
 
   currentSpeed = round(currentSpeed / 2) * 2;
   int deltaSpeed = currentSpeed - previousSpeed;

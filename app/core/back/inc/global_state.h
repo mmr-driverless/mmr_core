@@ -3,9 +3,12 @@
 
 #include "mission.h"
 #include "as.h"
+#include "manual.h"
+#include "autonomous.h"
 #include <button.h>
-#include <stdint.h>
 #include <can.h>
+#include <stdint.h>
+#include <EBS.h>
 
 typedef enum MmrClutchState {
   MMR_CLUTCH_UNKNOWN,
@@ -24,32 +27,30 @@ typedef struct MmrGlobalState {
   MmrAutonomousState as;
   MmrManualState ms;
 
-  struct {
-    float infoSpeed;
-    int16_t steeringAngle;
-    uint8_t lap;
-    uint16_t ath;//<-- primo valore farfalla
-    uint16_t ath2;//<-- secondo valore farfalla
-    uint16_t gear;
-    uint16_t rpm;
-    float speed;
-    uint8_t uThrottle;
-    uint8_t uThrottleB;
-    uint16_t ebs1;
-    uint16_t ebs2;
-    float brakePf;
-    float brakePr;
+  float infoSpeed;
+  int16_t steeringAngle;
+  uint8_t lap;
+  uint16_t ath;//<-- primo valore farfalla
+  uint16_t ath2;//<-- secondo valore farfalla
+  uint16_t gear;
+  uint16_t rpm;
+  float speed;
+  uint8_t uThrottle;
+  uint8_t uThrottleB;
+  uint16_t ebs1;
+  uint16_t ebs2;
+  float brakePf;
+  float brakePr;
 
-    uint8_t goSignal;
-    uint8_t missionFinished;
-    uint8_t missionReady;
-    uint8_t asbCheck;
-    MmrMission currentMissionSelected;
-    MmrButtonState resEmergencyButton;
-    
-    MmrClutchState clutch;
-    MmrLaunchControlState launchControl;
-  } can;
+  uint8_t goSignal;
+  uint8_t missionFinished;
+  uint8_t missionReady;
+  uint8_t asbCheck;
+  MmrMission currentMissionSelected;
+  MmrButtonState resEmergencyButton;
+  
+  MmrClutchState clutch;
+  MmrLaunchControlState launchControl;
 } MmrGlobalState;
 
 

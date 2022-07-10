@@ -1,6 +1,7 @@
 #include "inc/mission.h"
 #include "inc/autonomous.h"
 #include "inc/manual.h"
+#include "inc/global_state.h"
 #include <EBS.h>
 
 static MmrMission manual();
@@ -28,7 +29,7 @@ MmrMission MMR_MISSION_Run(MmrMission mission) {
 
 
 static MmrMission manual() {
-  ms = MMR_MANUAL_Run(ms);
+  gs.ms = MMR_MANUAL_Run(gs.ms);
   return MMR_MISSION_MANUAL;
 }
 

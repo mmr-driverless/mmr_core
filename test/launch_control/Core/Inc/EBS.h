@@ -1,10 +1,3 @@
-/*
- * EBS.h
- *
- *  Created on: 7 lug 2022
- *      Author: Maxmi
- */
-
 #ifndef INC_EBS_H_
 #define INC_EBS_H_
 
@@ -12,6 +5,7 @@
 #include "stdbool.h"
 #include "stm32f3xx_hal.h"
 #include "main.h"
+#include <mission.h>
 #include <can0.h>
 #include "stm_pin.h"
 #include "as.h"

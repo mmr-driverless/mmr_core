@@ -33,72 +33,72 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
     switch (header.messageId) {
 
     case MMR_CAN_MESSAGE_ID_ECU_PEDAL_THROTTLE:
-      gs.can.uThrottle = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
-      gs.can.uThrottleB = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.uThrottle = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.uThrottleB = MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN1:
-      gs.can.rpm = MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
-      gs.can.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN) / 100;
-      gs.can.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
-      gs.can.ath = 100 * MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.rpm = MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.speed = MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN) / 100;
+      gs.gear = MMR_BUFFER_ReadUint16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.ath = 100 * MMR_BUFFER_ReadUint16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN2:
-      gs.can.launchControl = MMR_BUFFER_ReadByte(buffer, 6) == 0x1
+      gs.launchControl = MMR_BUFFER_ReadByte(buffer, 6) == 0x1
         ? MMR_LAUNCH_CONTROL_SET
         : MMR_LAUNCH_CONTROL_NOT_SET;
 
       break;
 
     case MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL_OK:
-      gs.can.clutch = MMR_CLUTCH_PULLED;
+      gs.clutch = MMR_CLUTCH_PULLED;
       break;
 
     case MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE_OK:
-      gs.can.clutch = MMR_CLUTCH_RELEASED;
+      gs.clutch = MMR_CLUTCH_RELEASED;
       break;
 
     case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
-      gs.can.infoSpeed = *(float*)(buffer);
+      gs.infoSpeed = *(float*)(buffer);
       break;
 
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
-      gs.can.lap = MMR_BUFFER_ReadByte(buffer, 0);
+      gs.lap = MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
-      gs.can.brakePf = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
-      gs.can.brakePr = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.brakePf = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.brakePr = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_EBS_PRESSURES:
-      gs.can.ebs1 = MMR_BUFFER_ReadUint32(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
-      gs.can.ebs2 = MMR_BUFFER_ReadUint32(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.ebs1 = MMR_BUFFER_ReadUint32(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.ebs2 = MMR_BUFFER_ReadUint32(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGES_ID_GO_SIGNAL:
-      gs.can.goSignal = MMR_BUFFER_ReadByte(buffer, 0);
+      gs.goSignal = MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGES_ID_MISSION_READY:
-      gs.can.missionReady = MMR_BUFFER_ReadByte(buffer, 0);
+      gs.missionReady = MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGES_ID_MISSION_FINISHED:
-      gs.can.missionFinished = MMR_BUFFER_ReadByte(buffer, 0);
+      gs.missionFinished = MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGE_ID_ASB_CHECK:
-      gs.can.asbCheck = MMR_BUFFER_ReadByte(buffer, 0);
+      gs.asbCheck = MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGE_ID_M_MISSION_SELECTED:
-      gs.can.currentMissionSelected = (MmrMission)MMR_BUFFER_ReadByte(buffer, 0);
+      gs.currentMissionSelected = (MmrMission)MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGES_ID_RES_EMERGENCY:
-      gs.can.resEmergencyButton = MMR_BUFFER_ReadByte(buffer, 0) == 0
+      gs.resEmergencyButton = MMR_BUFFER_ReadByte(buffer, 0) == 0
         ? MMR_BUTTON_RELEASED
         : MMR_BUTTON_PRESSED;
 

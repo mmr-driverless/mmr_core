@@ -3,14 +3,22 @@
 
 #include <can.h>
 #include <pin.h>
+#include <delay.h>
+#include <stdint.h>
 
 typedef struct MmrAsPeripherals {
   MmrCan *can;
+
   MmrPin *gearN;
   MmrPin *gearUp;
   MmrPin *gearDown;
+
   uint32_t *apps;
   uint32_t *adc;
+
+  MmrPin *blueLed;
+  MmrPin *yellowLed;
+  MmrDelay *__assi_delay;
 } MmrAsPeripherals;
 
 extern MmrAsPeripherals asp;
