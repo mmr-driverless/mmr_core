@@ -16,7 +16,8 @@
 
 _Bool APPS_check(uint32_t APPS1, uint32_t APPS2)
 {
-	if(fabs((APPS1 - 2*APPS2)) <= 0.5)return false;
+	double appsBuff= 3.3f*(APPS2/4096)-2*3.3f*APPS1;
+	if(fabs(appsBuff) <= 0.5f) return false;
 	else return true;
 
 }
