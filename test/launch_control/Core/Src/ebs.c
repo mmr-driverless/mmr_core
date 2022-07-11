@@ -41,14 +41,14 @@ MmrEbsState MMR_AS_GetEbsState() {
 
 bool EBS_sensor_check() {
   return
-    gs.ebs1 >= EBS_min_Pressure &&
-    gs.ebs2 >= EBS_min_Pressure;
+    gs.ebs1Pressure >= EBS_min_Pressure &&
+    gs.ebs2Pressure >= EBS_min_Pressure;
 }
 
 bool BRAKE_pressure_check() {
   return
-    gs.brakePf >= BRAKE_pressure &&
-    gs.brakePr >= BRAKE_pressure;
+    gs.brakePressureFront >= BRAKE_pressure &&
+    gs.brakePressureRear >= BRAKE_pressure;
 }
 
 bool TS_Activation() {

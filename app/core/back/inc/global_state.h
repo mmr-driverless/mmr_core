@@ -39,10 +39,10 @@ typedef struct MmrGlobalState {
   float speed;
   uint8_t uThrottleA;
   uint8_t uThrottleB;
-  uint16_t ebs1;  // ebs pressure 1
-  uint16_t ebs2;  // ebs pressure 1
-  float brakePf;
-  float brakePr;
+  uint16_t ebs1Pressure;
+  uint16_t ebs2Pressure;
+  float brakePressureFront;
+  float brakePressureRear;
 
   uint8_t goSignal;
   uint8_t missionFinished;

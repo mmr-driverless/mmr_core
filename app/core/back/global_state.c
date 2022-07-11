@@ -70,13 +70,13 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
-      gs.brakePf = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);  // TODO: check quantizzazione
-      gs.brakePr = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.brakePressureFront = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.brakePressureRear = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_EBS_PRESSURES:
-      gs.ebs1 = MMR_BUFFER_ReadUint32(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
-      gs.ebs2 = MMR_BUFFER_ReadUint32(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.ebs1Pressure = MMR_BUFFER_ReadUint32(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.ebs2Pressure = MMR_BUFFER_ReadUint32(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGES_ID_GO_SIGNAL:
