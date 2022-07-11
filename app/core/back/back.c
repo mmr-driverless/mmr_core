@@ -9,14 +9,14 @@ void MMR_AS_Init(
   MmrPin *gearN,
   MmrPin *changeMode,
   uint32_t *apps,
-  uint32_t *adc
+  uint32_t *appsIn
 ) {
   asp = (MmrAsPeripherals) {
     .can = can,
     .gearN = gearN,
     .gearUp = gearUp,
     .gearDown = gearDown,
-    .apps = apps,
-    .adc = adc,
+    .appsOut = apps,
+    .appsIn = appsIn,
   };
 }

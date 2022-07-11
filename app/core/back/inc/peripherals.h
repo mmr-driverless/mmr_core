@@ -13,8 +13,8 @@ typedef struct MmrAsPeripherals {
   MmrPin *gearUp;
   MmrPin *gearDown;
 
-  uint32_t *apps;
-  uint32_t *adc;
+  uint32_t *appsOut;
+  uint32_t *appsIn;
 
   MmrPin *blueLed;
   MmrPin *yellowLed;

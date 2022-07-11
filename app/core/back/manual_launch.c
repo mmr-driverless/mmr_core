@@ -1,5 +1,6 @@
 #include "inc/manual_launch.h"
 #include "inc/global_state.h"
+#include "inc/peripherals.h"
 #include <delay.h>
 #include "message_id.h"
 
@@ -11,21 +12,8 @@ static MmrManualState setLaunchControl(MmrManualState state);
 static MmrManualState stopLaunchControl(MmrManualState state);
 static MmrManualState done(MmrManualState state);
 
-static MmrCan *__can;
-static uint32_t *__adc;
-static uint32_t *__apps;
-
-
-void MMR_MANUAL_LAUNCH_Init(MmrCan *can, uint32_t *apps, uint32_t *adc) {
-  __can = can;
-  __adc = adc;
-  __apps = apps;
-}
-
 
 MmrManualState MMR_MANUAL_LAUNCH_Run(MmrManualState state) {
-  *__apps = *__adc;
-
   switch (state) {
   case MMR_MANUAL_LAUNCH_WAITING: return waiting(state);
   case MMR_MANUAL_LAUNCH_SET_LAUNCH_CONTROL: return setLaunchControl(state);
@@ -54,7 +42,7 @@ static MmrManualState setLaunchControl(MmrManualState state) {
   bool isInFirstGear = gs.gear == 1;
 
   if (rpmOk && isInFirstGear && !isLaunchSet && MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &setLaunchMsg);
+    MMR_CAN_Send(asp.can, &setLaunchMsg);
   }
 
   if (isLaunchSet) {
@@ -78,7 +66,7 @@ static MmrManualState stopLaunchControl(MmrManualState state) {
   bool launchUnset = gs.launchControl == MMR_LAUNCH_CONTROL_NOT_SET;
 
   if (isClutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &unsetLaunchMsg);
+    MMR_CAN_Send(asp.can, &unsetLaunchMsg);
   }
 
   if (launchUnset) {
