@@ -3,11 +3,11 @@
 
 #include "mission.h"
 #include "as.h"
+#include "ebs.h"
 #include "manual_launch.h"
 #include "autonomous_launch.h"
 #include <button.h>
 #include <can.h>
-#include <ebs.h>
 #include <stdint.h>
 
 typedef enum MmrClutchState {

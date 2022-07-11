@@ -1,4 +1,4 @@
-#include <ebs.h>
+#include "inc/ebs.h"
 #include "inc/apps.h"
 #include "inc/peripherals.h"
 #include "inc/mission.h"
@@ -54,7 +54,7 @@ static MmrMission ebsTest() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
-    EBS_Activation(asd);
+    MMR_EBS_Disarm();
     return MMR_MISSION_FINISHED;
   }
 
@@ -88,7 +88,7 @@ static MmrMission trackdrive() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
-    EBS_Activation(asd);
+    MMR_EBS_Disarm();
     return MMR_MISSION_FINISHED;
   }
 
@@ -100,7 +100,7 @@ static MmrMission acceleration() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
-    EBS_Activation(asd);
+    MMR_EBS_Disarm();
     return MMR_MISSION_FINISHED;
   }
 
