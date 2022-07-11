@@ -11,6 +11,9 @@ void MMR_AS_Init(
   uint32_t *appsOut,
   uint32_t *appsIn,
 
+  MmrLed *blueAxisLed,
+  MmrLed *yellowAxisLed,
+
   MmrLed *ctrLed1,
   MmrLed *ctrLed2,
   MmrLed *ctrLed3
@@ -22,6 +25,10 @@ void MMR_AS_Init(
     .gearDown = gearDown,
     .appsOut = appsOut,
     .appsIn = appsIn,
+
+    .blueAxisLed = blueAxisLed,
+    .yellowAxisLed = yellowAxisLed,
+
     .ctrLed1 = ctrLed1,
     .ctrLed2 = ctrLed2,
     .ctrLed3 = ctrLed3,
