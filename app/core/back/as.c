@@ -55,11 +55,15 @@ static MmrAsState computeState() {
     return MMR_AS_EMERGENCY;
   }
 
-  if (gs.currentMission != MMR_MISSION_IDLE &&
+  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_INSPECTION &&
     gs.currentMission != MMR_MISSION_MANUAL && gs.asbCheck && TS_Activation()) {
     
-    if (gs.readyToDrive)
+    if (gs.readyToDrive) {
+      MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_R2D);
+      MmrCanMessage message = MMR_CAN_OutMessage(header);
+      MMR_CAN_Send(asp.can, &message);
       return MMR_AS_DRIVING;
+    }
 
     if (gs.asbEngaged)
       return MMR_AS_READY;
@@ -75,13 +79,14 @@ void off() {
 }
 
 void ready() {
-  static MmrDelay readyToDriveDelay = { .ms = 50000 };
-  if (gs.goSignal && !MMR_DELAY_WaitAsync(&readyToDriveDelay))
+  static MmrDelay readyToDriveDelay = { .ms = 5000 };
+  if (gs.goSignal && MMR_DELAY_WaitAsync(&readyToDriveDelay))
     gs.readyToDrive = true;
 }
 
 void driving() {
-
+  if (gs.missionReady)
+    MMR_MISSION_Run(gs.currentMission);
 }
 
 void emergency() {
@@ -89,5 +94,5 @@ void emergency() {
 }
 
 void finished() {
-
+  
 }

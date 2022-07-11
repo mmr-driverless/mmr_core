@@ -16,6 +16,7 @@
     "as.h": "c",
     "pin.h": "c",
     "brake.h": "c",
-    "peripherals.h": "c"
+    "peripherals.h": "c",
+    "can.h": "c"
   }
 }
