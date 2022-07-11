@@ -18,6 +18,9 @@ void MMR_BACK_Init(
   uint32_t *appsOut,
   uint32_t *appsIn,
 
+  MmrLed *blueAxisLed,
+  MmrLed *yellowAxisLed,
+
   MmrLed *ctrLed1,
   MmrLed *ctrLed2,
   MmrLed *ctrLed3

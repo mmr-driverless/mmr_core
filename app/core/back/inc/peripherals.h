@@ -17,8 +17,8 @@ typedef struct MmrAsPeripherals {
   uint32_t *appsOut;
   uint32_t *appsIn;
 
-  MmrLed *blueLed;
-  MmrLed *yellowLed;
+  MmrLed *blueAxisLed;
+  MmrLed *yellowAxisLed;
 
   MmrLed *ctrLed1;
   MmrLed *ctrLed2;

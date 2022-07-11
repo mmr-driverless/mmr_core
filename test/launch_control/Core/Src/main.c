@@ -182,6 +182,8 @@ int main(void) {
   MmrPin ctrLed3Pin = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin, true);
 
   MmrButton blueButton = MMR_Button(&blueButtonPin);
+  MmrLed blueAxisLed = MMR_Led(&LABpin);
+  MmrLed yellowAxisLed = MMR_Led(&LAYpin);
   MmrLed ctrLed1 = MMR_Led(&ctrLed1Pin);
   MmrLed ctrLed2 = MMR_Led(&ctrLed2Pin);
   MmrLed ctrLed3 = MMR_Led(&ctrLed3Pin);
@@ -194,6 +196,8 @@ int main(void) {
     &blueButton,
     &appsOut,
     appsIn,
+    &blueAxisLed,
+    &yellowAxisLed,
     &ctrLed1,
     &ctrLed2,
     &ctrLed3
