@@ -1,4 +1,4 @@
-#if !defined(APP_STM_INC_STM_HAL_ADC_DEFS_H_) && !defined(__STM32F3xx_HAL_DEF)
+#ifndef APP_STM_INC_STM_HAL_ADC_DEFS_H_
 #define APP_STM_INC_STM_HAL_ADC_DEFS_H_
 
 typedef struct {

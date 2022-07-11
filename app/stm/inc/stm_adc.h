@@ -1,7 +1,10 @@
 #ifndef APP_STM_INC_ADC2_H_
 #define APP_STM_INC_ADC2_H_
 
+#ifndef __STM32F3xx_HAL_DEF
 #include "../../lib/adc/inc/adc.h"
+#endif
+
 #include "stm_hal_adc_defs.h"
 
 typedef enum {
