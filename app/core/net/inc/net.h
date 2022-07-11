@@ -1,0 +1,4 @@
+#ifndef APP_CORE_NET_INC_NET_H_
+#define APP_CORE_NET_INC_NET_H_
+
+#endif  // !APP_CORE_NET_INC_NET_H_

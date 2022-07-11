@@ -83,7 +83,7 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       break;
 
     case MMR_CAN_MESSAGES_ID_GO_SIGNAL:
-      gs.goSignal = true;
+      gs.goSignal = MMR_BUFFER_ReadByte(buffer, 0) == 0x01;
       break;
 
     case MMR_CAN_MESSAGES_ID_MISSION_READY:

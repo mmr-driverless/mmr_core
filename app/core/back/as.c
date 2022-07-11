@@ -62,7 +62,8 @@ static MmrAsState computeState() {
       MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_R2D);
       MmrCanMessage message = MMR_CAN_OutMessage(header);
       MMR_CAN_Send(asp.can, &message);
-      return MMR_AS_DRIVING;
+      if (gs.missionReady)
+        return MMR_AS_DRIVING;
     }
 
     if (gs.asbEngaged)
@@ -80,13 +81,18 @@ void off() {
 
 void ready() {
   static MmrDelay readyToDriveDelay = { .ms = 5000 };
-  if (gs.goSignal && MMR_DELAY_WaitAsync(&readyToDriveDelay))
-    gs.readyToDrive = true;
+  if (MMR_DELAY_WaitAsync(&readyToDriveDelay)) {
+    if (gs.goSignal) {
+      gs.readyToDrive = true;
+    }
+    else {
+      MMR_DELAY_Reset(&readyToDriveDelay);
+    }
+  }
 }
 
 void driving() {
-  if (gs.missionReady)
-    MMR_MISSION_Run(gs.currentMission);
+  MMR_MISSION_Run(gs.currentMission);
 }
 
 void emergency() {
