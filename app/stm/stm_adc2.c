@@ -2,17 +2,22 @@
 
 #include <memory.h>
 
-MmrAdc MMR_Adc(size_t channels, MmrAdcResolution res, MmrAdcReadingSize size) {
-  MmrAdc adc = {.resolution = res, .readingSize = size, .bufferLength = channels};
+MmrAdc MMR_Adc(size_t channels, MmrAdcResolution res, MmrAdcReadingSize size, void *readings) {
+  MmrAdc adc = {
+    .resolution = res,
+    .readingSize = size,
+    .bufferLength = channels
+  };
+
   switch (size) {
     case MMR_ADC_READING_SIZE_8:
-      adc.readings8 = malloc(channels * sizeof(uint8_t));
+      adc.readings8 = (uint8_t*) readings;
       break;
     case MMR_ADC_READING_SIZE_16:
-      adc.readings16 = malloc(channels * sizeof(uint16_t));
+      adc.readings16 = (uint16_t*) readings;
       break;
     case MMR_ADC_READING_SIZE_32:
-      adc.readings32 = malloc(channels * sizeof(uint32_t));
+      adc.readings32 = (uint32_t*) readings;
       break;
   }
   return adc;

@@ -21,14 +21,14 @@ struct MmrAdc {
   union {
     uint8_t *readings8;
     uint16_t *readings16;
-    uint32_t *readings32
+    uint32_t *readings32;
   };
   size_t bufferLength;
   ADC_HandleTypeDef adcHandle;
   MmrAdcResolution resolution;
-  MmrAdcReadingSize readingSize
+  MmrAdcReadingSize readingSize;
 };
 
-MmrAdc MMR_Adc(size_t channels, MmrAdcResolution res, MmrAdcReadingSize size);
+MmrAdc MMR_Adc(size_t channels, MmrAdcResolution res, MmrAdcReadingSize size, void *reading);
 
-#endif  // !APP_STM_INC_ADC2_H_
+#endif  // !APP_STM_INC_ADC2_H_ifndef
