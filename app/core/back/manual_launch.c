@@ -1,5 +1,6 @@
 #include "inc/manual_launch.h"
 #include "inc/global_state.h"
+#include "inc/peripherals.h"
 #include <delay.h>
 #include "message_id.h"
 
@@ -41,7 +42,7 @@ static MmrManualState setLaunchControl(MmrManualState state) {
   bool isInFirstGear = gs.gear == 1;
 
   if (rpmOk && isInFirstGear && !isLaunchSet && MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &setLaunchMsg);
+    MMR_CAN_Send(asp.can, &setLaunchMsg);
   }
 
   if (isLaunchSet) {
@@ -65,7 +66,7 @@ static MmrManualState stopLaunchControl(MmrManualState state) {
   bool launchUnset = gs.launchControl == MMR_LAUNCH_CONTROL_NOT_SET;
 
   if (isClutchReleased && !launchUnset && MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(__can, &unsetLaunchMsg);
+    MMR_CAN_Send(asp.can, &unsetLaunchMsg);
   }
 
   if (launchUnset) {
