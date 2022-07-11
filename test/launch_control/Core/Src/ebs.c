@@ -155,7 +155,7 @@ static MmrEbsCheck ebsPressureCheck() {
 
   }
   if (EBS_sensor_check()) {
-    EBS_Management(__ebs1, OPEN);
+    EBS_Management(__ebs1, OPEN);  // TODO: can't enable EBS while the car is running
     EBS_Management(__ebs2, OPEN);
     HAL_Delay(250);
 

@@ -5,24 +5,20 @@
 #include <ebs.h>
 #include <stdint.h>
 
-MmrGlobalState gs = {
-  .goSignal = false,
-  .missionReady = false,
-  .missionFinished = false,
-  .asbCheck = false,
-  .asbEngaged = false,
-  .vehicleStandstill = false,
-  .readyToDrive = false
-};
-
-
 void MMR_GS_Init() {
-  gs = (struct MmrGlobalState){
+  gs = (struct MmrGlobalState) {
     .lap = 0,
     .clutch = MMR_CLUTCH_UNKNOWN,
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
     .currentMission = MMR_MISSION_IDLE,
     .resEmergencyButton = MMR_BUTTON_RELEASED,
+    .goSignal = false,
+    .missionReady = false,
+    .missionFinished = false,
+    .asbCheck = false,
+    .asbEngaged = false,
+    .vehicleStandstill = false,
+    .readyToDrive = false
   };
 }
 

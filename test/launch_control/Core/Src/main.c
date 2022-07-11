@@ -181,7 +181,7 @@ int main(void) {
   MmrPin ctrLed3 = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin);
 
   EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
-
+  MMR_GS_Init();
 
   if (!MMR_CAN0_Start(&hcan)) {
     Error_Handler();
