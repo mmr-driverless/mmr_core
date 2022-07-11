@@ -13,18 +13,19 @@ static MmrMission autocross();
 static MmrMission inspection();
 static MmrMission trackdrive();
 static MmrMission acceleration();
+static MmrMission finished();
 
 
 MmrMission MMR_MISSION_Run(MmrMission mission) {
   switch (mission) {
   case MMR_MISSION_IDLE: return mission;
   case MMR_MISSION_MANUAL: return manual();
-  case MMR_MISSION_SKIDPAD: return skidpad(); // tutti check + acceleratore info + mission finished +
-  case MMR_MISSION_EBS_TEST: return ebsTest(); // tutti check + acceleratore info + partenza + mission finished + attiva ebs
-  case MMR_MISSION_AUTOCROSS: return autocross(); // tutti check + acceleratore info
-  case MMR_MISSION_INSPECTION: return inspection(); // partenza + minimo + mission finished + va in as finished
-  case MMR_MISSION_TRACKDRIVE: return trackdrive(); // tutti check + acceleratore info +  mission finished + attiva ebs
-  case MMR_MISSION_ACCELERATION: return acceleration(); // tutti check + acceleratore info +
+  case MMR_MISSION_SKIDPAD: return skidpad();
+  case MMR_MISSION_EBS_TEST: return ebsTest();
+  case MMR_MISSION_AUTOCROSS: return autocross();
+  case MMR_MISSION_INSPECTION: return inspection();
+  case MMR_MISSION_TRACKDRIVE: return trackdrive();
+  case MMR_MISSION_ACCELERATION: return acceleration();
   case MMR_MISSION_FINISHED: return finished();
   default: return mission;
   }
@@ -34,7 +35,6 @@ MmrMission MMR_MISSION_Run(MmrMission mission) {
 static MmrMission manual() {
   *(asp.appsOut) = *(asp.appsIn);
   gs.ms = MMR_MANUAL_LAUNCH_Run(gs.ms);
-
   return MMR_MISSION_MANUAL;
 }
 
@@ -62,21 +62,51 @@ static MmrMission ebsTest() {
 }
 
 static MmrMission autocross() {
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
+  gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
+
+  if (gs.missionFinished) {
+    return MMR_MISSION_FINISHED;
+  }
 
   return MMR_MISSION_AUTOCROSS;
 }
 
 static MmrMission inspection() {
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
+  gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
+
+  if (gs.missionFinished) {
+    return MMR_MISSION_FINISHED;
+  }
 
   return MMR_MISSION_INSPECTION;
 }
 
 static MmrMission trackdrive() {
-  
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
+  gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
+
+  if (gs.missionFinished) {
+    EBS_Activation(asd);
+    return MMR_MISSION_FINISHED;
+  }
+
   return MMR_MISSION_TRACKDRIVE;
 }
 
 static MmrMission acceleration() {
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
+  gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
+
+  if (gs.missionFinished) {
+    EBS_Activation(asd);
+    return MMR_MISSION_FINISHED;
+  }
 
   return MMR_MISSION_ACCELERATION;
+}
+
+static MmrMission finished() {
+  return MMR_MISSION_FINISHED;
 }

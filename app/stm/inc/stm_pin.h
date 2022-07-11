@@ -3,9 +3,9 @@
 
 #include <pin.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifndef HAL_GPIO_MODULE_ENABLED
-
   typedef struct GPIO_TypeDef GPIO_TypeDef;
   typedef enum {
     GPIO_PIN_RESET = 0U,
@@ -20,9 +20,10 @@
 struct MmrPin {
   GPIO_TypeDef *port;
   uint16_t pin;
+  bool hasInvertedLogic;
 };
 
 
-MmrPin MMR_Pin(GPIO_TypeDef *port, uint16_t pin);
+MmrPin MMR_Pin(GPIO_TypeDef *port, uint16_t pin, bool hasInvertedLogic);
 
 #endif // !APP_STM_INC_STM_PIN_H_

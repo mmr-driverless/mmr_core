@@ -8,12 +8,18 @@
 
 void MMR_BACK_Init(
   MmrCan *can,
+  
   MmrPin *gearUp,
   MmrPin *gearDown,
   MmrPin *gearN,
   MmrPin *changeMode,
-  uint32_t *apps,
-  uint32_t *appsIn
+
+  uint32_t *appsOut,
+  uint32_t *appsIn,
+
+  MmrPin *ctrLed1,
+  MmrPin *ctrLed2,
+  MmrPin *ctrLed3
 );
 
 #endif // !APP_CORE_BACK_INC_BACK_H_

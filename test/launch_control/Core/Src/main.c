@@ -57,7 +57,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan;
@@ -161,38 +161,32 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MmrPin gearUp = MMR_Pin(GEARUP_SWITCH_GPIO_Port, GEARUP_SWITCH_Pin);
-  MmrPin gearN = MMR_Pin(GEARN_SWITCH_GPIO_Port, GEARN_SWITCH_Pin);
-  MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin);
-  MmrPin changeModeBtn = MMR_Pin(B1_GPIO_Port, B1_Pin);
+  MmrPin gearUp = MMR_Pin(GEARUP_SWITCH_GPIO_Port, GEARUP_SWITCH_Pin, false);
+  MmrPin gearN = MMR_Pin(GEARN_SWITCH_GPIO_Port, GEARN_SWITCH_Pin, false);
+  MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin, false);
+  MmrPin changeModeBtn = MMR_Pin(B1_GPIO_Port, B1_Pin, false);
   /* LED ASSI variables (LAB == LED ASSI BLUE) (LAY == LED ASSI YELLOW) */
   MmrDelay ASSI_Delay;
   MmrDelay Buzzer_Delay;
-  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin);
-  MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin);
+  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin, true);
+  MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin, true);
   /**/
-  MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin);
-  MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin);
-  MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin);
-  MmrPin ebsLedpin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin);
-  MmrPin generalPurposeLed = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin);
+  MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin, true);
+  MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin, true);
+  MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin, false);
+  MmrPin ebsLedpin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin, true);
+  MmrPin generalPurposeLed = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin, true);
 
-  MmrPin ctrLed1 = MMR_Pin(CTR_LED1_GPIO_Port, CTR_LED1_Pin);
-  MmrPin ctrLed2 = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin);
-  MmrPin ctrLed3 = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin);
+  MmrPin ctrLed1 = MMR_Pin(CTR_LED1_GPIO_Port, CTR_LED1_Pin, true);
+  MmrPin ctrLed2 = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin, true);
+  MmrPin ctrLed3 = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin, true);
 
   EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
 
 
-<<<<<<< Updated upstream
   if (!MMR_CAN0_Start(&hcan)) {
     Error_Handler();
   }
-=======
- if (!MMR_CAN0_Start(&hcan)) {
-   Error_Handler();
- }
->>>>>>> Stashed changes
 
   MMR_SetTickProvider(HAL_GetTick);
 // MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);

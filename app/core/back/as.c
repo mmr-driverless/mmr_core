@@ -43,16 +43,15 @@ void MMR_AS_Run() {
     
 
   // Handbook: https://bit.ly/3bRd49t
- stateAs = computeState();
- gs.stateAs = stateAs;
- switch (stateAs) {
- case MMR_AS_OFF: off();
- case MMR_AS_READY: ready();
- case MMR_AS_DRIVING: driving();
- case MMR_AS_EMERGENCY: emergency();
- case MMR_AS_FINISHED: finished();
- }
- 
+  stateAs = computeState();
+  gs.stateAs = stateAs;
+  switch (stateAs) {
+  case MMR_AS_OFF: off();
+  case MMR_AS_READY: ready();
+  case MMR_AS_DRIVING: driving();
+  case MMR_AS_EMERGENCY: emergency();
+  case MMR_AS_FINISHED: finished();
+  }
 }
 
 
@@ -78,7 +77,7 @@ static MmrAsState computeState() {
      return MMR_AS_DRIVING;
    }
 
-   if (MMR_BRAKE_IsEngaged(gs.brakePf, gs.brakePr)) {
+   if (MMR_BRAKE_IsEngaged(gs.brakePressureFront, gs.brakePressureRear)) {
      return MMR_AS_READY;
    }
  }

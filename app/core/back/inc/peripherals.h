@@ -18,6 +18,10 @@ typedef struct MmrAsPeripherals {
 
   MmrPin *blueLed;
   MmrPin *yellowLed;
+
+  MmrPin *ctrLed1;
+  MmrPin *ctrLed2;
+  MmrPin *ctrLed3;
 } MmrAsPeripherals;
 
 extern MmrAsPeripherals asp;
