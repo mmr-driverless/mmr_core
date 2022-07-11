@@ -3,12 +3,13 @@
 
 #include "peripherals.h"
 #include <can.h>
+#include <led.h>
 #include <pin.h>
 #include <stdint.h>
 
 void MMR_BACK_Init(
   MmrCan *can,
-  
+
   MmrPin *gearUp,
   MmrPin *gearDown,
   MmrPin *gearN,
@@ -17,9 +18,9 @@ void MMR_BACK_Init(
   uint32_t *appsOut,
   uint32_t *appsIn,
 
-  MmrPin *ctrLed1,
-  MmrPin *ctrLed2,
-  MmrPin *ctrLed3
+  MmrLed *ctrLed1,
+  MmrLed *ctrLed2,
+  MmrLed *ctrLed3
 );
 
 #endif // !APP_CORE_BACK_INC_BACK_H_

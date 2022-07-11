@@ -10,9 +10,10 @@ void MMR_AS_Init(
   MmrPin *changeMode,
   uint32_t *appsOut,
   uint32_t *appsIn,
-  MmrPin *ctrLed1,
-  MmrPin *ctrLed2,
-  MmrPin *ctrLed3
+
+  MmrLed *ctrLed1,
+  MmrLed *ctrLed2,
+  MmrLed *ctrLed3
 ) {
   asp = (MmrAsPeripherals) {
     .can = can,
