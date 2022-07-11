@@ -5,9 +5,6 @@
 #include "inc/as.h"
 #include "inc/apps.h"
 #include "inc/peripherals.h"
-
-#include "../brake/inc/brake.h"
-
 #include <button.h>
 #include <buffer.h>
 #include <delay.h>
@@ -29,58 +26,44 @@ static void finished();
 
 void MMR_AS_Run() {
   MMR_GS_UpdateFromCan(asp.can);
-
-  ebs = ebsCheck(ebs);
-  if (ebs == EBS_ERROR)
-    return;
-
-  if (ebs != EBS_OK)
-    return;
-
-  // ebs == EBS_OK
-  MmrEbsState ebsState = MMR_AS_GetEbsState();
-  if (ebsState != EBS_STATE_ACTIVATED)
-    
-
+  
   // Handbook: https://bit.ly/3bRd49t
   stateAs = computeState();
   gs.stateAs = stateAs;
   switch (stateAs) {
-  case MMR_AS_OFF: off();
-  case MMR_AS_READY: ready();
-  case MMR_AS_DRIVING: driving();
-  case MMR_AS_EMERGENCY: emergency();
-  case MMR_AS_FINISHED: finished();
+    case MMR_AS_OFF: off();
+    case MMR_AS_READY: ready();
+    case MMR_AS_DRIVING: driving();
+    case MMR_AS_EMERGENCY: emergency();
+    case MMR_AS_FINISHED: finished();
   }
+ 
 }
 
-
 static MmrAsState computeState() {
- bool VehicleAtStandstill = true;  // TODO: do real checks
- bool TsActive = true;
- bool R2D = true;
+  // ebs = ebsCheck(ebs);
+  // if (ebs == EBS_ERROR)
+  //   return;
 
- if (MMR_AS_GetEbsState() == EBS_STATE_ACTIVATED) {
-   if (gs.missionFinished == ~0x00 && VehicleAtStandstill) {
-     return MMR_AS_FINISHED;
-   }
+  // if (ebs != EBS_OK)
+  //   return;
+  
+  if (MMR_AS_GetEbsState() == EBS_STATE_ACTIVATED) {
+    if (gs.missionFinished && gs.vehicleStandstill)
+      return MMR_AS_FINISHED;
 
-   return MMR_AS_EMERGENCY;
- }
+    return MMR_AS_EMERGENCY;
+  }
 
- if (gs.currentMission != MMR_MISSION_IDLE &&
-  gs.currentMission != MMR_MISSION_MANUAL &&
-  MMR_AS_GetEbsState() == EBS_STATE_ARMED &&
-  TsActive) {
+  if (gs.currentMission != MMR_MISSION_IDLE &&
+    gs.currentMission != MMR_MISSION_MANUAL && gs.asbCheck && TS_Activation()) {
+    
+    if (gs.readyToDrive)
+      return MMR_AS_DRIVING;
 
-   if (R2D) {
-     return MMR_AS_DRIVING;
-   }
-
-   if (MMR_BRAKE_IsEngaged(gs.brakePressureFront, gs.brakePressureRear)) {
-     return MMR_AS_READY;
-   }
- }
+    if (gs.asbEngaged)
+      return MMR_AS_READY;
+  }
 
   return MMR_AS_OFF;
 
@@ -92,7 +75,9 @@ void off() {
 }
 
 void ready() {
-
+  static MmrDelay readyToDriveDelay = { .ms = 50000 };
+  if (gs.goSignal && !MMR_DELAY_WaitAsync(&readyToDriveDelay))
+    gs.readyToDrive = true;
 }
 
 void driving() {

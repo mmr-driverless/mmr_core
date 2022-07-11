@@ -44,10 +44,13 @@ typedef struct MmrGlobalState {
   float brakePressureFront;
   float brakePressureRear;
 
-  uint8_t goSignal;
-  uint8_t missionFinished;
-  uint8_t missionReady;
-  uint8_t asbCheck;
+  bool goSignal;
+  bool missionFinished;
+  bool missionReady;
+  bool asbCheck;
+  bool asbEngaged;
+  bool readyToDrive;
+  bool vehicleStandstill;
   MmrMission currentMission;
   MmrButtonState resEmergencyButton;
   
@@ -55,9 +58,7 @@ typedef struct MmrGlobalState {
   MmrLaunchControlState launchControl;
 } MmrGlobalState;
 
-
 extern MmrGlobalState gs;
-
 
 void MMR_GS_Init();
 void MMR_GS_UpdateFromCan(MmrCan *can);
