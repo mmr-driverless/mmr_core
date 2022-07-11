@@ -20,7 +20,6 @@
 #define SDC_is_Ready() HAL_GPIO_ReadPin(SDC_IS_READY_GPIO_Port, SDC_IS_READY_Pin)
 
 
-
 typedef enum MmrEbsCheck {
 	EBS_IDLE,
 	EBS_SDC_IS_READY,
