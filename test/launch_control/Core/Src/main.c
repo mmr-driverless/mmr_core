@@ -151,7 +151,7 @@ int main(void)
   /**/
   /*EBS ACTIVATION*/
 #ifdef EBS_TEST
-WATCHDOG_Activation();
+//WATCHDOG_Activation();
 #endif
 /**/
 /*RES SETUP */
@@ -167,47 +167,69 @@ WATCHDOG_Activation();
   /* LED ASSI variables (LAB == LED ASSI BLUE) (LAY == LED ASSI YELLOW) */
   MmrDelay ASSI_Delay;
   MmrDelay Buzzer_Delay;
-  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port,LSW_ASSI_BLUE_Pin);
+  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin);
   MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin);
   /**/
   MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin);
   MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin);
   MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin);
   MmrPin ebsLedpin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin);
-  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
+  MmrPin generalPurposeLed = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin);
+
+  MmrPin ctrLed1 = MMR_Pin(CTR_LED1_GPIO_Port, CTR_LED1_Pin);
+  MmrPin ctrLed2 = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin);
+  MmrPin ctrLed3 = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin);
+
+//  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
 
 
-  if (!MMR_CAN0_Start(&hcan)) {
-    Error_Handler();
-  }
+//  if (!MMR_CAN0_Start(&hcan)) {
+//    Error_Handler();
+//  }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
-  MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
-  Buzzer_Delay = MMR_Delay(9000);
+//  MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
+//  MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
+//  Buzzer_Delay = MMR_Delay(9000);
 
   mission = MMR_MISSION_MANUAL;
+  MmrDelay blinkDelay = { .ms = 500 };
+  MmrPinState state = MMR_PIN_HIGH;
   while (1) {
-    mission = MMR_AS_Run(mission);
+    if (MMR_DELAY_WaitAsync(&blinkDelay)) {
+      state = state == MMR_PIN_HIGH
+        ? MMR_PIN_LOW
+        : MMR_PIN_HIGH;
+
+      MMR_PIN_Write(&ctrLed1, state);
+      MMR_PIN_Write(&ctrLed2, state);
+      MMR_PIN_Write(&ctrLed3, state);
+      MMR_PIN_Write(&LABpin, state);
+      MMR_PIN_Write(&LAYpin, state);
+      MMR_PIN_Write(&ebsLedpin, state);
+      MMR_PIN_Write(&generalPurposeLed, state);
+    }
+
+//    MMR_AS_Run();
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
-#ifdef ASSI_TEST
-    MMR_AXIS_LEDS_Run(as_state);    
-    if(as_state == MMR_AS_EMERGENCY)
-    	{
-    	if(buzzerflag == false) Buzzer_activation();
-    		if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
-    		{
-    			buzzerflag = true;
-    			Buzzer_disactivation();
-    		}
-    	}
-#endif
-#ifdef EBS_TEST
-    EBSflag = MMR_AS_GetEbsStates();
-#endif
+//#ifdef ASSI_TEST
+//    MMR_AXIS_LEDS_Run(as_state);
+//    if(as_state == MMR_AS_EMERGENCY)
+//    	{
+//    	if(buzzerflag == false) Buzzer_activation();
+//    		if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
+//    		{
+//    			buzzerflag = true;
+//    			Buzzer_disactivation();
+//    		}
+//    	}
+//#endif
+//#ifdef EBS_TEST
+//    EBSflag = MMR_AS_GetEbsStates();
+//#endif
 
- MMR_GS_SendByCan(&hcan);
+// MMR_GS_SendByCan(&hcan);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -628,21 +650,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin LSW_LED1_Pin
-                           LSW_LEDEBS_Pin EBS_CONTROL2_Pin */
-  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|LSW_LED1_Pin
-                          |LSW_LEDEBS_Pin|EBS_CONTROL2_Pin;
+  /*Configure GPIO pins : GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin EBS_CONTROL2_Pin */
+  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|EBS_CONTROL2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LSW_ASSI_BLUE_Pin LSW_ASSI_YELLOW_Pin EBS_CONTROL1_Pin CTR_LED1_Pin
-                           CTR_LED2_Pin CTR_LED3_Pin */
-  GPIO_InitStruct.Pin = LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|EBS_CONTROL1_Pin|CTR_LED1_Pin
-                          |CTR_LED2_Pin|CTR_LED3_Pin;
+  /*Configure GPIO pins : LSW_LED1_Pin LSW_LEDEBS_Pin */
+  GPIO_InitStruct.Pin = LSW_LED1_Pin|LSW_LEDEBS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LSW_ASSI_BLUE_Pin LSW_ASSI_YELLOW_Pin CTR_LED1_Pin CTR_LED2_Pin */
+  GPIO_InitStruct.Pin = LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|CTR_LED1_Pin|CTR_LED2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -651,6 +676,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ASMS_SUPPLY_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : EBS_CONTROL1_Pin CTR_LED3_Pin */
+  GPIO_InitStruct.Pin = EBS_CONTROL1_Pin|CTR_LED3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : BUTTON1_Pin SDC_IS_READY_Pin */
   GPIO_InitStruct.Pin = BUTTON1_Pin|SDC_IS_READY_Pin;

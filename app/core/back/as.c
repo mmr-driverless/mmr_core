@@ -36,13 +36,13 @@ void MMR_AS_Run() {
     return;
 
   // Handbook: https://bit.ly/3bRd49t
-  switch (computeState()) {
-  case MMR_AS_OFF: return off();
-  case MMR_AS_READY: return ready();
-  case MMR_AS_DRIVING: return driving();
-  case MMR_AS_EMERGENCY: return emergency();
-  case MMR_AS_FINISHED: return finished();
-  }
+//  switch (computeState()) {
+//  case MMR_AS_OFF: return off();
+//  case MMR_AS_READY: return ready();
+//  case MMR_AS_DRIVING: return driving();
+//  case MMR_AS_EMERGENCY: return emergency();
+//  case MMR_AS_FINISHED: return finished();
+//  }
 }
 
 
