@@ -11,6 +11,7 @@ typedef enum MmrMission {
   MMR_MISSION_EBS_TEST,
   MMR_MISSION_INSPECTION,
   MMR_MISSION_MANUAL,
+  MMR_MISSION_FINISHED,
 } MmrMission;
 
 MmrMission MMR_MISSION_Run(MmrMission mission);
