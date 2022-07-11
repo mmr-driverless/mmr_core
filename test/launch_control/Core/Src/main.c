@@ -151,7 +151,7 @@ int main(void)
   /**/
   /*EBS ACTIVATION*/
 #ifdef EBS_TEST
-//WATCHDOG_Activation();
+  WATCHDOG_Activation();
 #endif
 /**/
 /*RES SETUP */
@@ -180,37 +180,20 @@ int main(void)
   MmrPin ctrLed2 = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin);
   MmrPin ctrLed3 = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin);
 
-//  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
+  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
 
 
-//  if (!MMR_CAN0_Start(&hcan)) {
-//    Error_Handler();
-//  }
+  if (!MMR_CAN0_Start(&hcan)) {
+    Error_Handler();
+  }
 
   MMR_SetTickProvider(HAL_GetTick);
 //  MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
 //  MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
 //  Buzzer_Delay = MMR_Delay(9000);
 
-  mission = MMR_MISSION_MANUAL;
-  MmrDelay blinkDelay = { .ms = 500 };
-  MmrPinState state = MMR_PIN_HIGH;
   while (1) {
-    if (MMR_DELAY_WaitAsync(&blinkDelay)) {
-      state = state == MMR_PIN_HIGH
-        ? MMR_PIN_LOW
-        : MMR_PIN_HIGH;
-
-      MMR_PIN_Write(&ctrLed1, state);
-      MMR_PIN_Write(&ctrLed2, state);
-      MMR_PIN_Write(&ctrLed3, state);
-      MMR_PIN_Write(&LABpin, state);
-      MMR_PIN_Write(&LAYpin, state);
-      MMR_PIN_Write(&ebsLedpin, state);
-      MMR_PIN_Write(&generalPurposeLed, state);
-    }
-
-//    MMR_AS_Run();
+    MMR_AS_Run();
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 //#ifdef ASSI_TEST
