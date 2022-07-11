@@ -4,13 +4,9 @@
 #include "lib/can/inc/can.h"
 
 
-void MMR_BRAKE_Init(Can *can) {
-
-}
-
-
-void MMR_BRAKE_Start() {
-
-}
+void MMR_BRAKE_Init(Can *can);
+void MMR_BRAKE_Start();
+bool MMR_BRAKE_Check();
+bool MMR_BRAKE_IsEngaged();
 
 #ifndef

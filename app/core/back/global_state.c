@@ -2,8 +2,8 @@
 #include <buffer.h>
 #include <timing.h>
 #include <delay.h>
+#include <ebs.h>
 #include <stdint.h>
-#include <EBS.h>
 
 
 MmrGlobalState gs = {};
@@ -61,12 +61,16 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       gs.infoSpeed = *(float*)(buffer);
       break;
 
+    case MMR_CAN_MESSAGE_ID_D_ACCELERATOR_PERCENTAGE:
+      gs.infoAth = *(float*)(buffer);
+      break;
+
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
       gs.lap = MMR_BUFFER_ReadByte(buffer, 0);
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
-      gs.brakePf = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.brakePf = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);  // TODO: check quantizzazione
       gs.brakePr = (0.005f / 100) * MMR_BUFFER_ReadUint16(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 

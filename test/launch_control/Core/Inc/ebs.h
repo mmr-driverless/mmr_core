@@ -33,7 +33,7 @@ typedef enum MmrEbsCheck {
 	EBS_ERROR,
 	EBS_FINAL_CHECK,
 	EBS_OK,
-}MmrEbsCheck;
+} MmrEbsCheck;
 
 typedef enum MmrEbsState {
 	EBS_STATE_UNAVAILABLE,

@@ -26,11 +26,12 @@
 #include <as.h>
 #include <timing.h>
 #include <can0.h>
+#include <ebs.h>
 #include <stm_pin.h>
-#include "EBS.h"
 #include "delay.h"
 #include "stdbool.h"
 #include <global_state.h>
+//#include "inc/axis_leds.h"
 
 /* USER CODE END Includes */
 
@@ -183,12 +184,18 @@ int main(void)
   EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
 
 
+<<<<<<< Updated upstream
   if (!MMR_CAN0_Start(&hcan)) {
     Error_Handler();
   }
+=======
+ if (!MMR_CAN0_Start(&hcan)) {
+   Error_Handler();
+ }
+>>>>>>> Stashed changes
 
   MMR_SetTickProvider(HAL_GetTick);
-//  MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
+// MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
 //  MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
 //  Buzzer_Delay = MMR_Delay(9000);
 
@@ -207,7 +214,7 @@ int main(void)
 //    			Buzzer_disactivation();
 //    		}
 //    	}
-//#endif
+// #endif
 //#ifdef EBS_TEST
 //    EBSflag = MMR_AS_GetEbsStates();
 //#endif

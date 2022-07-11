@@ -3,6 +3,18 @@
     "locale": "c",
     "bitset": "c",
     "cstdlib": "c",
-    "mutex": "c"
+    "mutex": "c",
+    "global_state.h": "c",
+    "math.h": "c",
+    "mission.h": "c",
+    "delay.h": "c",
+    "ostream": "c",
+    "tuple": "c",
+    "ebs.h": "c",
+    "stdbool.h": "c",
+    "manual_launch.h": "c",
+    "as.h": "c",
+    "pin.h": "c",
+    "brake.h": "c"
   }
 }

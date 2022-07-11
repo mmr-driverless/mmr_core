@@ -1,8 +1,8 @@
+#include <ebs.h>
 #include "inc/mission.h"
 #include "inc/autonomous_launch.h"
 #include "inc/manual_launch.h"
 #include "inc/global_state.h"
-#include <EBS.h>
 
 static MmrMission manual();
 static MmrMission skidpad();
