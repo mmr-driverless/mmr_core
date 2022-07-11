@@ -5,9 +5,6 @@
 #include "inc/as.h"
 #include "inc/apps.h"
 #include "inc/peripherals.h"
-
-#include "../brake/inc/brake.h"
-
 #include <button.h>
 #include <buffer.h>
 #include <delay.h>

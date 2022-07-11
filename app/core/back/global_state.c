@@ -5,8 +5,15 @@
 #include <ebs.h>
 #include <stdint.h>
 
-
-MmrGlobalState gs = {};
+MmrGlobalState gs = {
+  .goSignal = false,
+  .missionReady = false,
+  .missionFinished = false,
+  .asbCheck = false,
+  .asbEngaged = false,
+  .vehicleStandstill = false,
+  .readyToDrive = false
+};
 
 
 void MMR_GS_Init() {

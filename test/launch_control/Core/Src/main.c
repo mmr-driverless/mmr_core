@@ -184,15 +184,9 @@ int main(void)
   EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
 
 
-<<<<<<< Updated upstream
   if (!MMR_CAN0_Start(&hcan)) {
     Error_Handler();
   }
-=======
- if (!MMR_CAN0_Start(&hcan)) {
-   Error_Handler();
- }
->>>>>>> Stashed changes
 
   MMR_SetTickProvider(HAL_GetTick);
 // MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);

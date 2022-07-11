@@ -58,17 +58,7 @@ typedef struct MmrGlobalState {
   MmrLaunchControlState launchControl;
 } MmrGlobalState;
 
-
-extern MmrGlobalState gs = {
-  .goSignal = false,
-  .missionReady = false,
-  .missionFinished = false,
-  .asbCheck = false,
-  .asbEngaged = false,
-  .vehicleStandstill = false,
-  .readyToDrive = false
-};
-
+extern MmrGlobalState gs;
 
 void MMR_GS_Init();
 void MMR_GS_UpdateFromCan(MmrCan *can);
