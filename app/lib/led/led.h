@@ -2,6 +2,7 @@
 #define APP_LIB_LED_LED_H_
 
 #include <pin.h>
+#include <delay.h>
 
 typedef enum MmrLedState {
 LED_ON = 0U,
@@ -17,6 +18,6 @@ typedef struct MmrLed {
 void MMR_LED_On(MmrLed *led);
 void MMR_LED_Off(MmrLed *led);
 void MMR_LED_Toggle(MmrLed *led);
-void MMR_LED_BlinkAsync(MmrLed *led);
+void MMR_LED_BlinkAsync(MmrLed *led, MmrDelay *delay);
 
 #endif // !APP_LIB_LED_LED_H_

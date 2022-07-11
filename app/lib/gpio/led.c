@@ -28,7 +28,7 @@ bool MMR_LED_IsOn(MmrLed *led) {
   return MMR_LED_Get(led) == MMR_LED_ON;
 }
 
-bool MMR_LED_Blink(MmrLed *led, MmrDelay *delay) {
+void MMR_LED_BlinkAsync(MmrLed *led, MmrDelay *delay) {
   if (MMR_DELAY_WaitAsync(delay)) {
     MMR_LED_Toggle(led);
   }

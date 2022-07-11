@@ -1,6 +1,8 @@
 #ifndef APP_CORE_BACK_INC_EBS_H_
 #define APP_CORE_BACK_INC_EBS_H_
 
+#include <stdbool.h>
+
 typedef enum MmrEbsDrivingMode {
   MMR_EBS_DRIVING_MODE_MANUAL,
   MMR_EBS_DRIVING_MODE_AUTONOMOUS,
