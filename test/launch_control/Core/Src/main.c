@@ -31,6 +31,7 @@
 #include "delay.h"
 #include "stdbool.h"
 #include <global_state.h>
+#include <back.h>
 //#include "inc/axis_leds.h"
 
 /* USER CODE END Includes */
@@ -57,7 +58,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan;
@@ -70,8 +71,8 @@ TIM_HandleTypeDef htim16;
 TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
-uint32_t adc[2];
-uint32_t dac;
+uint32_t appsIn[2];
+uint32_t appsOut;
 
 
 MmrAsState as_state = MMR_AS_OFF;
@@ -145,8 +146,8 @@ int main(void) {
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
   /*ADC/DAC with DMA Start*/
-  HAL_ADC_Start_DMA(&hadc1, adc, sizeof(adc) / sizeof(*adc));
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &dac, 1, DAC_ALIGN_12B_R);
+  HAL_ADC_Start_DMA(&hadc1, appsIn, sizeof(appsIn) / sizeof(*appsIn));
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &appsOut, 1, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim2);
   /**/
   /*EBS ACTIVATION*/
@@ -160,25 +161,43 @@ int main(void) {
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  MmrPin gearUp = MMR_Pin(GEARUP_SWITCH_GPIO_Port, GEARUP_SWITCH_Pin);
-  MmrPin gearN = MMR_Pin(GEARN_SWITCH_GPIO_Port, GEARN_SWITCH_Pin);
-  MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin);
-  MmrPin changeModeBtn = MMR_Pin(B1_GPIO_Port, B1_Pin);
+  MmrPin gearUp = MMR_Pin(GEARUP_SWITCH_GPIO_Port, GEARUP_SWITCH_Pin, false);
+  MmrPin gearN = MMR_Pin(GEARN_SWITCH_GPIO_Port, GEARN_SWITCH_Pin, false);
+  MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin, false);
+  MmrPin blueButtonPin = MMR_Pin(B1_GPIO_Port, B1_Pin, false);
   /* LED ASSI variables (LAB == LED ASSI BLUE) (LAY == LED ASSI YELLOW) */
   MmrDelay ASSI_Delay;
   MmrDelay Buzzer_Delay;
-  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin);
-  MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin);
+  MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin, true);
+  MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin, true);
   /**/
-  MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin);
-  MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin);
-  MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin);
-  MmrPin ebsLedpin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin);
-  MmrPin generalPurposeLed = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin);
+  MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin, true);
+  MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin, true);
+  MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin, false);
+  MmrPin ebsLedpin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin, true);
+  MmrPin generalPurposeLed = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin, true);
 
-  MmrPin ctrLed1 = MMR_Pin(CTR_LED1_GPIO_Port, CTR_LED1_Pin);
-  MmrPin ctrLed2 = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin);
-  MmrPin ctrLed3 = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin);
+  MmrPin ctrLed1Pin = MMR_Pin(CTR_LED1_GPIO_Port, CTR_LED1_Pin, true);
+  MmrPin ctrLed2Pin = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin, true);
+  MmrPin ctrLed3Pin = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin, true);
+
+  MmrButton blueButton = MMR_Button(&blueButtonPin);
+  MmrLed ctrLed1 = MMR_Led(&ctrLed1Pin);
+  MmrLed ctrLed2 = MMR_Led(&ctrLed2Pin);
+  MmrLed ctrLed3 = MMR_Led(&ctrLed3Pin);
+
+  MMR_BACK_Init(
+    &can0,
+    &gearUp,
+    &gearDown,
+    &gearN,
+    &blueButton,
+    &appsOut,
+    appsIn,
+    &ctrLed1,
+    &ctrLed2,
+    &ctrLed3
+  );
 
   EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
   MMR_GS_Init();
@@ -188,7 +207,7 @@ int main(void) {
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-// MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, adc);
+// MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &appsOut, appsIn);
 //  MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
 //  Buzzer_Delay = MMR_Delay(9000);
 
