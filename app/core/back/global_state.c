@@ -2,8 +2,8 @@
 #include <buffer.h>
 #include <timing.h>
 #include <delay.h>
+#include <ebs.h>
 #include <stdint.h>
-#include <EBS.h>
 
 
 MmrGlobalState gs = {};
@@ -59,6 +59,10 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
 
     case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
       gs.infoSpeed = *(float*)(buffer);
+      break;
+
+    case MMR_CAN_MESSAGE_ID_D_ACCELERATOR_PERCENTAGE:
+      gs.infoAth = *(float*)(buffer);
       break;
 
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:

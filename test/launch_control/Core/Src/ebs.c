@@ -1,6 +1,6 @@
+#include <ebs.h>
 #include <mission.h>
 #include <global_state.h>
-#include "EBS.h"
 #include "delay.h"
 #include "timing.h"
 #include "as.h"
@@ -35,7 +35,7 @@ void WATCHDOG_Disable() {
 }
 
 
-MmrEbsState MMR_AS_GetEbsStates() {
+MmrEbsState MMR_AS_GetEbsState() {
   return EBSflag;
 }
 

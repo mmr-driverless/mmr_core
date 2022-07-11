@@ -25,7 +25,7 @@ void MMR_AXIS_LEDS_Run(MmrAsState state) {
   case MMR_AS_DRIVING:
     toggleBlueLed(MMR_AXIS_LED_OFF);
     toggleYellowLed(MMR_AXIS_LED_ON);
-    
+  
     if (MMR_DELAY_WaitAsync(&delay)) {
       toggleYellowLed(MMR_AXIS_LED_OFF);
     }

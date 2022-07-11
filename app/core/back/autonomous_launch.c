@@ -248,7 +248,8 @@ static MmrAutonomousState clutchSetManual(MmrAutonomousState state) {
   }
 
   if (clutchMessages++ > 10) {
-    return MMR_AUTONOMOUS_LAUNCH_SET_MANUAL_APPS;
+    // return MMR_AUTONOMOUS_LAUNCH_SET_MANUAL_APPS;
+    return MMR_AUTONOMOUS_LAUNCH_DONE;
   }
 
   return state;
@@ -267,9 +268,11 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  *(asp.apps) = gs.lap >= 1
-    ? MMR_APPS_ComputeSpeed(gs.infoSpeed)
-    : MMR_APPS_ComputeSpeed(0.0);
+  // *(asp.apps) = gs.lap >= 1
+  //   ? MMR_APPS_ComputeSpeed(gs.infoSpeed)
+  //   : MMR_APPS_ComputeSpeed(0.0);
+
+  *(asp.apps) = MMR_APPS_ComputeSpeed(gs.infoAth);
 
   return MMR_AUTONOMOUS_LAUNCH_DONE;
 }

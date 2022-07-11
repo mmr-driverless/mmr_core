@@ -17,5 +17,6 @@ typedef enum MmrAsState {
 
 
 void MMR_AS_Run();
+MmrAsState MMR_AS_Get_State();
 
 #endif // !APP_BACK_INC_AS_H_

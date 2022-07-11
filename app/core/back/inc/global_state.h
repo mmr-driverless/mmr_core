@@ -7,8 +7,8 @@
 #include "autonomous_launch.h"
 #include <button.h>
 #include <can.h>
+#include <ebs.h>
 #include <stdint.h>
-#include <EBS.h>
 
 typedef enum MmrClutchState {
   MMR_CLUTCH_UNKNOWN,
@@ -32,6 +32,7 @@ typedef struct MmrGlobalState {
   uint8_t lap;
   uint16_t ath;//<-- primo valore farfalla
   uint16_t ath2;//<-- secondo valore farfalla
+  float infoAth;
   uint16_t gear;
   uint16_t rpm;
   float speed;
