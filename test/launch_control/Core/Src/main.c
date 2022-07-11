@@ -43,11 +43,11 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define EBS_TEST 1
-#define ASSI_TEST 1
-#define APPS_TEST 1
-#define TPS_TEST 1
-#define BUZZER_TEST 1
+#define EBS_TEST 0
+#define ASSI_TEST 0
+#define APPS_TEST 0
+#define TPS_TEST 0
+#define BUZZER_TEST 0
 
 /* USER CODE END PD */
 
@@ -113,8 +113,7 @@ MmrMission mission = MMR_MISSION_IDLE;
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void) {
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -197,21 +196,22 @@ int main(void)
     MMR_AS_Run();
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
-//#ifdef ASSI_TEST
-//    MMR_AXIS_LEDS_Run(as_state);
-//    if(as_state == MMR_AS_EMERGENCY)
-//    	{
-//    	if(buzzerflag == false) Buzzer_activation();
-//    		if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
-//    		{
-//    			buzzerflag = true;
-//    			Buzzer_disactivation();
-//    		}
-//    	}
-// #endif
-//#ifdef EBS_TEST
-//    EBSflag = MMR_AS_GetEbsStates();
-//#endif
+#ifdef ASSI_TEST
+    MMR_AXIS_LEDS_Run(as_state);
+    if(as_state == MMR_AS_EMERGENCY)
+      {
+      if(buzzerflag == false) Buzzer_activation();
+        if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
+        {
+          buzzerflag = true;
+          Buzzer_disactivation();
+        }
+      }
+#endif
+
+#ifdef EBS_TEST
+    EBSflag = MMR_AS_GetEbsStates();
+#endif
 
 // MMR_GS_SendByCan(&hcan);
     /* USER CODE END WHILE */
