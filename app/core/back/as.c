@@ -37,6 +37,7 @@ static MmrPin *__gearDown;
 static MmrButton __changeModeButton;
 static uint32_t *__apps;
 static uint32_t *__adc;
+static MmrMission __mission;
 
 static MmrAutonomousState as = MMR_AUTONOMOUS_WAITING;
 static MmrManualState ms = MMR_MANUAL_WAITING;
@@ -57,7 +58,7 @@ void MMR_AS_Init(
   __gearDown = gearDown;
   __changeModeButton = MMR_Button(changeMode);
   __state = (struct MmrLaunchControl){
-    .lap = 0,
+    .lap = 1,
     .clutch = MMR_CLUTCH_UNKNOWN,
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
   };
@@ -78,6 +79,11 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
 
   if (MMR_CAN_ReceiveAsync(__can, &msg) == MMR_TASK_COMPLETED) {
     MmrCanHeader header = MMR_CAN_MESSAGE_GetHeader(&msg);
+
+    if (header.messageId < 192 || header.messageId > 199) {
+    	;
+    }
+
     switch (header.messageId) {
     case MMR_CAN_MESSAGE_ID_ECU_ENGINE_FN1:
       __state.rpm = MMR_BUFFER_ReadUint16(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
@@ -106,8 +112,12 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       break;
 
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
-     	__state.lap = *(uint8_t *)(buffer);
+     	__state.lap = *(uint8_t*)(buffer);
      	break;
+
+    case MMR_CAN_MESSAGE_ID_MISSION_SELECTED:
+    	__mission = *(MmrMission*)(buffer);
+      break;
     }
   }
 
@@ -207,7 +217,11 @@ uint16_t MMR_AS_GetAth() {
   return __state.ath;
 }
 
-
 uint32_t MMR_AS_GetInfoSpeed() {
   return APPS_slope * (__state.infoSpeed) + APPS_offset;
+}
+
+
+MmrMission MMR_AS_GetMission(){
+	return __mission;
 }

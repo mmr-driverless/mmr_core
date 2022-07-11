@@ -9,8 +9,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
-
 static MmrAutonomousState waiting(MmrAutonomousState state);
 static MmrAutonomousState pullClutch(MmrAutonomousState state);
 static MmrAutonomousState waitBeforeChangingGear(MmrAutonomousState state);
@@ -79,11 +77,12 @@ static MmrAutonomousState pullClutch(MmrAutonomousState state) {
   MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL);
   MmrCanMessage clutchPullMsg = MMR_CAN_OutMessage(header);
 
+  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
+
   if (MMR_DELAY_WaitAsync(&delay)) {
     MMR_CAN_Send(__can, &clutchPullMsg);
   }
 
-  bool isClutchPulled = MMR_AS_GetClutchState() == MMR_CLUTCH_PULLED;
   if (isClutchPulled) {
     return MMR_AUTONOMOUS_WAIT_BEFORE_CHANGING_GEAR;
   }
@@ -170,7 +169,7 @@ static MmrAutonomousState waitBeforeAccelerating(MmrAutonomousState state) {
 
 
 static MmrAutonomousState accelerate(MmrAutonomousState state) {
-  static const uint16_t DAC_30 = 880;
+  static const uint16_t DAC_30 = 1400;
   static MmrDelay delay = { .ms = 1000 };
 
   *__apps = DAC_30;
@@ -225,11 +224,11 @@ static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
 
 
 static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
-  static const uint16_t DAC_20 = 785;
+  static const uint16_t DAC_15 = 1225;
   static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *__apps = DAC_20;
+    *__apps = DAC_15;
     return MMR_AUTONOMOUS_ACCELERATE_TO_MINIMUM;
   }
 
@@ -238,7 +237,7 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
 
 
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
-  static const uint16_t DAC_0 = 650;
+  static const uint16_t DAC_0 = 1150;
   static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
@@ -271,7 +270,7 @@ static MmrAutonomousState clutchSetManual(MmrAutonomousState state) {
 
 
 static MmrAutonomousState setManualApps(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 1000 };
+  static MmrDelay delay = { .ms = 5000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
     return MMR_AUTONOMOUS_DONE;
@@ -282,11 +281,6 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-	static const uint16_t apps_MIN = 650;
-
-	*__apps = MMR_AS_GetLap() >= 1
-    ? MMR_AS_GetInfoSpeed()
-    : apps_MIN;
-
+  *__apps = *__adc;
   return MMR_AUTONOMOUS_DONE;
 }

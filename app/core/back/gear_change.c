@@ -51,22 +51,22 @@ void MMR_GEAR_CHANGE_Run() {
 
 
   if (!enableGearUp && !enableGearDn) {
-    if (deltaSpeed > 0 && rpm >= rpmUp && gear != 6) { //Sto guardando la Retta Up-Shifting
+    if (deltaSpeed > 0) { //Sto guardando la Retta Up-Shifting
       enableGearUp = true;
       enableGearDn = false;
       MMR_DELAY_Reset(&gearChangeDelay);
       MMR_PIN_Write(__gearUp, MMR_PIN_HIGH);
     }
-    else if (deltaSpeed < 0 && rpm <= rpmDn && gear != 1 && abs(steeringAngle) < 15 / 6.25) {
-      enableGearUp = false;
-      enableGearDn = true;
+    else if (deltaSpeed < 0) {
+      enableGearUp = true;
+      enableGearDn = false;
       MMR_DELAY_Reset(&gearChangeDelay);
       MMR_PIN_Write(__gearDn, MMR_PIN_HIGH);
     }
   }
 
 
-  if (enableGearUp) {
+  if (enableGearUp && rpm >= rpmUp && gear != 6) {
     if (MMR_DELAY_WaitAsync(&gearChangeDelay)) {
       MMR_PIN_Write(__gearUp, MMR_PIN_LOW);
       enableGearUp = false;
@@ -74,7 +74,7 @@ void MMR_GEAR_CHANGE_Run() {
     }
   }
 
-  if(enableGearDn) {
+  if(enableGearDn && rpm <= rpmDn && gear != 1 && abs(steeringAngle) < 15 / 6.25) {
     if (MMR_DELAY_WaitAsync(&gearChangeDelay)) {
       MMR_PIN_Write(__gearDn, MMR_PIN_LOW);
       enableGearUp = false;
