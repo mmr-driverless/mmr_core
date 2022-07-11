@@ -24,7 +24,7 @@ static MmrPin *__ebs2;
 static MmrPin* __asclSDC;
 static MmrPin *__EBSLedPin;
 static MmrEbsState EBSflag;
-extern  uint8_t TS_EBS;
+extern uint8_t TS_EBS;
 
 void WATCHDOG_Activation() {
   HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);

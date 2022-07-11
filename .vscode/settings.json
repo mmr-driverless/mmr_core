@@ -15,6 +15,7 @@
     "manual_launch.h": "c",
     "as.h": "c",
     "pin.h": "c",
-    "brake.h": "c"
+    "brake.h": "c",
+    "peripherals.h": "c"
   }
 }

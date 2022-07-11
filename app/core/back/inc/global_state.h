@@ -26,6 +26,7 @@ typedef enum MmrLaunchControlState {
 typedef struct MmrGlobalState {
   MmrAutonomousState as;
   MmrManualState ms;
+  MmrAsState stateAs;
 
   float infoSpeed;
   int16_t steeringAngle;

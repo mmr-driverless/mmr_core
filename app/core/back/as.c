@@ -27,10 +27,6 @@ static void driving();
 static void emergency();
 static void finished();
 
-MmrAsState MMR_AS_Get_State() {
-  return stateAs;
-}
-
 void MMR_AS_Run() {
   MMR_GS_UpdateFromCan(asp.can);
 
@@ -48,6 +44,7 @@ void MMR_AS_Run() {
 
   // Handbook: https://bit.ly/3bRd49t
  stateAs = computeState();
+ gs.stateAs = stateAs;
  switch (stateAs) {
  case MMR_AS_OFF: off();
  case MMR_AS_READY: ready();
@@ -74,7 +71,6 @@ static MmrAsState computeState() {
 
  if (gs.currentMission != MMR_MISSION_IDLE &&
   gs.currentMission != MMR_MISSION_MANUAL &&
-  // gs.asbCheck == ~0x00 &&  // La ECU conosce solo la pressione dell'asb
   MMR_AS_GetEbsState() == EBS_STATE_ARMED &&
   TsActive) {
 
