@@ -17,6 +17,10 @@ typedef struct MmrAsPeripherals {
   uint32_t *appsOut;
   uint32_t *appsIn;
 
+  MmrPin *ebsAsDrivingMode;
+  MmrPin *ebsAsCloseSdc;
+  MmrPin *ebsAsSdcIsReady;
+
   MmrLed *blueAxisLed;
   MmrLed *yellowAxisLed;
 
