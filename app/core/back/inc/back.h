@@ -13,7 +13,7 @@ void MMR_BACK_Init(
   MmrPin *gearN,
   MmrPin *changeMode,
   uint32_t *apps,
-  uint32_t *adc
+  uint32_t *appsIn
 );
 
 #endif // !APP_CORE_BACK_INC_BACK_H_

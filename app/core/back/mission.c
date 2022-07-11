@@ -32,12 +32,14 @@ MmrMission MMR_MISSION_Run(MmrMission mission) {
 
 
 static MmrMission manual() {
+  *(asp.appsOut) = *(asp.appsIn);
   gs.ms = MMR_MANUAL_LAUNCH_Run(gs.ms);
+
   return MMR_MISSION_MANUAL;
 }
 
 static MmrMission skidpad() {
-  *(asp.apps) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
@@ -48,7 +50,7 @@ static MmrMission skidpad() {
 }
 
 static MmrMission ebsTest() {
-  *(asp.apps) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoSpeed);
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {

@@ -160,7 +160,7 @@ static MmrAutonomousState waitBeforeAccelerating(MmrAutonomousState state) {
 static MmrAutonomousState accelerate(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 1000 };
 
-  *(asp.apps) = MMR_APPS_ComputeSpeed(0.3);
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(0.3);
   if (MMR_DELAY_WaitAsync(&delay)) {
     return MMR_AUTONOMOUS_LAUNCH_RELEASE_CLUTCH;
   }
@@ -215,7 +215,7 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *(asp.apps) = MMR_APPS_ComputeSpeed(0.15);
+    *(asp.appsOut) = MMR_APPS_ComputeSpeed(0.15);
     return MMR_AUTONOMOUS_LAUNCH_ACCELERATE_TO_MINIMUM;
   }
 
@@ -227,7 +227,7 @@ static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 1000 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *(asp.apps) = MMR_APPS_ComputeSpeed(0.0);
+    *(asp.appsOut) = MMR_APPS_ComputeSpeed(0.0);
     return MMR_AUTONOMOUS_LAUNCH_CLUTCH_SET_MANUAL;
   }
 
@@ -268,11 +268,11 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  // *(asp.apps) = gs.lap >= 1
+  // *(asp.appsOut) = gs.lap >= 1
   //   ? MMR_APPS_ComputeSpeed(gs.infoSpeed)
   //   : MMR_APPS_ComputeSpeed(0.0);
 
-  *(asp.apps) = MMR_APPS_ComputeSpeed(gs.infoAth);
+  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoAth);
 
   return MMR_AUTONOMOUS_LAUNCH_DONE;
 }
