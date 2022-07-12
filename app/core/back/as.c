@@ -32,7 +32,7 @@ void MMR_AS_Run() {
   static MmrDelay sendDelay = { .ms = 15 };
 
   MMR_GS_UpdateFromCan(asp.can);
-  MMR_NET_BRAKE_Init(asp.can);
+//  MMR_NET_BRAKE_Init(asp.can);
 
   // Handbook: https://bit.ly/3bRd49t
   stateAs = computeState();
@@ -63,13 +63,6 @@ void MMR_AS_Run() {
 }
 
 static MmrAsState computeState() {
-  // ebs = ebsCheck(ebs);
-  // if (ebs == EBS_ERROR)
-  //   return;
-
-  // if (ebs != EBS_OK)
-  //   return;
-  
   if (gs.ebsState == MMR_EBS_ACTIVATED) {
     if (gs.missionFinished && gs.vehicleStandstill) {
       return MMR_AS_FINISHED;
