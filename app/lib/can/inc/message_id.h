@@ -24,9 +24,13 @@
 #include "../../util/inc/binary_literals.h"
 
 typedef enum MmrCanMessageId {
+// RES
+  MMR_CAN_MESSAGE_ID_RES_NMT = 0,
+  MMR_CAN_MESSAGE_ID_RES = 401,
+// !RES
+
 // SENSING
-  MMR_CAN_MESSAGE_ID_S_RES = 0,
-  MMR_CAN_MESSAGE_ID_S_LV12,
+  MMR_CAN_MESSAGE_ID_S_LV12 = 1,
   MMR_CAN_MESSAGE_ID_S_LV24,
   MMR_CAN_MESSAGE_ID_S_PF,
   MMR_CAN_MESSAGE_ID_S_FRBPS,

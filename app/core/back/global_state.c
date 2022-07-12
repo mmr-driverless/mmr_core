@@ -82,7 +82,7 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       gs.ebs2Pressure = MMR_BUFFER_ReadUint32(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
-    case MMR_CAN_MESSAGE_ID_S_RES:
+    case MMR_CAN_MESSAGE_ID_RES:
       gs.goSignal = (MMR_BUFFER_ReadByte(buffer, 0) & (0x01 << 1)) != 0x00;  // 2nd bit is go signal
       break;
 
