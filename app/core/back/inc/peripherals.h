@@ -11,6 +11,9 @@
 typedef bool (*WatchdogStart)(void);
 typedef bool (*WatchdogStop)(void);
 
+typedef void (*BuzzerPlay)(void);
+typedef void (*BuzzerStop)(void);
+
 typedef struct MmrAsPeripherals {
   MmrCan *can;
 
@@ -26,6 +29,9 @@ typedef struct MmrAsPeripherals {
   MmrPin *ebsAsDrivingMode;
   MmrPin *ebsAsCloseSdc;
   MmrPin *ebsAsSdcIsReady;
+
+  BuzzerPlay buzzerPlay;
+  BuzzerStop buzzerStop;
 
   MmrPin *ebs1;
   MmrPin *ebs2;

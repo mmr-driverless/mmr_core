@@ -32,3 +32,17 @@ bool MMR_DELAY_WaitAsync(MmrDelay *delay) {
 
   return false;
 }
+
+
+bool MMR_DELAY_WaitOnceAsync(MmrDelay *delay) {
+  Tick tick = MMR_GetTick();
+  if (delay->start == 0) {
+    delay->start = tick;
+  }
+
+  if (tick - delay->start >= delay->ms) {
+    return true;
+  }
+
+  return false;
+}

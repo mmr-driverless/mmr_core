@@ -118,7 +118,14 @@ void driving() {
 }
 
 static void emergency() {
+  static MmrDelay timeout = { .ms = 10000 };
 
+  if (MMR_DELAY_WaitOnceAsync(&timeout)) {
+    asp.buzzerStop();
+  }
+  else {
+    asp.buzzerPlay();
+  }
 }
 
 static void finished() {

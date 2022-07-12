@@ -13,6 +13,9 @@ void MMR_BACK_Init(
   uint32_t *appsOut,
   uint32_t *appsIn,
 
+  BuzzerPlay buzzerPlay,
+  BuzzerStop buzzerStop,
+
   MmrPin *ebs1,
   MmrPin *ebs2,
 
@@ -36,6 +39,9 @@ void MMR_BACK_Init(
 
     .appsOut = appsOut,
     .appsIn = appsIn,
+
+    .buzzerPlay = buzzerPlay,
+    .buzzerStop = buzzerStop,
 
     .ebs1 = ebs1,
     .ebs2 = ebs2,

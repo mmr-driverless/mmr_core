@@ -71,6 +71,7 @@ MmrEbsCheckState MMR_EBS_CHECK_Check(MmrEbsCheckState state) {
   
   case EBS_CHECK_READY: return EBS_CHECK_READY;
   case EBS_CHECK_ERROR: return EBS_CHECK_ERROR;
+  default: return EBS_CHECK_ERROR;
   }
 }
 

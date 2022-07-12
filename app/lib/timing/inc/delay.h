@@ -14,5 +14,6 @@ MmrDelay MMR_Delay(uint32_t delayMs);
 void MMR_DELAY_Reset(MmrDelay *delay);
 void MMR_DELAY_Change(MmrDelay *delay, uint32_t delayMs);
 bool MMR_DELAY_WaitAsync(MmrDelay *delay);
+bool MMR_DELAY_WaitOnceAsync(MmrDelay *delay);
 
 #endif // !LIB_TIMING_INC_DELAY_H_

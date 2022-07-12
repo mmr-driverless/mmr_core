@@ -99,8 +99,13 @@ static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
 
-void Buzzer_activation(void){HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);}
-void Buzzer_disactivation(void){HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);}
+void Buzzer_activation(void){
+  HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);
+}
+
+void Buzzer_disactivation(void){
+  HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);
+}
 bool buzzerflag = false;
 /* USER CODE END PFP */
 
@@ -151,13 +156,9 @@ int main(void) {
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &appsOut, 1, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim2);
   /**/
-  /*EBS ACTIVATION*/
-#ifdef EBS_TEST
+
   WATCHDOG_Activation();
-#endif
-/**/
-/*RES SETUP */
-/**/
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -166,12 +167,11 @@ int main(void) {
   MmrPin gearN = MMR_Pin(GEARN_SWITCH_GPIO_Port, GEARN_SWITCH_Pin, false);
   MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin, false);
   MmrPin blueButtonPin = MMR_Pin(B1_GPIO_Port, B1_Pin, false);
-  /* LED ASSI variables (LAB == LED ASSI BLUE) (LAY == LED ASSI YELLOW) */
-  MmrDelay ASSI_Delay;
+
   MmrDelay Buzzer_Delay;
   MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin, true);
   MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin, true);
-  /**/
+
   MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin, true);
   MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin, true);
   MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin, false);
@@ -197,6 +197,8 @@ int main(void) {
     &blueButton,
     &appsOut,
     appsIn,
+    Buzzer_activation,
+    Buzzer_disactivation,
     &Ebs1Pin,
     &Ebs2Pin,
     &blueAxisLed,
@@ -224,19 +226,19 @@ int main(void) {
     MMR_AS_Run();
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
-#ifdef ASSI_TEST
-    MMR_AXIS_LEDS_Run(gs.stateAs);
-    if(as_state == MMR_AS_EMERGENCY)
-      {
-      if(buzzerflag == false) Buzzer_activation();
-        if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
-        {
-          buzzerflag = true;
-          Buzzer_disactivation();
-        }
-      }
-#endif
-//
+//#ifdef ASSI_TEST
+//    MMR_AXIS_LEDS_Run(gs.stateAs);
+//    if(as_state == MMR_AS_EMERGENCY)
+//      {
+//      if(buzzerflag == false) Buzzer_activation();
+//        if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
+//        {
+//          buzzerflag = true;
+//          Buzzer_disactivation();
+//        }
+//      }
+//#endif
+////
 //#ifdef EBS_TEST
 //    EBSflag = MMR_AS_GetEbsStates();
 //#endif
