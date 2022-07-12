@@ -30,6 +30,7 @@ void MMR_AS_Run() {
   static MmrDelay sendDelay = { .ms = 15 };
 
   MMR_GS_UpdateFromCan(asp.can);
+  MMR_NET_BRAKE_Init(asp.can);
 
   // Handbook: https://bit.ly/3bRd49t
   stateAs = computeState();
@@ -60,8 +61,9 @@ void MMR_AS_Run() {
 }
 
 static MmrAsState computeState() {
-//  MMR_NET_BrakeCheck();
-//  MMR_NET_IsBrakeEngaged(asp.can);
+ MMR_NET_BrakeCheckRequest();
+
+  // MMR_NET_IsBrakeEngaged();
   // ebs = ebsCheck(ebs);
   // if (ebs == EBS_ERROR)
   //   return;
@@ -111,12 +113,4 @@ void ready() {
 
 void driving() {
   MMR_MISSION_Run(gs.currentMission);
-}
-
-void emergency() {
-
-}
-
-void finished() {
-  
 }
