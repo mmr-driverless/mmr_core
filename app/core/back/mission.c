@@ -45,7 +45,7 @@ static MmrMission skidpad() {
   }
 
   if (gs.missionFinished) {
-      
+
     return MMR_MISSION_FINISHED;
   }
 

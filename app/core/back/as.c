@@ -71,8 +71,9 @@ static MmrAsState computeState() {
   //   return;
   
   if (gs.ebsState == MMR_EBS_ACTIVATED) {
-    if (gs.missionFinished && gs.vehicleStandstill)
+    if (gs.missionFinished && gs.vehicleStandstill) {
       return MMR_AS_FINISHED;
+    }
         
     return MMR_AS_EMERGENCY;
   }
@@ -106,10 +107,12 @@ void off() {
 
 void ready() {
   static MmrDelay readyToDriveDelay = { .ms = 5000 };
-  if (MMR_DELAY_WaitAsync(&readyToDriveDelay) && gs.resGoButton == MMR_BUTTON_PRESSED) {
+
+  if (MMR_DELAY_WaitOnceAsync(&readyToDriveDelay) && gs.resGoButton == MMR_BUTTON_PRESSED) {
     waitingMissionReady = true;
-    if (gs.missionReady)
+    if (gs.missionReady) {
       gs.readyToDrive = true;
+    }
   }
 }
 
@@ -129,7 +132,4 @@ static void emergency() {
 }
 
 static void finished() {
-
 }
-
-
