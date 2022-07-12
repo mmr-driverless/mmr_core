@@ -63,7 +63,7 @@ static MmrAutonomousState waiting(MmrAutonomousState state) {
 
 
 static MmrAutonomousState pullClutch(MmrAutonomousState state) {
-  if (MMR_NET_PullClutchAsync(asp.can)) {
+  if (MMR_NET_ClutchPullAsync(asp.can)) {
     return MMR_AUTONOMOUS_LAUNCH_WAIT_BEFORE_CHANGING_GEAR;
   }
 
@@ -205,7 +205,7 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
 
 
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 1000 };
+  static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
     *(asp.appsOut) = MMR_APPS_ComputeSpeed(0.0);
