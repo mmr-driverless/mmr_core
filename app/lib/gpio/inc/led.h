@@ -1,8 +1,8 @@
 #ifndef APP_LIB_GPIO_INC_LED_H_
 #define APP_LIB_GPIO_INC_LED_H_
 
-#include <delay.h>
-#include <pin.h>
+#include "delay.h"
+#include "pin.h"
 
 typedef enum MmrLedState {
   MMR_LED_ON,

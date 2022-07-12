@@ -1,6 +1,13 @@
 #include "inc/led.h"
 
 
+MmrLed MMR_Led(MmrPin *pin) {
+  return (MmrLed) {
+    .pin = pin,
+  };
+}
+
+
 void MMR_LED_Set(MmrLed *led, MmrLedState state) {
   MmrPinState out = state == MMR_LED_ON
     ? MMR_PIN_HIGH

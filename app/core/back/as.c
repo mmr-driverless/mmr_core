@@ -11,6 +11,7 @@
 #include <buffer.h>
 #include <delay.h>
 #include <can.h>
+#include <led.h>
 #include <stdint.h>
 #include <stdbool.h>
 

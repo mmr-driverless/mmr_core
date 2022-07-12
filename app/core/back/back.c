@@ -2,7 +2,7 @@
 
 MmrAsPeripherals asp;
 
-void MMR_AS_Init(
+void MMR_BACK_Init(
   MmrCan *can,
   MmrPin *gearUp,
   MmrPin *gearDown,

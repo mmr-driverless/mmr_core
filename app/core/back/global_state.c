@@ -6,8 +6,12 @@
 #include <delay.h>
 #include <stdint.h>
 
+
+MmrGlobalState gs;
+
+
 void MMR_GS_Init() {
-  gs = (struct MmrGlobalState) {
+  gs = (MmrGlobalState) {
     .lap = 0,
     .clutch = MMR_CLUTCH_UNKNOWN,
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
@@ -148,6 +152,7 @@ void MMR_GS_SendByCan(MmrCan* can) {
       // MMR_CAN_MESSAGE_SetPayload(&out, &)
       break;
     case MMR_CAN_MESSAGE_ID_S_APPS: break;
+    default: break;
     }
 
     MMR_CAN_Send(can, &out);

@@ -55,6 +55,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/lib/buffer}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/stm/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/core/back/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/core/net/inc}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.457440995" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -86,7 +87,6 @@
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="App"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="stm"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

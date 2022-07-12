@@ -21,19 +21,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <can.h>
-#include <timing.h>
-#include <as.h>
-#include <timing.h>
-#include <can0.h>
-#include <ebs.h>
-#include <stm_pin.h>
-#include <delay.h>
-#include <stdbool.h>
-#include <global_state.h>
 #include <back.h>
+
+#include <global_state.h>
+#include <can0.h>
+#include <stm_pin.h>
 #include <led.h>
-#include <button.h>
 //#include "inc/axis_leds.h"
 
 /* USER CODE END Includes */
@@ -215,7 +208,7 @@ int main(void) {
     WATCHDOG_Disable
   );
 
-  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
+//  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
   MMR_GS_Init();
 
   if (!MMR_CAN0_Start(&hcan)) {
@@ -232,7 +225,7 @@ int main(void) {
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 #ifdef ASSI_TEST
-    MMR_AXIS_LEDS_Run(as_state);
+    MMR_AXIS_LEDS_Run(gs.stateAs);
     if(as_state == MMR_AS_EMERGENCY)
       {
       if(buzzerflag == false) Buzzer_activation();

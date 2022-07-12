@@ -5,9 +5,6 @@
 #include <delay.h>
 #include <led.h>
 
-static void toggleBlueLed(MmrAxisLedState state);
-static void toggleYellowLed(MmrAxisLedState state);
-
 
 void MMR_AXIS_LEDS_Run(MmrAsState state) {
   static MmrDelay delay = { .ms = 500 };
