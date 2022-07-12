@@ -29,7 +29,7 @@ typedef struct MmrGlobalState {
   MmrAsState stateAs;
   MmrEbsState ebsState;
 
-  float infoSpeed;
+  float infoThrottle;
   int16_t steeringAngle;
   uint8_t lap;
   uint16_t ath;//<-- primo valore farfalla

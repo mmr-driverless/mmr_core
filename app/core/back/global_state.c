@@ -61,7 +61,7 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       break;
 
     case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
-      gs.infoSpeed = *(float*)(buffer);
+      gs.infoThrottle = *(float*)(buffer);
       break;
 
     case MMR_CAN_MESSAGE_ID_D_ACCELERATOR_PERCENTAGE:
