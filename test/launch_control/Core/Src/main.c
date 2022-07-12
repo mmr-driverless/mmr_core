@@ -83,7 +83,13 @@ MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
 uint8_t TS_EBS;
 
 
+bool WATCHDOG_Activation() {
+  return HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1) == HAL_OK;
+}
 
+bool WATCHDOG_Disable() {
+  return HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1) == HAL_OK;
+}
 
 /* USER CODE END PV */
 
@@ -202,7 +208,9 @@ int main(void) {
     &yellowAxisLed,
     &ctrLed1,
     &ctrLed2,
-    &ctrLed3
+    &ctrLed3,
+    WATCHDOG_Activation,
+    WATCHDOG_Disable
   );
 
   EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);

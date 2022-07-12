@@ -7,6 +7,9 @@
 #include <delay.h>
 #include <stdint.h>
 
+typedef bool (*WatchdogStart)(void);
+typedef bool (*WatchdogStop)(void);
+
 typedef struct MmrAsPeripherals {
   MmrCan *can;
 
@@ -27,6 +30,9 @@ typedef struct MmrAsPeripherals {
   MmrLed *ctrLed1;
   MmrLed *ctrLed2;
   MmrLed *ctrLed3;
+
+  WatchdogStart watchdogStart;
+  WatchdogStop watchdogStop;
 } MmrAsPeripherals;
 
 extern MmrAsPeripherals asp;

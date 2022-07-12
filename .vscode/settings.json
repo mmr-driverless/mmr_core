@@ -17,6 +17,7 @@
     "pin.h": "c",
     "brake.h": "c",
     "peripherals.h": "c",
-    "can.h": "c"
+    "can.h": "c",
+    "condition_variable": "c"
   }
 }

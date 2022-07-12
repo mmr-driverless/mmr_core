@@ -23,7 +23,10 @@ void MMR_BACK_Init(
 
   MmrLed *ctrLed1,
   MmrLed *ctrLed2,
-  MmrLed *ctrLed3
+  MmrLed *ctrLed3,
+
+  WatchdogStart watchdogStart,
+  WatchdogStop watchdogStop
 );
 
 #endif // !APP_CORE_BACK_INC_BACK_H_

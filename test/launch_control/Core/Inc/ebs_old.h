@@ -12,8 +12,8 @@
 #include "as.h"
 
 
-#define EBS_min_Pressure 10 // indica la pressione minima che la linea EBS deve raggiungere quando attiviamo tale sistema
-#define BRAKE_pressure 10 // indica un valore di pressione che deve essere raggiunto in fase di test dell ebs check()
+#define EBS_min_Pressure 40 // indica la pressione minima che la linea EBS deve raggiungere quando attiviamo tale sistema
+#define BRAKE_pressure 30 // indica un valore di pressione che deve essere raggiunto in fase di test dell ebs check()
 #define min_RPM 1000
 #define NEUTRAL 0
 #define OPEN 1

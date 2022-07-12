@@ -1,4 +1,4 @@
-#include "inc/back.h"
+ù#include "inc/back.h"
 
 MmrAsPeripherals asp;
 
@@ -16,7 +16,10 @@ void MMR_AS_Init(
 
   MmrLed *ctrLed1,
   MmrLed *ctrLed2,
-  MmrLed *ctrLed3
+  MmrLed *ctrLed3,
+
+  WatchdogStart watchdogStart,
+  WatchdogStop watchdogStop
 ) {
   asp = (MmrAsPeripherals) {
     .can = can,
@@ -32,5 +35,8 @@ void MMR_AS_Init(
     .ctrLed1 = ctrLed1,
     .ctrLed2 = ctrLed2,
     .ctrLed3 = ctrLed3,
+
+    .watchdogStart = watchdogStart,
+    .watchdogStop = watchdogStop,
   };
 }
