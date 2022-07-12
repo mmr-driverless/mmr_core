@@ -131,7 +131,7 @@ int main(void)
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-  MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, &adc[1]);
+  MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &dac, &adc[0]);
 
   mode = MMR_AS_MODE_MANUAL;
   while (1) {
