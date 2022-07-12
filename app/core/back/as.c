@@ -34,10 +34,11 @@ void MMR_AS_Run() {
   MMR_GS_UpdateFromCan(asp.can);
 
   if (MMR_APPS_Check(asp.appsIn[0], asp.appsIn[1])) {
-    return MMR_SYSTEM_NOT_HEALTHY;
+
   }
 
   // Handbook: https://bit.ly/3bRd49t
+
   stateAs = computeState();
   gs.stateAs = stateAs;
   MMR_AXIS_LEDS_Run(stateAs);

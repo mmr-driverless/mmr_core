@@ -1,4 +1,5 @@
 #include "inc/apps.h"
+#include <delay.h>
 #include <math.h>
 
 static const uint32_t APPS_MIN = 1150;

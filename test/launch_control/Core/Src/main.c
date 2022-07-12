@@ -27,6 +27,7 @@
 #include <can0.h>
 #include <stm_pin.h>
 #include <led.h>
+#include <ebs.h>
 //#include "inc/axis_leds.h"
 
 /* USER CODE END Includes */
@@ -71,6 +72,7 @@ uint32_t appsOut;
 
 
 MmrAsState as_state = MMR_AS_OFF;
+//MmrEbsCheckState ebsState = EBS_CHECK_START_WATCHDOG;
 uint8_t TS_EBS;
 //MmrEbsCheck Ebsstate = EBS_IDLE;
 //MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
@@ -224,6 +226,7 @@ int main(void) {
 
   while (1) {
     MMR_AS_Run();
+//	  ebsState = MMR_EBS_CHECK_Check(ebsState);
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 //#ifdef ASSI_TEST

@@ -3,7 +3,7 @@
 #include "inc/global_state.h"
 
 const uint8_t EBS_CHECK_MIN_PRESSURE = 40;
-const uint8_t BRAKE_MIN_PRESSURE = 30;
+const uint8_t BRAKE_MIN_PRESSURE = 15;
 
 
 static bool checkEbsPressureOk();
