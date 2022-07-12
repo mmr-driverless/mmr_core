@@ -17,7 +17,7 @@
 
 //static MmrEbsCheck ebs = EBS_IDLE;
 static MmrAsState stateAs = MMR_AS_OFF;
-static bool r2d = false;
+static bool waitingMissionReady = false;
 
 static MmrAsState computeState();
 static void off();
@@ -51,7 +51,7 @@ void MMR_AS_Run() {
     MMR_CAN_MESSAGE_SetPayload(&message, (uint8_t*)&stateAs, sizeof(stateAs));
     MMR_CAN_Send(asp.can, &message);
 
-    if (r2d) {
+    if (waitingMissionReady) {
       MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_R2D);
       MmrCanMessage message = MMR_CAN_OutMessage(header);
       MMR_CAN_Send(asp.can, &message);
@@ -103,7 +103,7 @@ void off() {
 void ready() {
   static MmrDelay readyToDriveDelay = { .ms = 5000 };
   if (MMR_DELAY_WaitAsync(&readyToDriveDelay) && gs.goSignal) {
-    r2d = true;
+    waitingMissionReady = true;
     if (gs.missionReady)
       gs.readyToDrive = true;
   }
