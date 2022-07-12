@@ -10,15 +10,15 @@ static bool checkEbsPressureOk();
 static bool checkBrakesPressureOk();
 
 
-void MMR_EBS_CHECK_Arm() {
+void MMR_EBS_Arm() {
   MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_HIGH);
 }
 
-void MMR_EBS_CHECK_Disarm() {
+void MMR_EBS_Disarm() {
   MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_LOW);
 }
 
-void MMR_EBS_CHECK_SetDrivingMode(MmrEbsDrivingMode mode) {
+void MMR_EBS_SetDrivingMode(MmrEbsDrivingMode mode) {
   MmrPinState out = mode == MMR_EBS_CHECK_DRIVING_MODE_MANUAL
     ? MMR_PIN_HIGH
     : MMR_PIN_LOW;
@@ -26,7 +26,7 @@ void MMR_EBS_CHECK_SetDrivingMode(MmrEbsDrivingMode mode) {
   MMR_PIN_Write(asp.ebsAsDrivingMode, out);
 }
 
-bool MMR_EBS_CHECK_SdcIsReady() {
+bool MMR_EBS_SdcIsReady() {
   return MMR_PIN_Read(asp.ebsAsSdcIsReady) == MMR_PIN_HIGH;
 }
 
@@ -84,7 +84,7 @@ static MmrEbsCheckState startWatchdog(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState sdcWaitHigh(MmrEbsCheckState state) {
-  if (MMR_EBS_CHECK_SdcIsReady()) {
+  if (MMR_EBS_SdcIsReady()) {
     return EBS_CHECK_STOP_WATCHDOG;
   }
 
@@ -102,7 +102,7 @@ static MmrEbsCheckState stopWatchdog(MmrEbsCheckState state) {
 static MmrEbsCheckState sdcWaitLow(MmrEbsCheckState state) {
   static MmrDelay timeout = { .ms = 1000 };
 
-  if (!MMR_EBS_CHECK_SdcIsReady()) {
+  if (!MMR_EBS_SdcIsReady()) {
     return EBS_CHECK_RETOGGLE_WATCHDOG;
   }
 
@@ -150,7 +150,7 @@ static MmrEbsCheckState brakePressureOk(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState activateTs(MmrEbsCheckState state) {
-  MMR_EBS_CHECK_Arm();
+  MMR_EBS_Arm();
   return EBS_CHECK_WAIT_TS_ACTIVATION;
 }
 
@@ -195,7 +195,7 @@ static MmrEbsCheckState disableActuator2(MmrEbsCheckState state) {
 static MmrEbsCheckState checkAct2BrakePressure(MmrEbsCheckState state) {
   static MmrDelay timeout = { .ms = 1000 };
 
-  if (checkBrakePressureOk()) {
+  if (checkBrakesPressureOk()) {
     return EBS_CHECK_ENABLE_ACTUATOR_2;
   }
 

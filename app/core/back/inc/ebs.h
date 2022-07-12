@@ -39,9 +39,9 @@ typedef enum MmrEbsDrivingMode {
   MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS,
 } MmrEbsDrivingMode;
 
-void MMR_EBS_CHECK_Arm();
-void MMR_EBS_CHECK_Disarm();
-void MMR_EBS_CHECK_SetDrivingMode(MmrEbsDrivingMode mode);
-bool MMR_EBS_CHECK_SdcIsReady();
+void MMR_EBS_Arm();
+void MMR_EBS_Disarm();
+void MMR_EBS_SetDrivingMode(MmrEbsDrivingMode mode);
+bool MMR_EBS_SdcIsReady();
 
 #endif // !APP_CORE_BACK_INC_EBS_CHECK_H_

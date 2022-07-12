@@ -1,9 +1,8 @@
-#include "../net/inc/net.h"
+#include "inc/as.h"
 #include "inc/global_state.h"
 #include "inc/gear_change.h"
 #include "inc/autonomous_launch.h"
 #include "inc/manual_launch.h"
-#include "inc/as.h"
 #include "inc/apps.h"
 #include "inc/peripherals.h"
 #include "inc/ebs.h"
@@ -14,6 +13,8 @@
 #include <can.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "../net/inc/net.h"
 
 //static MmrEbsCheck ebs = EBS_IDLE;
 static MmrAsState stateAs = MMR_AS_OFF;
