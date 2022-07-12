@@ -86,7 +86,7 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
 
     case MMR_CAN_MESSAGE_ID_RES:
       MMR_NET_ResParse(
-        MR_BUFFER_ReadByte(buffer, 0),
+        MMR_BUFFER_ReadByte(buffer, 0),
         &gs.resEmergencyButton, &gs.resGoButton, &gs.resBagButton);
       break;
 

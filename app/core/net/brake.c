@@ -1,5 +1,5 @@
 #include "inc/net.h"
-#include <message_id.h>
+#include <can.h>
 
 static MmrCan *localCan;
 

@@ -5,7 +5,7 @@
 #include <can.h>
 #include <button.h>
 
-bool MMR_NET_BRAKE_Init(MmrCan *can);
+void MMR_NET_BRAKE_Init(MmrCan *can);
 bool MMR_NET_IsBrakeEngagedRequest();
 bool MMR_NET_BrakeCheckRequest();
 
