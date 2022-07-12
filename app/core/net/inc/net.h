@@ -11,4 +11,7 @@ bool MMR_NET_BrakeCheckRequest();
 bool MMR_NET_ClutchPullAsync(MmrCan *can);
 bool MMR_NET_ClutchReleaseAsync(MmrCan *can);
 
+bool MMR_NET_LaunchControlSetAsync(MmrCan *can);
+bool MMR_NET_LaunchControlUnsetAsync(MmrCan *can);
+
 #endif  // !APP_CORE_NET_INC_NET_H_
