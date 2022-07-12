@@ -7,6 +7,7 @@
 #include <pin.h>
 #include <can.h>
 #include <buffer.h>
+#include <net.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -62,17 +63,7 @@ static MmrAutonomousState waiting(MmrAutonomousState state) {
 
 
 static MmrAutonomousState pullClutch(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 5 };
-
-  MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL);
-  MmrCanMessage clutchPullMsg = MMR_CAN_OutMessage(header);
-
-  if (MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(asp.can, &clutchPullMsg);
-  }
-
-  bool isClutchPulled = gs.clutch == MMR_CLUTCH_PULLED;
-  if (isClutchPulled) {
+  if (MMR_NET_PullClutchAsync(asp.can)) {
     return MMR_AUTONOMOUS_LAUNCH_WAIT_BEFORE_CHANGING_GEAR;
   }
 
@@ -169,17 +160,7 @@ static MmrAutonomousState accelerate(MmrAutonomousState state) {
 }
 
 static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 5 };
-  
-  MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE);
-  MmrCanMessage clutchReleaseMsg = MMR_CAN_OutMessage(header);
-
-  if (MMR_DELAY_WaitAsync(&delay)) {
-    MMR_CAN_Send(asp.can, &clutchReleaseMsg);
-  }
-
-  bool isClutchReleased = gs.clutch == MMR_CLUTCH_RELEASED;
-  if (isClutchReleased) {
+  if (MMR_NET_ReleaseClutchAsync(asp.can)) {
     return MMR_AUTONOMOUS_LAUNCH_UNSET_LAUNCH;
   }
 
@@ -268,11 +249,5 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  // *(asp.appsOut) = gs.lap >= 1
-  //   ? MMR_APPS_ComputeSpeed(gs.infoSpeed)
-  //   : MMR_APPS_ComputeSpeed(0.0);
-
-  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoAth);
-
   return MMR_AUTONOMOUS_LAUNCH_DONE;
 }
