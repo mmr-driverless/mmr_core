@@ -61,9 +61,6 @@ void MMR_AS_Run() {
 }
 
 static MmrAsState computeState() {
- MMR_NET_BrakeCheckRequest();
-
-  // MMR_NET_IsBrakeEngaged();
   // ebs = ebsCheck(ebs);
   // if (ebs == EBS_ERROR)
   //   return;
@@ -99,7 +96,11 @@ static MmrAsState computeState() {
 
 
 void off() {
-  return;
+  static MmrDelay brakeRequestDelay = { .ms = 20 };
+  if (MMR_DELAY_WaitAsync(&brakeRequestDelay)) {
+    MMR_NET_BrakeCheckRequest();
+    MMR_NET_IsBrakeEngaged();
+  }
 }
 
 void ready() {

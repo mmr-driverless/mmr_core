@@ -3,11 +3,11 @@
 #include "inc/peripherals.h"
 #include "inc/apps.h"
 #include "message_id.h"
+#include "../net/inc/net.h"
 #include <delay.h>
 #include <pin.h>
 #include <can.h>
 #include <buffer.h>
-#include <net.h>
 
 #include <stdint.h>
 #include <stdbool.h>
