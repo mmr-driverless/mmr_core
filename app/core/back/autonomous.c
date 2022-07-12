@@ -238,7 +238,7 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state) {
 
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
   static const uint16_t DAC_0 = 1150;
-  static MmrDelay delay = { .ms = 1000 };
+  static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
     *__apps = DAC_0;
