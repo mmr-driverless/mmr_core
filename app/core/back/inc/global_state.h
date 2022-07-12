@@ -45,7 +45,6 @@ typedef struct MmrGlobalState {
   float brakePressureFront;
   float brakePressureRear;
 
-  bool goSignal;
   bool missionFinished;
   bool missionReady;
   bool asbCheck;
@@ -53,7 +52,10 @@ typedef struct MmrGlobalState {
   bool readyToDrive;
   bool vehicleStandstill;
   MmrMission currentMission;
+
   MmrButtonState resEmergencyButton;
+  MmrButtonState resGoButton;
+  MmrButtonState resBagButton;
   
   MmrClutchState clutch;
   MmrLaunchControlState launchControl;

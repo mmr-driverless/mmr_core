@@ -1,5 +1,6 @@
 #include "inc/global_state.h"
 #include "inc/ebs.h"
+#include "../net/inc/net.h"
 #include <buffer.h>
 #include <timing.h>
 #include <delay.h>
@@ -12,7 +13,8 @@ void MMR_GS_Init() {
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
     .currentMission = MMR_MISSION_IDLE,
     .resEmergencyButton = MMR_BUTTON_RELEASED,
-    .goSignal = false,
+    .resGoButton = MMR_BUTTON_RELEASED,
+    .resBagButton = MMR_BUTTON_RELEASED,
     .missionReady = false,
     .missionFinished = false,
     .asbCheck = false,
@@ -83,7 +85,9 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       break;
 
     case MMR_CAN_MESSAGE_ID_RES:
-      gs.goSignal = (MMR_BUFFER_ReadByte(buffer, 0) & (0x01 << 1)) != 0x00;  // 2nd bit is go signal
+      MMR_NET_ResParse(
+        MR_BUFFER_ReadByte(buffer, 0),
+        &gs.resEmergencyButton, &gs.resGoButton, &gs.resBagButton);
       break;
 
     case MMR_CAN_MESSAGES_ID_MISSION_READY:

@@ -105,7 +105,7 @@ void off() {
 
 void ready() {
   static MmrDelay readyToDriveDelay = { .ms = 5000 };
-  if (MMR_DELAY_WaitAsync(&readyToDriveDelay) && gs.goSignal) {
+  if (MMR_DELAY_WaitAsync(&readyToDriveDelay) && gs.resGoButton == MMR_BUTTON_PRESSED) {
     waitingMissionReady = true;
     if (gs.missionReady)
       gs.readyToDrive = true;
