@@ -82,8 +82,8 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       gs.ebs2Pressure = MMR_BUFFER_ReadUint32(buffer, 2, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
-    case MMR_CAN_MESSAGES_ID_GO_SIGNAL:
-      gs.goSignal = MMR_BUFFER_ReadByte(buffer, 0) == 0x01;
+    case MMR_CAN_MESSAGE_ID_S_RES:
+      gs.goSignal = (MMR_BUFFER_ReadByte(buffer, 0) & (0x01 << 1)) != 0x00;  // 2nd bit is go signal
       break;
 
     case MMR_CAN_MESSAGES_ID_MISSION_READY:
@@ -94,12 +94,12 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       gs.missionFinished = true;
       break;
 
-    case MMR_CAN_MESSAGE_ID_ASB_CHECK:
+    case MMR_CAN_MESSAGE_ID_AS_ASB_CHECK:
       gs.asbCheck = true;
       break;
     
     case MMR_CAN_MESSAGE_ID_ASB_ENGAGED:
-      gs.asbCheck = true;
+      gs.asbEngaged = true;
       break;
     
     case MMR_CAN_MESSAGE_ID_VEHICLE_STANDSTILL:
