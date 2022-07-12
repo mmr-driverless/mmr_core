@@ -1,8 +1,8 @@
 #include "inc/global_state.h"
+#include "inc/ebs.h"
 #include <buffer.h>
 #include <timing.h>
 #include <delay.h>
-#include <ebs.h>
 #include <stdint.h>
 
 void MMR_GS_Init() {

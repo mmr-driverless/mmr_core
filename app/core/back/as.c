@@ -5,21 +5,21 @@
 #include "inc/as.h"
 #include "inc/apps.h"
 #include "inc/peripherals.h"
+#include "inc/ebs.h"
+#include "inc/axis_leds.h"
 #include <button.h>
 #include <buffer.h>
 #include <delay.h>
 #include <can.h>
-#include <ebs.h>
 #include <net.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-static MmrEbsCheck ebs = EBS_IDLE; 
+//static MmrEbsCheck ebs = EBS_IDLE;
 static MmrAsState stateAs = MMR_AS_OFF;
 static bool r2d = false;
 
 static MmrAsState computeState();
-static void idle();
 static void off();
 static void ready();
 static void driving();
@@ -30,10 +30,12 @@ void MMR_AS_Run() {
   static MmrDelay sendDelay = { .ms = 15 };
 
   MMR_GS_UpdateFromCan(asp.can);
-  
+
   // Handbook: https://bit.ly/3bRd49t
   stateAs = computeState();
   gs.stateAs = stateAs;
+  MMR_AXIS_LEDS_Run(stateAs);
+
   switch (stateAs) {
     case MMR_AS_OFF: off();
     case MMR_AS_READY: ready();
@@ -66,7 +68,11 @@ static MmrAsState computeState() {
   // if (ebs != EBS_OK)
   //   return;
   
+<<<<<<< HEAD
   if (ebsState == EBS_STATE_ACTIVATED) {    
+=======
+  if (MMR_EBS_IsReady()) {
+>>>>>>> 8753a4c0a2c2f047475496b7b11f354891964100
     if (gs.missionFinished && gs.vehicleStandstill)
       return MMR_AS_FINISHED;
         

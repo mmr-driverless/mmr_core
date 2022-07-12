@@ -3,6 +3,7 @@
 #include "inc/peripherals.h"
 #include <pin.h>
 #include <delay.h>
+#include <led.h>
 
 static void toggleBlueLed(MmrAxisLedState state);
 static void toggleYellowLed(MmrAxisLedState state);
@@ -24,11 +25,11 @@ void MMR_AXIS_LEDS_Run(MmrAsState state) {
 
   case MMR_AS_DRIVING:
     MMR_LED_Set(asp.blueAxisLed, MMR_LED_OFF);
-    MMR_LED_Blink(asp.yellowAxisLed, &delay);
+    MMR_LED_BlinkAsync(asp.yellowAxisLed, &delay);
     break;
 
   case MMR_AS_EMERGENCY:
-    MMR_LED_Blink(asp.blueAxisLed, &delay);
+    MMR_LED_BlinkAsync(asp.blueAxisLed, &delay);
     MMR_LED_Set(asp.yellowAxisLed, MMR_LED_OFF);
     break;
 
