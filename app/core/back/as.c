@@ -10,8 +10,8 @@
 #include <stdbool.h>
 
 
-#define APPS_offset 650
-#define APPS_slope 716
+#define APPS_offset 1150
+#define APPS_slope 700
 
 static bool handlePreStart(MmrLaunchControlMode *mode);
 

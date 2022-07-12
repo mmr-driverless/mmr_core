@@ -270,7 +270,7 @@ static MmrAutonomousState clutchSetManual(MmrAutonomousState state) {
 
 
 static MmrAutonomousState setManualApps(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 5000 };
+  static MmrDelay delay = { .ms = 2500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
     return MMR_AUTONOMOUS_DONE;
@@ -281,6 +281,6 @@ static MmrAutonomousState setManualApps(MmrAutonomousState state) {
 
 
 static MmrAutonomousState done(MmrAutonomousState state) {
-  *__apps = *__adc;
+  *__apps = MMR_AS_GetInfoSpeed();
   return MMR_AUTONOMOUS_DONE;
 }
