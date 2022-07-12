@@ -1,3 +1,4 @@
+#include "../net/inc/net.h"
 #include "inc/global_state.h"
 #include "inc/gear_change.h"
 #include "inc/autonomous_launch.h"
@@ -11,7 +12,6 @@
 #include <buffer.h>
 #include <delay.h>
 #include <can.h>
-#include <net.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -37,16 +37,18 @@ void MMR_AS_Run() {
   MMR_AXIS_LEDS_Run(stateAs);
 
   switch (stateAs) {
-    case MMR_AS_OFF: off();
-    case MMR_AS_READY: ready();
-    case MMR_AS_DRIVING: driving();
-    case MMR_AS_EMERGENCY: emergency();
-    case MMR_AS_FINISHED: finished();
+  case MMR_AS_OFF: off();
+  case MMR_AS_READY: ready();
+  case MMR_AS_DRIVING: driving();
+  case MMR_AS_EMERGENCY: emergency();
+  case MMR_AS_FINISHED: finished();
   }
   
+
   if (MMR_DELAY_WaitAsync(&sendDelay)) {
-    MmrCanHeader header = MMR_CAN_NormalHeader(stateAs);
+    MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_STATE);
     MmrCanMessage message = MMR_CAN_OutMessage(header);
+    MMR_CAN_MESSAGE_SetPayload(&message, (uint8_t*)&stateAs, sizeof(stateAs));
     MMR_CAN_Send(asp.can, &message);
 
     if (r2d) {
@@ -58,9 +60,8 @@ void MMR_AS_Run() {
 }
 
 static MmrAsState computeState() {
-  MMR_NET_BrakeCheck();
-  MMR_NET_IsBrakeEngaged();
-  MmrEbsState ebsState = MMR_AS_GetEbsState()
+//  MMR_NET_BrakeCheck();
+//  MMR_NET_IsBrakeEngaged(asp.can);
   // ebs = ebsCheck(ebs);
   // if (ebs == EBS_ERROR)
   //   return;
@@ -68,20 +69,21 @@ static MmrAsState computeState() {
   // if (ebs != EBS_OK)
   //   return;
   
-<<<<<<< HEAD
-  if (ebsState == EBS_STATE_ACTIVATED) {    
-=======
-  if (MMR_EBS_IsReady()) {
->>>>>>> 8753a4c0a2c2f047475496b7b11f354891964100
+  if (gs.ebsState == EBS_STATE_ACTIVATED) {
     if (gs.missionFinished && gs.vehicleStandstill)
       return MMR_AS_FINISHED;
         
     return MMR_AS_EMERGENCY;
   }
 
-  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_INSPECTION &&
-    gs.currentMission != MMR_MISSION_MANUAL && gs.asbCheck && TS_Activation()) {
-    
+  bool canDrive =
+    gs.currentMission != MMR_MISSION_IDLE &&
+    gs.currentMission != MMR_MISSION_INSPECTION &&
+    gs.currentMission != MMR_MISSION_MANUAL &&
+    gs.asbCheck
+    /*TS_Activation()(**/;
+
+  if (canDrive) {
     if (gs.readyToDrive)
       return MMR_AS_DRIVING;
 

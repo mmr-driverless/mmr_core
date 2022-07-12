@@ -21,6 +21,6 @@ void MMR_LED_Toggle(MmrLed *led);
 
 MmrLedState MMR_LED_Get(MmrLed *led);
 bool MMR_LED_IsOn(MmrLed *led);
-void MMR_LED_Blink(MmrLed *led, MmrDelay *delay);
+void MMR_LED_BlinkAsync(MmrLed *led, MmrDelay *delay);
 
 #endif // !APP_LIB_GPIO_INC_LED_H_

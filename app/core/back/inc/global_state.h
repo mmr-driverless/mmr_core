@@ -27,6 +27,7 @@ typedef struct MmrGlobalState {
   MmrAutonomousState as;
   MmrManualState ms;
   MmrAsState stateAs;
+  MmrEbsState ebsState;
 
   float infoSpeed;
   int16_t steeringAngle;

@@ -7,6 +7,7 @@
 #include "main.h"
 #include <mission.h>
 #include <can0.h>
+#include <ebs.h>
 #include "stm_pin.h"
 #include "as.h"
 
@@ -19,27 +20,6 @@
 #define CLOSE 0
 #define SDC_is_Ready() HAL_GPIO_ReadPin(SDC_IS_READY_GPIO_Port, SDC_IS_READY_Pin)
 
-
-typedef enum MmrEbsCheck {
-	EBS_IDLE,
-	EBS_SDC_IS_READY,
-	EBS_SDC_IS_NOT_READY,
-	EBS_CHECK_NOT_ENDED,
-	EBS_PRESSURE_CHECK,
-	EBS_TS_CHECK,
-	EBS1_CONTROL,
-	EBS2_CONTROL,
-	EBS_ERROR,
-	EBS_FINAL_CHECK,
-	EBS_OK,
-} MmrEbsCheck;
-
-typedef enum MmrEbsState {
-	EBS_STATE_UNAVAILABLE,
-	EBS_STATE_ARMED,
-	EBS_STATE_ACTIVATED,
-	EBS_STATE_DISACTIVATED,
-} MmrEbsState;
 
 
 //uint8_t  EBS_check(uint8_t EBS1_Value, uint8_t EBS2_value, uint8_t Brake1_value, uint8_t Brake2_value, uint16_t RPM, uint8_t gear); // funzione per check ebs

@@ -1,4 +1,4 @@
-#include <ebs.h>
+#include "ebs_old.h"
 #include <mission.h>
 #include <global_state.h>
 #include "delay.h"

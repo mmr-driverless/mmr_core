@@ -32,6 +32,7 @@
 #include "stdbool.h"
 #include <global_state.h>
 #include <back.h>
+#include <led.h>
 //#include "inc/axis_leds.h"
 
 /* USER CODE END Includes */
