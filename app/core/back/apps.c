@@ -6,8 +6,10 @@ static const uint32_t APPS_SLOPE = 700;
 
 
 bool MMR_APPS_Check(uint32_t apps1, uint32_t apps2) {
-  double difference = 3.3f * (apps1 / 4096) - 2 * 3.3f * (apps2 / 4096);
-  return fabs(difference) <= 0.5f;
+  double a = 3.3f * (apps1 / 4096);
+  double b = 3.3f * (apps2 / 4096);
+
+  return fabs(a - (2 * b)) <= 0.5f;
 }
 
 
