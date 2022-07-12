@@ -38,11 +38,11 @@ void MMR_AS_Run() {
   MMR_AXIS_LEDS_Run(stateAs);
 
   switch (stateAs) {
-  case MMR_AS_OFF: off();
-  case MMR_AS_READY: ready();
-  case MMR_AS_DRIVING: driving();
-  case MMR_AS_EMERGENCY: emergency();
-  case MMR_AS_FINISHED: finished();
+  case MMR_AS_OFF: off(); break;
+  case MMR_AS_READY: ready(); break;
+  case MMR_AS_DRIVING: driving(); break;
+  case MMR_AS_EMERGENCY: emergency(); break;
+  case MMR_AS_FINISHED: finished(); break;
   }
   
 
@@ -99,7 +99,7 @@ void off() {
   static MmrDelay brakeRequestDelay = { .ms = 20 };
   if (MMR_DELAY_WaitAsync(&brakeRequestDelay)) {
     MMR_NET_BrakeCheckRequest();
-    MMR_NET_IsBrakeEngaged();
+//    MMR_NET_IsBrakeEngaged();
   }
 }
 

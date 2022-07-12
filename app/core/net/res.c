@@ -1,4 +1,4 @@
-#include "net.h"
+#include "inc/net.h"
 
 static bool maskBit(uint8_t val, unsigned bitIdx) {
   uint8_t mask = 0x01 << bitIdx;
