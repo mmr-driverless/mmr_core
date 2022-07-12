@@ -5,6 +5,7 @@
 #include <can.h>
 #include <led.h>
 #include <pin.h>
+#include <button.h>
 #include <stdint.h>
 
 void MMR_BACK_Init(
@@ -13,10 +14,14 @@ void MMR_BACK_Init(
   MmrPin *gearUp,
   MmrPin *gearDown,
   MmrPin *gearN,
-  MmrPin *changeMode,
+
+  MmrButton *blueButton,
 
   uint32_t *appsOut,
   uint32_t *appsIn,
+
+  MmrPin *ebs1,
+  MmrPin *ebs2,
 
   MmrLed *blueAxisLed,
   MmrLed *yellowAxisLed,

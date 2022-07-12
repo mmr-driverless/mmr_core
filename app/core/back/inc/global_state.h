@@ -27,6 +27,7 @@ typedef struct MmrGlobalState {
   MmrAutonomousState as;
   MmrManualState ms;
   MmrAsState stateAs;
+  MmrEbsCheckState ebsCheckState;
   MmrEbsState ebsState;
 
   float infoThrottle;

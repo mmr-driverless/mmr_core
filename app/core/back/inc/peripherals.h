@@ -4,6 +4,7 @@
 #include <can.h>
 #include <led.h>
 #include <pin.h>
+#include <button.h>
 #include <delay.h>
 #include <stdint.h>
 
@@ -17,12 +18,17 @@ typedef struct MmrAsPeripherals {
   MmrPin *gearUp;
   MmrPin *gearDown;
 
+  MmrButton *blueButton;
+
   uint32_t *appsOut;
   uint32_t *appsIn;
 
   MmrPin *ebsAsDrivingMode;
   MmrPin *ebsAsCloseSdc;
   MmrPin *ebsAsSdcIsReady;
+
+  MmrPin *ebs1;
+  MmrPin *ebs2;
 
   MmrLed *blueAxisLed;
   MmrLed *yellowAxisLed;

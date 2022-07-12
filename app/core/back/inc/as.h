@@ -1,6 +1,7 @@
 #ifndef APP_BACK_INC_AS_H_
 #define APP_BACK_INC_AS_H_
 
+#include "global_state.h"
 #include <can.h>
 #include <pin.h>
 #include "timing.h"

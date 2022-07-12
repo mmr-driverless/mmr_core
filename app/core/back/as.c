@@ -68,7 +68,7 @@ static MmrAsState computeState() {
   // if (ebs != EBS_OK)
   //   return;
   
-  if (gs.ebsState == EBS_STATE_ACTIVATED) {
+  if (gs.ebsState == MMR_EBS_ACTIVATED) {
     if (gs.missionFinished && gs.vehicleStandstill)
       return MMR_AS_FINISHED;
         
@@ -91,7 +91,6 @@ static MmrAsState computeState() {
   }
 
   return MMR_AS_OFF;
-
 }
 
 
@@ -115,3 +114,13 @@ void ready() {
 void driving() {
   MMR_MISSION_Run(gs.currentMission);
 }
+
+static void emergency() {
+
+}
+
+static void finished() {
+
+}
+
+

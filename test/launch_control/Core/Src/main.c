@@ -78,9 +78,9 @@ uint32_t appsOut;
 
 
 MmrAsState as_state = MMR_AS_OFF;
-MmrEbsCheck Ebsstate = EBS_IDLE;
-MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
 uint8_t TS_EBS;
+//MmrEbsCheck Ebsstate = EBS_IDLE;
+//MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
 
 
 bool WATCHDOG_Activation() {
@@ -204,6 +204,8 @@ int main(void) {
     &blueButton,
     &appsOut,
     appsIn,
+    &Ebs1Pin,
+    &Ebs2Pin,
     &blueAxisLed,
     &yellowAxisLed,
     &ctrLed1,
@@ -241,10 +243,10 @@ int main(void) {
         }
       }
 #endif
-
-#ifdef EBS_TEST
-    EBSflag = MMR_AS_GetEbsStates();
-#endif
+//
+//#ifdef EBS_TEST
+//    EBSflag = MMR_AS_GetEbsStates();
+//#endif
 
 // MMR_GS_SendByCan(&hcan);
     /* USER CODE END WHILE */

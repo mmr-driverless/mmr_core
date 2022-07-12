@@ -1,4 +1,4 @@
-ù#include "inc/back.h"
+#include "inc/back.h"
 
 MmrAsPeripherals asp;
 
@@ -7,9 +7,14 @@ void MMR_AS_Init(
   MmrPin *gearUp,
   MmrPin *gearDown,
   MmrPin *gearN,
-  MmrPin *changeMode,
+
+  MmrButton *blueButton,
+
   uint32_t *appsOut,
   uint32_t *appsIn,
+
+  MmrPin *ebs1,
+  MmrPin *ebs2,
 
   MmrLed *blueAxisLed,
   MmrLed *yellowAxisLed,
@@ -26,8 +31,14 @@ void MMR_AS_Init(
     .gearN = gearN,
     .gearUp = gearUp,
     .gearDown = gearDown,
+
+    .blueButton = blueButton,
+
     .appsOut = appsOut,
     .appsIn = appsIn,
+
+    .ebs1 = ebs1,
+    .ebs2 = ebs2,
 
     .blueAxisLed = blueAxisLed,
     .yellowAxisLed = yellowAxisLed,
