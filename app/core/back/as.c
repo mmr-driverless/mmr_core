@@ -32,7 +32,10 @@ void MMR_AS_Run() {
   static MmrDelay sendDelay = { .ms = 15 };
 
   MMR_GS_UpdateFromCan(asp.can);
-//  MMR_NET_BRAKE_Init(asp.can);
+
+  if (MMR_APPS_Check(asp.appsIn[0], asp.appsIn[1])) {
+    return MMR_SYSTEM_NOT_HEALTHY;
+  }
 
   // Handbook: https://bit.ly/3bRd49t
   stateAs = computeState();
