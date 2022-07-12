@@ -3,7 +3,7 @@
 #include <delay.h>
 
 
-bool MMR_NET_PullClutchAsync(MmrCan *can) {
+bool MMR_NET_ClutchPullAsync(MmrCan *can) {
   static MmrDelay delay = { .ms = 5 };
 
   MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_PULL);
@@ -16,7 +16,7 @@ bool MMR_NET_PullClutchAsync(MmrCan *can) {
   return gs.clutch == MMR_CLUTCH_PULLED;
 }
 
-bool MMR_NET_ReleaseClutchAsync(MmrCan *can) {
+bool MMR_NET_ClutchReleaseAsync(MmrCan *can) {
   static MmrDelay delay = { .ms = 5 };
   
   MmrCanHeader header = MMR_CAN_ScsHeader(MMR_CAN_MESSAGE_ID_CS_CLUTCH_RELEASE);

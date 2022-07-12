@@ -160,7 +160,7 @@ static MmrAutonomousState accelerate(MmrAutonomousState state) {
 }
 
 static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
-  if (MMR_NET_ReleaseClutchAsync(asp.can)) {
+  if (MMR_NET_ClutchReleaseAsync(asp.can)) {
     return MMR_AUTONOMOUS_LAUNCH_UNSET_LAUNCH;
   }
 
