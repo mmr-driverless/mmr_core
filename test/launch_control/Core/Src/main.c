@@ -28,8 +28,8 @@
 #include <can0.h>
 #include <ebs.h>
 #include <stm_pin.h>
-#include "delay.h"
-#include "stdbool.h"
+#include <delay.h>
+#include <stdbool.h>
 #include <global_state.h>
 #include <back.h>
 #include <led.h>
