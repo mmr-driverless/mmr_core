@@ -17,7 +17,7 @@ static bool handlePreStart(MmrLaunchControlMode *mode);
 
 
 struct MmrLaunchControl {
-  float infoSpeed;
+  float infoThrottle;
   int16_t steeringAngle;
   uint8_t lap;
   uint16_t ath; //<--farfalla
@@ -108,7 +108,7 @@ MmrLaunchControlMode MMR_AS_Run(MmrLaunchControlMode mode) {
       break;
 
     case MMR_CAN_MESSAGE_ID_D_ACCELERATOR_PERCENTAGE:
-      __state.infoSpeed = *(float*)(buffer);
+      __state.infoThrottle = *(float*)(buffer);
       break;
 
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:
@@ -218,7 +218,7 @@ uint16_t MMR_AS_GetAth() {
 }
 
 uint32_t MMR_AS_GetInfoSpeed() {
-  return APPS_slope * (__state.infoSpeed) + APPS_offset;
+  return APPS_slope * (__state.infoThrottle) + APPS_offset;
 }
 
 
