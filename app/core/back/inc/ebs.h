@@ -9,6 +9,8 @@ typedef enum MmrEbsState {
 } MmrEbsState;
 
 typedef enum MmrEbsCheckState {
+  EBS_CHECK_IDLE,
+
   EBS_CHECK_START_WATCHDOG,
   EBS_CHECK_SDC_WAIT_HIGH,
   EBS_CHECK_STOP_WATCHDOG,

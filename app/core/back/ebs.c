@@ -30,6 +30,7 @@ bool MMR_EBS_SdcIsReady() {
   return MMR_PIN_Read(asp.ebsAsSdcIsReady) == MMR_PIN_HIGH;
 }
 
+static MmrEbsCheckState idle(MmrEbsCheckState state);
 static MmrEbsCheckState startWatchdog(MmrEbsCheckState state);
 static MmrEbsCheckState sdcWaitHigh(MmrEbsCheckState state);
 static MmrEbsCheckState stopWatchdog(MmrEbsCheckState state);
@@ -49,6 +50,8 @@ static MmrEbsCheckState enableActuator2(MmrEbsCheckState state);
 
 MmrEbsCheckState MMR_EBS_CHECK_Check(MmrEbsCheckState state) {
   switch (state) {
+  case EBS_CHECK_IDLE: return idle(state);
+
   case EBS_CHECK_START_WATCHDOG: return startWatchdog(state);
   case EBS_CHECK_SDC_WAIT_HIGH: return sdcWaitHigh(state);
   case EBS_CHECK_STOP_WATCHDOG: return stopWatchdog(state);
@@ -73,6 +76,11 @@ MmrEbsCheckState MMR_EBS_CHECK_Check(MmrEbsCheckState state) {
   case EBS_CHECK_ERROR: return EBS_CHECK_ERROR;
   default: return EBS_CHECK_ERROR;
   }
+}
+
+
+static MmrEbsCheckState idle(MmrEbsCheckState state) {
+  return EBS_CHECK_START_WATCHDOG;
 }
 
 

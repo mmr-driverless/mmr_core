@@ -72,7 +72,7 @@ uint32_t appsOut;
 
 
 MmrAsState as_state = MMR_AS_OFF;
-//MmrEbsCheckState ebsState = EBS_CHECK_START_WATCHDOG;
+MmrEbsCheckState ebsState = EBS_CHECK_IDLE;
 uint8_t TS_EBS;
 //MmrEbsCheck Ebsstate = EBS_IDLE;
 //MmrEbsState EBSflag = EBS_STATE_UNAVAILABLE;
@@ -225,8 +225,8 @@ int main(void) {
 //  Buzzer_Delay = MMR_Delay(9000);
 
   while (1) {
-    MMR_AS_Run();
-//	  ebsState = MMR_EBS_CHECK_Check(ebsState);
+    // MMR_AS_Run();
+	  ebsState = MMR_EBS_CHECK_Check(ebsState);
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 //#ifdef ASSI_TEST
