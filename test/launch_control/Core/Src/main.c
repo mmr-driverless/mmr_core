@@ -233,7 +233,7 @@ int main(void) {
 
   while (1) {
     // MMR_AS_Run();
-	  ebsState = MMR_EBS_CHECK_Check(ebsState);
+	  gs.ebsCheckState = MMR_EBS_CHECK_Check(gs.ebsCheckState);
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 //#ifdef ASSI_TEST

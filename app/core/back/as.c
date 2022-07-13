@@ -75,7 +75,7 @@ static MmrAsState computeState() {
     if (gs.missionFinished && gs.vehicleStandstill) {
       return MMR_AS_FINISHED;
     }
-        
+
     return MMR_AS_EMERGENCY;
   }
 
