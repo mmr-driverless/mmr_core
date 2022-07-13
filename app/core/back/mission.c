@@ -33,7 +33,7 @@ MmrMission MMR_MISSION_Run(MmrMission mission) {
 
 
 static MmrMission manual() {
-  *(asp.appsOut) = *(asp.appsIn);
+  MMR_APPS_TryWrite(*(asp.appsIn));
   gs.ms = MMR_MANUAL_LAUNCH_Run(gs.ms);
   return MMR_MISSION_MANUAL;
 }
@@ -41,7 +41,7 @@ static MmrMission manual() {
 static MmrMission skidpad() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
   if (gs.as == MMR_AUTONOMOUS_LAUNCH_DONE) {
-    *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoThrottle);
+    MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   }
 
   if (gs.missionFinished) {
@@ -53,7 +53,7 @@ static MmrMission skidpad() {
 }
 
 static MmrMission ebsTest() {
-  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoThrottle);
+  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
@@ -64,7 +64,7 @@ static MmrMission ebsTest() {
 }
 
 static MmrMission autocross() {
-  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoThrottle);
+  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
@@ -76,7 +76,7 @@ static MmrMission autocross() {
 }
 
 static MmrMission inspection() {
-  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoThrottle);
+  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
@@ -88,7 +88,7 @@ static MmrMission inspection() {
 }
 
 static MmrMission trackdrive() {
-  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoThrottle);
+  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
@@ -100,7 +100,7 @@ static MmrMission trackdrive() {
 }
 
 static MmrMission acceleration() {
-  *(asp.appsOut) = MMR_APPS_ComputeSpeed(gs.infoThrottle);
+  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+void MMR_APPS_TryWrite(uint32_t value);
 bool MMR_APPS_Check();
 uint32_t MMR_APPS_ComputeSpeed(float percentage);
 

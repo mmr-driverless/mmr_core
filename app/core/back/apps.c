@@ -1,5 +1,6 @@
 #include "inc/peripherals.h"
 #include "inc/apps.h"
+#include "inc/tps.h"
 #include <delay.h>
 #include <math.h>
 
@@ -7,6 +8,12 @@ static const uint32_t APPS_MIN = 1150;
 static const uint32_t APPS_SLOPE = 700;
 
 static bool areAppsPlausible();
+
+
+void MMR_APPS_TryWrite(uint32_t value) {
+  bool canWrite = MMR_APPS_Check() && MMR_TPS_Check();
+  *(asp.appsOut) =  canWrite ? value : 0;
+}
 
 
 bool MMR_APPS_Check() {
