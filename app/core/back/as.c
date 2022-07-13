@@ -94,13 +94,7 @@ static MmrAsState computeState() {
 }
 
 
-static void off() {
-  // static MmrDelay brakeRequestDelay = { .ms = 20 };
-  // if (MMR_DELAY_WaitAsync(&brakeRequestDelay)) {
-  //  MMR_NET_BrakeCheckRequest();
-  //  MMR_NET_IsBrakeEngaged();
-  // }
-}
+static void off() {}
 
 static void ready() {
   static MmrDelay readyToDriveDelay = { .ms = 5000 };
@@ -128,8 +122,7 @@ static void emergency() {
   }
 }
 
-static void finished() {
-}
+static void finished() {}
 
 
 static bool isAsmsOk() {
@@ -138,8 +131,7 @@ static bool isAsmsOk() {
 
 
 static bool isTSOk() {
-  return true;
-  // return gs.gear == 0 && gs.rpm >= 1000;
+  return gs.gear == 0 && gs.rpm >= 1000;
 }
 
 static bool areBrakeEngaged() {
