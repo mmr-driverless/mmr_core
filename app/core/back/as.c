@@ -22,6 +22,9 @@ static MmrAsState stateAs = MMR_AS_OFF;
 static bool waitingMissionReady = false;
 
 static MmrAsState computeState();
+static bool isAsmsOk();
+static bool isTSOk();
+
 static void off();
 static void ready();
 static void driving();
@@ -80,8 +83,8 @@ static MmrAsState computeState() {
     gs.currentMission != MMR_MISSION_INSPECTION &&
     gs.currentMission != MMR_MISSION_MANUAL &&
     gs.asbCheck &&
-    MMR_PIN_Read(asp.asms) == MMR_PIN_HIGH
-    /*TS_Activation()(**/;
+    isAsmsOk() &&
+    isTSOk();
 
   if (canDrive) {
     if (gs.readyToDrive)
@@ -95,7 +98,7 @@ static MmrAsState computeState() {
 }
 
 
-void off() {
+static void off() {
   static MmrDelay brakeRequestDelay = { .ms = 20 };
   if (MMR_DELAY_WaitAsync(&brakeRequestDelay)) {
     MMR_NET_BrakeCheckRequest();
@@ -103,7 +106,7 @@ void off() {
   }
 }
 
-void ready() {
+static void ready() {
   static MmrDelay readyToDriveDelay = { .ms = 5000 };
 
   if (MMR_DELAY_WaitOnceAsync(&readyToDriveDelay) && gs.resGoButton == MMR_BUTTON_PRESSED) {
@@ -114,7 +117,7 @@ void ready() {
   }
 }
 
-void driving() {
+static void driving() {
   MMR_MISSION_Run(gs.currentMission);
 }
 
@@ -130,4 +133,14 @@ static void emergency() {
 }
 
 static void finished() {
+}
+
+
+static bool isAsmsOk() {
+  return MMR_PIN_Read(asp.asms) == MMR_PIN_HIGH;
+}
+
+
+static bool isTSOk() {
+  return gs.gear == 0 && gs.rpm >= 1000;
 }
