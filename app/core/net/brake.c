@@ -9,7 +9,7 @@ void MMR_NET_BRAKE_Init(MmrCan *can) {
 }
 
 bool MMR_NET_EngageBrakeAsync() {
-  static MmrDelay sendDelay = { .ms = 10};
+  static MmrDelay sendDelay = { .ms = 10 };
   if (MMR_DELAY_WaitAsync(&sendDelay)) {
     MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_BRK_TARGET_PRESSURE);
     MmrCanMessage message = MMR_CAN_OutMessage(header);

@@ -19,6 +19,8 @@
     "peripherals.h": "c",
     "can.h": "c",
     "condition_variable": "c",
-    "timer.h": "c"
+    "timer.h": "c",
+    "net.h": "c",
+    "main.h": "c"
   }
 }

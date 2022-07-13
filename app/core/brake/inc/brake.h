@@ -7,4 +7,4 @@
 void MMR_BRAKE_Init(Can *can);
 bool MMR_NET_EngageBrakeAsync();
 
-#ifndef  //
+#ifndef  // !MMR_APP_BRAKE_INC_BRAKE_H_
