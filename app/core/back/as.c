@@ -36,10 +36,6 @@ void MMR_AS_Run() {
 
   MMR_GS_UpdateFromCan(asp.can);
 
-  if (MMR_APPS_Check(asp.appsIn[0], asp.appsIn[1])) {
-
-  }
-
   // Handbook: https://bit.ly/3bRd49t
 
   stateAs = computeState();

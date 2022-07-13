@@ -78,6 +78,15 @@ void MMR_BACK_Run() {
 }
 
 static void engageBreakIfNotDriving() {
- if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL)
+  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
     engageBreak();
+  }
+
+  if (!MMR_APPS_Check(asp.appsIn[0], asp.appsIn[1])) {
+    // TODO apps error
+  }
+
+  if (!MMR_TPS_Check(gs.ath, gs.ath2)) {
+    // TODO tps check
+  }
 }
