@@ -6,6 +6,7 @@
 
 typedef enum MmrEbsState {
   MMR_EBS_ACTIVATED,
+  MMR_EBS_ARMED,
 } MmrEbsState;
 
 typedef enum MmrEbsCheckState {
