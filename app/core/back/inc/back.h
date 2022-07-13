@@ -42,4 +42,6 @@ void MMR_BACK_Init(
   MmrPin *asms
 );
 
+void MMR_BACK_Run();
+
 #endif // !APP_CORE_BACK_INC_BACK_H_
