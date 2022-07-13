@@ -5,8 +5,6 @@
 
 
 void MMR_BRAKE_Init(Can *can);
-void MMR_BRAKE_Start();
-bool MMR_BRAKE_Check();
-bool MMR_BRAKE_IsEngaged();
+bool MMR_NET_EngageBrakeAsync();
 
-#ifndef
+#ifndef  //
