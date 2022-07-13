@@ -22,6 +22,7 @@ static MmrAsState stateAs = MMR_AS_OFF;
 static bool waitingMissionReady = false;
 
 static MmrAsState computeState();
+static bool areBrakePressuresOk();
 static bool isAsmsOk();
 static bool isTSOk();
 
@@ -82,7 +83,7 @@ static MmrAsState computeState() {
     gs.currentMission != MMR_MISSION_IDLE &&
     gs.currentMission != MMR_MISSION_INSPECTION &&
     gs.currentMission != MMR_MISSION_MANUAL &&
-    gs.asbCheck &&
+    areBrakePressuresOk() &&
     isAsmsOk() &&
     isTSOk();
 
@@ -143,4 +144,11 @@ static bool isAsmsOk() {
 
 static bool isTSOk() {
   return gs.gear == 0 && gs.rpm >= 1000;
+}
+
+static bool areBrakePressuresOk() {
+  static const int BRAKE_MIN_PRESSURE = 4;
+  return
+    gs.brakePressureFront >= BRAKE_MIN_PRESSURE &&
+    gs.brakePressureRear >= BRAKE_MIN_PRESSURE;
 }
