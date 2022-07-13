@@ -51,7 +51,7 @@ static MmrEbsCheckState ready(MmrEbsCheckState state);
 static MmrEbsCheckState error(MmrEbsCheckState state);
 
 
-MmrEbsCheckState MMR_EBS_CHECK_Check(MmrEbsCheckState state) {
+MmrEbsCheckState MMR_EBS_Check(MmrEbsCheckState state) {
   static MmrDelay blinkDelay = { .ms = 500 };
   if (state != EBS_CHECK_ERROR) {
     MMR_LED_BlinkAsync(asp.ebsErrorLed, &blinkDelay);

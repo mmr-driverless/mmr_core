@@ -73,14 +73,19 @@ void MMR_BACK_Init(
 }
 
 void MMR_BACK_Run() {
-  engageBreakIfNotDriving();
-  MMR_AS_Run()
-}
-
-static void engageBreakIfNotDriving() {
-  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
-    engageBreak();
+  if (gs.currentMission == MMR_MISSION_MANUAL) {
+    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_MANUAL);
   }
+
+  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
+    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
+    engageBreak();
+
+    if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
+      gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
+    }
+  }
+
 
   if (!MMR_APPS_Check(asp.appsIn[0], asp.appsIn[1])) {
     // TODO apps error
@@ -89,4 +94,7 @@ static void engageBreakIfNotDriving() {
   if (!MMR_TPS_Check(gs.ath, gs.ath2)) {
     // TODO tps check
   }
+
+  engageBreakIfNotDriving();
+  MMR_AS_Run();
 }
