@@ -34,8 +34,6 @@ static void finished();
 void MMR_AS_Run() {
   static MmrDelay sendDelay = { .ms = 15 };
 
-  MMR_GS_UpdateFromCan(asp.can);
-
   // Handbook: https://bit.ly/3bRd49t
 
   stateAs = computeState();
