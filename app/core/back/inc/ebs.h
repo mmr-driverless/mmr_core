@@ -45,5 +45,6 @@ void MMR_EBS_Arm();
 void MMR_EBS_Disarm();
 void MMR_EBS_SetDrivingMode(MmrEbsDrivingMode mode);
 bool MMR_EBS_SdcIsReady();
+MmrEbsCheckState MMR_EBS_CHECK_Check(MmrEbsCheckState state);
 
 #endif // !APP_CORE_BACK_INC_EBS_CHECK_H_
