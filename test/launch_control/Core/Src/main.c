@@ -232,8 +232,9 @@ int main(void) {
 //  Buzzer_Delay = MMR_Delay(9000);
 
   while (1) {
-    // MMR_AS_Run();
-	  gs.ebsCheckState = MMR_EBS_CHECK_Check(gs.ebsCheckState);
+    if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL)
+      engageBreak();
+    MMR_BACK_Run();
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 //#ifdef ASSI_TEST
