@@ -73,6 +73,8 @@ void MMR_BACK_Init(
 }
 
 void MMR_BACK_Run() {
+  MMR_GS_UpdateFromCan(asp.can);
+  
   if (gs.currentMission == MMR_MISSION_MANUAL) {
     MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_MANUAL);
   }

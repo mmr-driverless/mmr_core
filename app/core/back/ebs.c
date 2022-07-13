@@ -12,10 +12,19 @@ static bool checkBrakesPressureOk();
 
 void MMR_EBS_Arm() {
   MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_HIGH);
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_HIGH);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_HIGH);
 }
 
 void MMR_EBS_Disarm() {
   MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_LOW);
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
+}
+
+void MMR_EBS_Brake() {
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
 }
 
 void MMR_EBS_SetDrivingMode(MmrEbsDrivingMode mode) {
@@ -47,6 +56,7 @@ static MmrEbsCheckState disableActuator2(MmrEbsCheckState state);
 static MmrEbsCheckState checkAct2BrakePressure(MmrEbsCheckState state);
 static MmrEbsCheckState enableActuator2(MmrEbsCheckState state);
 
+static MmrEbsCheckState armEbs(MmrEbsCheckState state);
 static MmrEbsCheckState ready(MmrEbsCheckState state);
 static MmrEbsCheckState error(MmrEbsCheckState state);
 
@@ -80,6 +90,8 @@ MmrEbsCheckState MMR_EBS_Check(MmrEbsCheckState state) {
   case EBS_CHECK_CHECK_ACT_2_BRAKE_PRESSURE: return checkAct2BrakePressure(state);
   case EBS_CHECK_ENABLE_ACTUATOR_2: return enableActuator2(state);
   
+  case EBS_CHECK_ARM: return armEbs(state);
+
   case EBS_CHECK_READY: return ready(state);
   case EBS_CHECK_ERROR: return error(state);
   default: return error(state);
@@ -225,6 +237,12 @@ static MmrEbsCheckState checkAct2BrakePressure(MmrEbsCheckState state) {
 
 static MmrEbsCheckState enableActuator2(MmrEbsCheckState state) {
   MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
+  return EBS_CHECK_READY;
+}
+
+
+static MmrEbsCheckState armEbs(MmrEbsCheckState state) {
+  MMR_EBS_Arm();
   return EBS_CHECK_READY;
 }
 

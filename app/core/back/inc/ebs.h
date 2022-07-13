@@ -5,8 +5,9 @@
 
 
 typedef enum MmrEbsState {
-  MMR_EBS_ACTIVATED,
+  MMR_EBS_UNAVAILABLE,
   MMR_EBS_ARMED,
+  MMR_EBS_ACTIVATED,
 } MmrEbsState;
 
 typedef enum MmrEbsCheckState {
@@ -31,6 +32,8 @@ typedef enum MmrEbsCheckState {
   EBS_CHECK_DISABLE_ACTUATOR_2,
   EBS_CHECK_CHECK_ACT_2_BRAKE_PRESSURE,
   EBS_CHECK_ENABLE_ACTUATOR_2,
+
+  EBS_CHECK_ARM,
 
   EBS_CHECK_READY,
   EBS_CHECK_ERROR,
