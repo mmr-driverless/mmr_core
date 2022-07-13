@@ -197,7 +197,7 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-//  /* USER CODE BEGIN SysTick_IRQn 0 */
+  /* USER CODE BEGIN SysTick_IRQn 0 */
 //	  static uint16_t APPS_counter = 0;
 //	  static _Bool APPS_startCounter = 0;
 //	  static uint8_t APPS_ctr = 0;

@@ -98,13 +98,16 @@ void MMR_BACK_Run() {
   //   }
   // }
 
-
-  if (!MMR_APPS_Check(asp.appsIn[0], asp.appsIn[1])) {
+  if (!MMR_APPS_Check()) {
     *(asp.appsOut) = 0;
   }
 
-  if (!MMR_TPS_Check(gs.ath, gs.ath2)) {
+  else if (!MMR_TPS_Check()) {
     *(asp.appsOut) = 0;
+  }
+
+  else {
+    *(asp.appsOut) = *(asp.appsIn);
   }
 
   // MMR_AS_Run();
