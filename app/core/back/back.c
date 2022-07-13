@@ -4,8 +4,6 @@
 
 MmrAsPeripherals asp;
 
-static void engageBreakIfNotDriving();
-
 void MMR_BACK_Init(
   MmrCan *can,
   MmrPin *gearUp,
@@ -95,6 +93,5 @@ void MMR_BACK_Run() {
     // TODO tps check
   }
 
-  engageBreakIfNotDriving();
   MMR_AS_Run();
 }
