@@ -17,6 +17,10 @@ void MMR_BACK_Init(
 
   MmrButton *blueButton,
 
+  MmrPin *ebsAsDrivingMode,
+  MmrPin *ebsAsCloseSdc,
+  MmrPin *ebsAsSdcIsReady,
+
   uint32_t *appsOut,
   uint32_t *appsIn,
 

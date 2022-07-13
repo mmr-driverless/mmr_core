@@ -1,6 +1,9 @@
 #include "inc/back.h"
 #include "inc/as.h"
 #include "inc/global_state.h"
+#include "inc/apps.h"
+#include "inc/tps.h"
+#include "../net/inc/net.h"
 
 MmrAsPeripherals asp;
 
@@ -11,6 +14,10 @@ void MMR_BACK_Init(
   MmrPin *gearN,
 
   MmrButton *blueButton,
+
+  MmrPin *ebsAsDrivingMode,
+  MmrPin *ebsAsCloseSdc,
+  MmrPin *ebsAsSdcIsReady,
 
   uint32_t *appsOut,
   uint32_t *appsIn,
@@ -43,6 +50,10 @@ void MMR_BACK_Init(
     .gearDown = gearDown,
 
     .blueButton = blueButton,
+
+    .ebsAsDrivingMode = ebsAsDrivingMode,
+    .ebsAsCloseSdc = ebsAsCloseSdc,
+    .ebsAsSdcIsReady = ebsAsSdcIsReady,
 
     .appsOut = appsOut,
     .appsIn = appsIn,
@@ -79,7 +90,8 @@ void MMR_BACK_Run() {
 
   if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
     MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
-    engageBreak();
+    // TODO
+    MMR_NET_BrakeCheckRequest();
 
     if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
       gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);

@@ -45,7 +45,7 @@ static MmrMission skidpad() {
   }
 
   if (gs.missionFinished) {
-
+    MMR_EBS_Disarm();
     return MMR_MISSION_FINISHED;
   }
 
@@ -57,7 +57,6 @@ static MmrMission ebsTest() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
-    MMR_EBS_Disarm();
     return MMR_MISSION_FINISHED;
   }
 
@@ -69,6 +68,7 @@ static MmrMission autocross() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
+    MMR_EBS_Disarm();
     return MMR_MISSION_FINISHED;
   }
 

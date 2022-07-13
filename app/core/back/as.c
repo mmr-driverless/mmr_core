@@ -24,6 +24,7 @@ static MmrAsState computeState();
 static bool areBrakeEngaged();
 static bool isAsmsOk();
 static bool isTSOk();
+static bool isEbsReady();
 
 static void off();
 static void ready();
@@ -140,5 +141,5 @@ static bool areBrakeEngaged() {
 }
 
 static bool isEbsReady() {
-  return gs.ebsState == EBS_CHECK_READY;
+  return gs.ebsState == MMR_EBS_ARMED;
 }
