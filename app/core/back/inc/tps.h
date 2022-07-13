@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-bool MMR_TPS_Check(uint32_t ath1, uint32_t ath2);
+bool MMR_TPS_Check();
 
 #endif // !APP_CORE_BACK_INC_TPS_H_

@@ -54,7 +54,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
+ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan;
@@ -122,7 +122,8 @@ MmrMission mission = MMR_MISSION_IDLE;
   * @brief  The application entry point.
   * @retval int
   */
-int main(void) {
+int main(void)
+{
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -173,10 +174,13 @@ int main(void) {
   MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin, true);
   MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin, true);
 
-  MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin, false);
-  MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin, false);
-  MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin, false);
-  MmrPin ebsErrorLedPin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin, true);
+  MmrPin asDrivingModePin = MMR_Pin(AS_DRIVING_MODE_GPIO_Port, AS_DRIVING_MODE_Pin, false);
+  MmrPin asSdcIsReadyPin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port, AS_SDC_CLOSE_Pin, false);
+
+  MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port, EBS_CONTROL1_Pin, false);
+  MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port, EBS_CONTROL2_Pin, false);
+  MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port, AS_SDC_CLOSE_Pin, false);
+  MmrPin ebsErrorLedPin = MMR_Pin(LSW_LEDEBS_GPIO_Port, LSW_LEDEBS_Pin, true);
   MmrPin asmsErrorLedPin = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin, true);
 
   MmrPin ctrLed1Pin = MMR_Pin(CTR_LED1_GPIO_Port, CTR_LED1_Pin, true);
@@ -202,9 +206,9 @@ int main(void) {
 
     &blueButton,
 
-    NULL,
+    &asDrivingModePin,
     &asCloseSDCpin,
-    NULL,
+    &asSdcIsReadyPin,
 
     &appsOut,
     appsIn,
@@ -677,7 +681,7 @@ static void MX_GPIO_Init(void)
                           |CTR_LED2_Pin|CTR_LED3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
