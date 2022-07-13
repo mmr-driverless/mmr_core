@@ -17,7 +17,6 @@ void MMR_EBS_Arm() {
 }
 
 void MMR_EBS_Disarm() {
-  MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_LOW);
   MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
   MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
 }
