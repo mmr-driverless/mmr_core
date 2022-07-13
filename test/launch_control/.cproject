@@ -56,6 +56,14 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/stm/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/core/back/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/app/core/net/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/core/back/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/can}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/can/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/util/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/gpio/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/timing/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/stm/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/mmr_core/app/lib/buffer}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.457440995" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>

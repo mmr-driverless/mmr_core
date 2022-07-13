@@ -131,7 +131,6 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
 
 void MMR_GS_SendByCan(MmrCan* can) {
   static MmrDelay messageDelay = { .ms = 25 };
-  static MmrDelay betweenMessagesDelay = { .ms = 1 };
   static MmrCanMessage out = {};
   static MmrCanMessageId outMessages[] = {
     MMR_CAN_MESSAGE_ID_TS_EBS,

@@ -170,7 +170,6 @@ int main(void) {
   MmrPin gearDown = MMR_Pin(GEARDOWN_SWITCH_GPIO_Port, GEARDOWN_SWITCH_Pin, false);
   MmrPin blueButtonPin = MMR_Pin(B1_GPIO_Port, B1_Pin, false);
 
-  MmrDelay Buzzer_Delay;
   MmrPin LABpin = MMR_Pin(LSW_ASSI_BLUE_GPIO_Port, LSW_ASSI_BLUE_Pin, true);
   MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin, true);
 
