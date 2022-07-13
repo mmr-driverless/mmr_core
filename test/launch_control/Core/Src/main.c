@@ -177,8 +177,8 @@ int main(void) {
   MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port,EBS_CONTROL1_Pin, false);
   MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port,EBS_CONTROL2_Pin, false);
   MmrPin asCloseSDCpin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port,AS_SDC_CLOSE_Pin, false);
-  MmrPin ebsLedpin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin, true);
-  MmrPin generalPurposeLed = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin, true);
+  MmrPin ebsErrorLedPin = MMR_Pin(LSW_LEDEBS_GPIO_Port,LSW_LEDEBS_Pin, true);
+  MmrPin asmsErrorLedPin = MMR_Pin(LSW_LED1_GPIO_Port, LSW_LED1_Pin, true);
 
   MmrPin ctrLed1Pin = MMR_Pin(CTR_LED1_GPIO_Port, CTR_LED1_Pin, true);
   MmrPin ctrLed2Pin = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin, true);
@@ -189,6 +189,8 @@ int main(void) {
   MmrButton blueButton = MMR_Button(&blueButtonPin);
   MmrLed blueAxisLed = MMR_Led(&LABpin);
   MmrLed yellowAxisLed = MMR_Led(&LAYpin);
+  MmrLed ebsErrorLed = MMR_Led(&ebsErrorLedPin);
+  MmrLed asmsErrorLed = MMR_Led(&asmsErrorLedPin);
   MmrLed ctrLed1 = MMR_Led(&ctrLed1Pin);
   MmrLed ctrLed2 = MMR_Led(&ctrLed2Pin);
   MmrLed ctrLed3 = MMR_Led(&ctrLed3Pin);
@@ -207,6 +209,8 @@ int main(void) {
     &Ebs2Pin,
     &blueAxisLed,
     &yellowAxisLed,
+    &ebsErrorLed,
+    &asmsErrorLed,
     &ctrLed1,
     &ctrLed2,
     &ctrLed3,
