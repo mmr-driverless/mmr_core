@@ -22,6 +22,9 @@ void MMR_BACK_Init(
   MmrLed *blueAxisLed,
   MmrLed *yellowAxisLed,
 
+  MmrLed *ebsErrorLed,
+  MmrLed *asmsErrorLed,
+
   MmrLed *ctrLed1,
   MmrLed *ctrLed2,
   MmrLed *ctrLed3,
@@ -50,6 +53,9 @@ void MMR_BACK_Init(
 
     .blueAxisLed = blueAxisLed,
     .yellowAxisLed = yellowAxisLed,
+
+    .ebsErrorLed = ebsErrorLed,
+    .asmsErrorLed = asmsErrorLed,
 
     .ctrLed1 = ctrLed1,
     .ctrLed2 = ctrLed2,
