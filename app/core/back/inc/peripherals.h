@@ -45,6 +45,8 @@ typedef struct MmrAsPeripherals {
 
   WatchdogStart watchdogStart;
   WatchdogStop watchdogStop;
+
+  MmrPin *asms;
 } MmrAsPeripherals;
 
 extern MmrAsPeripherals asp;

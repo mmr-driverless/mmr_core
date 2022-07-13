@@ -184,6 +184,8 @@ int main(void) {
   MmrPin ctrLed2Pin = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin, true);
   MmrPin ctrLed3Pin = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin, true);
 
+  MmrPin asmsPin = MMR_Pin(ASMS_SUPPLY_GPIO_Port, ASMS_SUPPLY_Pin, false);
+
   MmrButton blueButton = MMR_Button(&blueButtonPin);
   MmrLed blueAxisLed = MMR_Led(&LABpin);
   MmrLed yellowAxisLed = MMR_Led(&LAYpin);
@@ -209,7 +211,8 @@ int main(void) {
     &ctrLed2,
     &ctrLed3,
     WATCHDOG_Activation,
-    WATCHDOG_Disable
+    WATCHDOG_Disable,
+    &asmsPin
   );
 
 //  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);

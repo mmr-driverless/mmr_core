@@ -34,7 +34,9 @@ void MMR_BACK_Init(
   MmrLed *ctrLed3,
 
   WatchdogStart watchdogStart,
-  WatchdogStop watchdogStop
+  WatchdogStop watchdogStop,
+
+  MmrPin *asms
 );
 
 #endif // !APP_CORE_BACK_INC_BACK_H_

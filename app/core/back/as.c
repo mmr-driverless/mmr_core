@@ -79,7 +79,8 @@ static MmrAsState computeState() {
     gs.currentMission != MMR_MISSION_IDLE &&
     gs.currentMission != MMR_MISSION_INSPECTION &&
     gs.currentMission != MMR_MISSION_MANUAL &&
-    gs.asbCheck
+    gs.asbCheck &&
+    MMR_PIN_Read(asp.asms) == MMR_PIN_HIGH
     /*TS_Activation()(**/;
 
   if (canDrive) {

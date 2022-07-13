@@ -27,7 +27,9 @@ void MMR_BACK_Init(
   MmrLed *ctrLed3,
 
   WatchdogStart watchdogStart,
-  WatchdogStop watchdogStop
+  WatchdogStop watchdogStop,
+
+  MmrPin *asms
 ) {
   asp = (MmrAsPeripherals) {
     .can = can,
@@ -55,5 +57,7 @@ void MMR_BACK_Init(
 
     .watchdogStart = watchdogStart,
     .watchdogStop = watchdogStop,
+
+    .asms = asms,
   };
 }
