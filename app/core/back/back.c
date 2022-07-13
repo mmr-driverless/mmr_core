@@ -1,6 +1,10 @@
 #include "inc/back.h"
+#include "inc/as.h"
+#include "inc/global_state.h"
 
 MmrAsPeripherals asp;
+
+static void engageBreakIfNotDriving();
 
 void MMR_BACK_Init(
   MmrCan *can,
@@ -66,4 +70,14 @@ void MMR_BACK_Init(
 
     .asms = asms,
   };
+}
+
+void MMR_BACK_Run() {
+  engageBreakIfNotDriving();
+  MMR_AS_Run()
+}
+
+static void engageBreakIfNotDriving() {
+ if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL)
+    engageBreak();
 }
