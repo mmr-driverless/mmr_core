@@ -82,7 +82,7 @@ void MMR_BACK_Init(
 }
 
 void MMR_BACK_Run() {
-  // MMR_GS_UpdateFromCan(asp.can);
+   MMR_GS_UpdateFromCan(asp.can);
   // MMR_NET_BRAKE_Init(asp.can);
   
   // if (gs.currentMission == MMR_MISSION_MANUAL) {
