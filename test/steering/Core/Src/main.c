@@ -363,8 +363,7 @@ int main(void)
   }
 
   HAL_GPIO_WritePin(ENB_GPIO_Port, ENB_Pin, GPIO_PIN_SET);
-  while (1)
-  {
+  while (1) {
 	    uint32_t pendingMessages =
 	      HAL_CAN_GetRxFifoFillLevel(&hcan, MMR_CAN_RX_FIFO);
 

@@ -130,7 +130,8 @@ static bool isAsmsOk() {
 
 
 static bool isTSOk() {
-  return gs.gear == 0 && gs.rpm >= 1000;
+  // return gs.gear == 0 && gs.rpm >= 1000;
+  return true;
 }
 
 static bool areBrakeEngaged() {
