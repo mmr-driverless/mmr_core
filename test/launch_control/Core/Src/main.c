@@ -200,22 +200,35 @@ int main(void) {
     &gearUp,
     &gearDown,
     &gearN,
+
     &blueButton,
+
+    NULL,
+    &asCloseSDCpin,
+    NULL,
+
     &appsOut,
     appsIn,
+
     Buzzer_activation,
     Buzzer_disactivation,
+
     &Ebs1Pin,
     &Ebs2Pin,
+
     &blueAxisLed,
     &yellowAxisLed,
+
     &ebsErrorLed,
     &asmsErrorLed,
+
     &ctrLed1,
     &ctrLed2,
     &ctrLed3,
+
     WATCHDOG_Activation,
     WATCHDOG_Disable,
+
     &asmsPin
   );
 
