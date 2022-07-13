@@ -196,8 +196,7 @@ int main(void)
     .store = canRxBuffer,
   };
 
-  while (1)
-  {
+  while (1) {
     MmrResult rxResult = MMR_CAN_TryReceive(&hcan, &msg);
     if (rxResult == MMR_RESULT_COMPLETED) {
       switch (msg.header.messageId) {
