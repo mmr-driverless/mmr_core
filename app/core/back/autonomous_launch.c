@@ -28,7 +28,6 @@ static MmrAutonomousState accelerateTo15(MmrAutonomousState state);
 static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state);
 
 static MmrAutonomousState clutchSetManual(MmrAutonomousState state);
-static MmrAutonomousState setManualApps(MmrAutonomousState state);
 static MmrAutonomousState done(MmrAutonomousState state);
 
 
@@ -50,7 +49,6 @@ MmrAutonomousState MMR_AUTONOMOUS_LAUNCH_Run(MmrAutonomousState state) {
   case MMR_AUTONOMOUS_LAUNCH_ACCELERATE_TO_MINIMUM: return accelerateToMinimum(state);
 
   case MMR_AUTONOMOUS_LAUNCH_CLUTCH_SET_MANUAL: return clutchSetManual(state);
-  case MMR_AUTONOMOUS_LAUNCH_SET_MANUAL_APPS: return setManualApps(state);
   case MMR_AUTONOMOUS_LAUNCH_DONE: return done(state);
   default: return state;
   }
@@ -177,7 +175,10 @@ static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
   static MmrDelay delay = { .ms = 500 };
 
   if (MMR_DELAY_WaitAsync(&delay)) {
-    *(asp.appsOut) = MMR_APPS_ComputeSpeed(0.0);
+    *(asp.appsOut) = gs.currentMission == MMR_MISSION_INSPECTION
+      ? 900
+      : MMR_APPS_ComputeSpeed(0.0);
+
     return MMR_AUTONOMOUS_LAUNCH_CLUTCH_SET_MANUAL;
   }
 
@@ -198,24 +199,11 @@ static MmrAutonomousState clutchSetManual(MmrAutonomousState state) {
   }
 
   if (clutchMessages++ > 10) {
-    // return MMR_AUTONOMOUS_LAUNCH_SET_MANUAL_APPS;
     return MMR_AUTONOMOUS_LAUNCH_DONE;
   }
 
   return state;
 }
-
-
-static MmrAutonomousState setManualApps(MmrAutonomousState state) {
-  static MmrDelay delay = { .ms = 5000 };
-
-  if (MMR_DELAY_WaitAsync(&delay)) {
-    return MMR_AUTONOMOUS_LAUNCH_DONE;
-  }
-
-  return state;
-}
-
 
 static MmrAutonomousState done(MmrAutonomousState state) {
   return MMR_AUTONOMOUS_LAUNCH_DONE;
