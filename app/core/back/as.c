@@ -17,12 +17,11 @@
 
 #include "../net/inc/net.h"
 
-//static MmrEbsCheck ebs = EBS_IDLE;
 static MmrAsState stateAs = MMR_AS_OFF;
 static bool waitingMissionReady = false;
 
 static MmrAsState computeState();
-static bool areBrakePressuresOk();
+static bool areBrakeEngaged();
 static bool isAsmsOk();
 static bool isTSOk();
 
@@ -83,7 +82,7 @@ static MmrAsState computeState() {
     gs.currentMission != MMR_MISSION_IDLE &&
     gs.currentMission != MMR_MISSION_INSPECTION &&
     gs.currentMission != MMR_MISSION_MANUAL &&
-    areBrakePressuresOk() &&
+    isEbsReady() &&
     isAsmsOk() &&
     isTSOk();
 
@@ -91,7 +90,7 @@ static MmrAsState computeState() {
     if (gs.readyToDrive)
       return MMR_AS_DRIVING;
 
-    if (gs.asbEngaged)
+    if (areBrakeEngaged())
       return MMR_AS_READY;
   }
 
@@ -100,11 +99,11 @@ static MmrAsState computeState() {
 
 
 static void off() {
-  static MmrDelay brakeRequestDelay = { .ms = 20 };
-  if (MMR_DELAY_WaitAsync(&brakeRequestDelay)) {
-    MMR_NET_BrakeCheckRequest();
-//    MMR_NET_IsBrakeEngaged();
-  }
+  // static MmrDelay brakeRequestDelay = { .ms = 20 };
+  // if (MMR_DELAY_WaitAsync(&brakeRequestDelay)) {
+  //  MMR_NET_BrakeCheckRequest();
+  //  MMR_NET_IsBrakeEngaged();
+  // }
 }
 
 static void ready() {
@@ -143,12 +142,17 @@ static bool isAsmsOk() {
 
 
 static bool isTSOk() {
-  return gs.gear == 0 && gs.rpm >= 1000;
+  return true;
+  // return gs.gear == 0 && gs.rpm >= 1000;
 }
 
-static bool areBrakePressuresOk() {
+static bool areBrakeEngaged() {
   static const int BRAKE_MIN_PRESSURE = 4;
   return
     gs.brakePressureFront >= BRAKE_MIN_PRESSURE &&
     gs.brakePressureRear >= BRAKE_MIN_PRESSURE;
+}
+
+static bool isEbsReady() {
+  return gs.ebsState == EBS_CHECK_READY;
 }
