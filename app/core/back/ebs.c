@@ -47,8 +47,16 @@ static MmrEbsCheckState disableActuator2(MmrEbsCheckState state);
 static MmrEbsCheckState checkAct2BrakePressure(MmrEbsCheckState state);
 static MmrEbsCheckState enableActuator2(MmrEbsCheckState state);
 
+static MmrEbsCheckState ready(MmrEbsCheckState state);
+static MmrEbsCheckState error(MmrEbsCheckState state);
+
 
 MmrEbsCheckState MMR_EBS_CHECK_Check(MmrEbsCheckState state) {
+  static MmrDelay blinkDelay = { .ms = 500 };
+  if (state != EBS_CHECK_ERROR) {
+    MMR_LED_BlinkAsync(asp.ebsErrorLed, &blinkDelay);
+  }
+
   switch (state) {
   case EBS_CHECK_IDLE: return idle(state);
 
@@ -72,9 +80,9 @@ MmrEbsCheckState MMR_EBS_CHECK_Check(MmrEbsCheckState state) {
   case EBS_CHECK_CHECK_ACT_2_BRAKE_PRESSURE: return checkAct2BrakePressure(state);
   case EBS_CHECK_ENABLE_ACTUATOR_2: return enableActuator2(state);
   
-  case EBS_CHECK_READY: return EBS_CHECK_READY;
-  case EBS_CHECK_ERROR: return EBS_CHECK_ERROR;
-  default: return EBS_CHECK_ERROR;
+  case EBS_CHECK_READY: return ready(state);
+  case EBS_CHECK_ERROR: return error(state);
+  default: return error(state);
   }
 }
 
@@ -218,6 +226,16 @@ static MmrEbsCheckState checkAct2BrakePressure(MmrEbsCheckState state) {
 static MmrEbsCheckState enableActuator2(MmrEbsCheckState state) {
   MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
   return EBS_CHECK_READY;
+}
+
+
+static MmrEbsCheckState ready(MmrEbsCheckState state) {
+  return EBS_CHECK_READY;
+}
+
+static MmrEbsCheckState error(MmrEbsCheckState state) {
+  MMR_LED_Set(asp.ebsErrorLed, MMR_LED_ON);
+  return EBS_CHECK_ERROR;
 }
 
 

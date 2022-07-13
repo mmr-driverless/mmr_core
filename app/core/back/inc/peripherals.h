@@ -39,6 +39,9 @@ typedef struct MmrAsPeripherals {
   MmrLed *blueAxisLed;
   MmrLed *yellowAxisLed;
 
+  MmrLed *ebsErrorLed;
+  MmrLed *asmsErrorLed;
+
   MmrLed *ctrLed1;
   MmrLed *ctrLed2;
   MmrLed *ctrLed3;
