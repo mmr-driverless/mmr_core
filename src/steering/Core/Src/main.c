@@ -112,7 +112,7 @@ uint16_t cansendflag=0;
 
 float flag=0;
 float sigma=0;
-float centerOffset=2.62f-0.505f+0.4975f;
+float centerOffset=2.62f-0.505f+0.4975f-0.535f;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
