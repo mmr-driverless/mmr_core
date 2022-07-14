@@ -98,6 +98,7 @@ void MMR_BACK_Run() {
 //      gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
 //    }
 //  }
+  MMR_BACK_HWTEST_ResGoButton();
   MMR_BACK_MOCK_AxisLeds();
 
   MMR_APPS_TryWrite(*asp.appsIn);
