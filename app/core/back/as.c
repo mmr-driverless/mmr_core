@@ -121,7 +121,9 @@ static void emergency() {
   }
 }
 
-static void finished() {}
+static void finished() {
+
+}
 
 
 static bool isAsmsOk() {

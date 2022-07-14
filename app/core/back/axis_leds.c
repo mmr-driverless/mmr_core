@@ -8,6 +8,7 @@
 
 void MMR_AXIS_LEDS_Run(MmrAsState state) {
   static MmrDelay delay = { .ms = 500 };
+  static MmrDelay emergencyBlink = { .ms = 200 };
 
   switch (state) {
   case MMR_AS_OFF:
@@ -26,7 +27,7 @@ void MMR_AXIS_LEDS_Run(MmrAsState state) {
     break;
 
   case MMR_AS_EMERGENCY:
-    MMR_LED_BlinkAsync(asp.blueAxisLed, &delay);
+    MMR_LED_BlinkAsync(asp.blueAxisLed, &emergencyBlink);
     MMR_LED_Set(asp.yellowAxisLed, MMR_LED_OFF);
     break;
 
