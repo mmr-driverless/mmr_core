@@ -11,8 +11,12 @@ static bool areAppsPlausible();
 
 
 void MMR_APPS_TryWrite(uint32_t value) {
-  bool canWrite = MMR_APPS_Check() && MMR_TPS_Check();
-  *(asp.appsOut) =  canWrite ? value : 0;
+  static bool canWrite = true;
+  if (canWrite) {
+    canWrite = MMR_APPS_Check() && MMR_TPS_Check();
+  }
+
+  *(asp.appsOut) = canWrite ? value : 0;
 }
 
 
@@ -38,8 +42,8 @@ uint32_t MMR_APPS_ComputeSpeed(float percentage) {
 
 
 static bool areAppsPlausible() {
-  double a = 3.3f * (asp.appsIn[0] / 4096.f);
-  double b = 3.3f * (asp.appsIn[1] / 4096.f);
+  double a = 3.6f * (asp.appsIn[0] / 4096.f);
+  double b = 3.6f * (asp.appsIn[1] / 4096.f);
 
   return
     fabs(a - (2 * b)) <= 0.5f &&

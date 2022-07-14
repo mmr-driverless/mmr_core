@@ -61,6 +61,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
+#define SDC_IS_READY_Pin GPIO_PIN_0
+#define SDC_IS_READY_GPIO_Port GPIOC
 #define GEARUP_SWITCH_Pin GPIO_PIN_1
 #define GEARUP_SWITCH_GPIO_Port GPIOC
 #define GEARN_SWITCH_Pin GPIO_PIN_2
@@ -91,8 +93,6 @@ void Error_Handler(void);
 #define EBS_CONTROL2_GPIO_Port GPIOC
 #define BUTTON1_Pin GPIO_PIN_8
 #define BUTTON1_GPIO_Port GPIOC
-#define SDC_IS_READY_Pin GPIO_PIN_9
-#define SDC_IS_READY_GPIO_Port GPIOC
 #define AS_SDC_CLOSE_Pin GPIO_PIN_8
 #define AS_SDC_CLOSE_GPIO_Port GPIOA
 #define AS_DRIVING_MODE_Pin GPIO_PIN_9

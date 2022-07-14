@@ -1,0 +1,6 @@
+#ifndef APP_CORE_BACK_INC_MOCK_H_
+#define APP_CORE_BACK_INC_MOCK_H_
+
+void MMR_BACK_MOCK_AxisLeds();
+
+#endif // !APP_CORE_BACK_INC_MOCK_H_

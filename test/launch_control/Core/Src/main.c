@@ -673,15 +673,21 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|LSW_LED1_Pin
-                          |LSW_LEDEBS_Pin|EBS_CONTROL2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, SDC_IS_READY_Pin|GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin
+                          |LSW_LED1_Pin|LSW_LEDEBS_Pin|EBS_CONTROL2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|EBS_CONTROL1_Pin|CTR_LED1_Pin
-                          |CTR_LED2_Pin|CTR_LED3_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|CTR_LED1_Pin|CTR_LED2_Pin
+                          |CTR_LED3_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(EBS_CONTROL1_GPIO_Port, EBS_CONTROL1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(AS_SDC_CLOSE_GPIO_Port, AS_SDC_CLOSE_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(AS_DRIVING_MODE_GPIO_Port, AS_DRIVING_MODE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -689,8 +695,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin EBS_CONTROL2_Pin */
-  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|EBS_CONTROL2_Pin;
+  /*Configure GPIO pins : SDC_IS_READY_Pin GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin
+                           EBS_CONTROL2_Pin */
+  GPIO_InitStruct.Pin = SDC_IS_READY_Pin|GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin
+                          |EBS_CONTROL2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -703,10 +711,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LSW_ASSI_BLUE_Pin LSW_ASSI_YELLOW_Pin CTR_LED1_Pin CTR_LED2_Pin */
-  GPIO_InitStruct.Pin = LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|CTR_LED1_Pin|CTR_LED2_Pin;
+  /*Configure GPIO pins : LSW_ASSI_BLUE_Pin LSW_ASSI_YELLOW_Pin EBS_CONTROL1_Pin CTR_LED3_Pin */
+  GPIO_InitStruct.Pin = LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|EBS_CONTROL1_Pin|CTR_LED3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -716,18 +724,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ASMS_SUPPLY_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : EBS_CONTROL1_Pin CTR_LED3_Pin */
-  GPIO_InitStruct.Pin = EBS_CONTROL1_Pin|CTR_LED3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : BUTTON1_Pin SDC_IS_READY_Pin */
-  GPIO_InitStruct.Pin = BUTTON1_Pin|SDC_IS_READY_Pin;
+  /*Configure GPIO pin : BUTTON1_Pin */
+  GPIO_InitStruct.Pin = BUTTON1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(BUTTON1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : AS_SDC_CLOSE_Pin AS_DRIVING_MODE_Pin */
   GPIO_InitStruct.Pin = AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin;
@@ -735,6 +736,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : CTR_LED1_Pin CTR_LED2_Pin */
+  GPIO_InitStruct.Pin = CTR_LED1_Pin|CTR_LED2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
