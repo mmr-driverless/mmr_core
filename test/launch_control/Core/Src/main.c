@@ -243,32 +243,8 @@ int main(void)
   }
 
   MMR_SetTickProvider(HAL_GetTick);
-// MMR_AS_Init(&can0, &gearUp, &gearDown, &gearN, &changeModeBtn, &appsOut, appsIn);
-//  MMR_AXIS_LEDS_Init(&LABpin,&LAYpin,&ASSI_Delay);
-//  Buzzer_Delay = MMR_Delay(9000);
-
   while (1) {
     MMR_BACK_Run();
-    //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
-
-//#ifdef ASSI_TEST
-//    MMR_AXIS_LEDS_Run(gs.stateAs);
-//    if(as_state == MMR_AS_EMERGENCY)
-//      {
-//      if(buzzerflag == false) Buzzer_activation();
-//        if( MMR_DELAY_WaitAsync(&Buzzer_Delay) )
-//        {
-//          buzzerflag = true;
-//          Buzzer_disactivation();
-//        }
-//      }
-//#endif
-////
-//#ifdef EBS_TEST
-//    EBSflag = MMR_AS_GetEbsStates();
-//#endif
-
-// MMR_GS_SendByCan(&hcan);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

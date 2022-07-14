@@ -5,9 +5,9 @@
 
 void MMR_BACK_HWTEST_ResGoButton() {
   if (gs.resGoButton == MMR_BUTTON_PRESSED)
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_ON);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_ON);
   else
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_OFF);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_OFF);
 }
 
 
@@ -16,16 +16,16 @@ void MMR_BACK_HWTEST_MissionReady() {}
 
 void MMR_BACK_HWTEST_AsmsOn() {
   if (MMR_PIN_Read(asp.asms) == MMR_PIN_HIGH)
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_ON);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_ON);
   else
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_OFF);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_OFF);
 }
 
 void MMR_BACK_HWTEST_TsOk() {
   if (gs.gear == 0 && gs.rpm >= 1000)
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_ON);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_ON);
   else
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_OFF);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_OFF);
 }
 
 
@@ -36,9 +36,9 @@ void MMR_BACK_HWTEST_BrakeEngaged() {
     gs.brakePressureRear >= BRAKE_MIN_PRESSURE;
   
   if (isBrakeEngaged)
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_ON);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_ON);
   else
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_OFF);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_OFF);
     
 }
 
@@ -48,7 +48,7 @@ void MMR_BACK_HWTEST_MissionSelected() {
     gs.currentMission != MMR_MISSION_MANUAL;
   
   if (isAutonomous)
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_ON);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_ON);
   else
-    MMR_LED_Set(asp.ebsErrorLed, MMR_LED_OFF);
+    MMR_LED_Set(asp.blueAxisLed, MMR_LED_OFF);
 }

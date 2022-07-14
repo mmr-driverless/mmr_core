@@ -38,7 +38,6 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
   if (MMR_CAN_ReceiveAsync(can, &msg) == MMR_TASK_COMPLETED) {
     MmrCanHeader header = MMR_CAN_MESSAGE_GetHeader(&msg);
     switch (header.messageId) {
-
     case MMR_CAN_MESSAGE_ID_ECU_PEDAL_THROTTLE:
       gs.uThrottleA = MMR_BUFFER_ReadInt16(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN) / 1000.f;
       gs.uThrottleB = MMR_BUFFER_ReadInt16(buffer, 6, MMR_ENCODING_LITTLE_ENDIAN) / 1000.f;

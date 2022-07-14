@@ -26,7 +26,7 @@
 typedef enum MmrCanMessageId {
 // RES
   MMR_CAN_MESSAGE_ID_RES_NMT = 0,
-  MMR_CAN_MESSAGE_ID_RES = 401,
+  MMR_CAN_MESSAGE_ID_RES = 0x191,
 // !RES
 
 // SENSING

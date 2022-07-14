@@ -4,6 +4,7 @@
 #include "inc/apps.h"
 #include "inc/mock.h"
 #include "inc/tps.h"
+#include "inc/hwtest.h"
 #include "../net/inc/net.h"
 
 MmrAsPeripherals asp;
@@ -99,7 +100,7 @@ void MMR_BACK_Run() {
 //    }
 //  }
   MMR_BACK_HWTEST_ResGoButton();
-  MMR_BACK_MOCK_AxisLeds();
+//  MMR_BACK_MOCK_AxisLeds();
 
   MMR_APPS_TryWrite(*asp.appsIn);
 

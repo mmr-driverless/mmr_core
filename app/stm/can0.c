@@ -72,7 +72,13 @@ static bool __mmr_can0_receive(MmrCanMessage *message) {
     HAL_CAN_GetRxMessage(__hcan0, CAN_RX_FIFO0, &rx, message->payload);
 
   message->length = rx.DLC;
-  MMR_CAN_MESSAGE_SetId(message, rx.ExtId);
+  if (rx.IDE == CAN_ID_STD) {
+    MMR_CAN_MESSAGE_SetId(message, rx.StdId);
+  }
+  else {
+    MMR_CAN_MESSAGE_SetId(message, rx.ExtId);
+  }
+
   return status == HAL_OK;
 }
 
