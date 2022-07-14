@@ -24,6 +24,13 @@ bool MMR_TPS_Check() {
 
 
 static bool areTpsPlausible() {
+  static bool keepZeroes = true;
+  if (keepZeroes && gs.uThrottleA == 0 && gs.uThrottleB == 0) {
+    return true;
+  }
+
+  keepZeroes = false;
+
   float difference = gs.uThrottleA + gs.uThrottleB - 5;
   return fabs(difference) <= 0.5;
 }
