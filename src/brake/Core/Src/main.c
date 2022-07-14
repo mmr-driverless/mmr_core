@@ -95,7 +95,7 @@ uint16_t prescaler=100-1;
 uint16_t ADC2_Value[ADC_SIZE];
 uint16_t filtered_ADC_pressure = 0;
 uint16_t filtered_ADC_angle = 0;
-uint32_t target_psc = 400;
+uint32_t target_psc = 500;  // TODO: ricorda 400
 uint16_t pressure_samples[PRESSURE_SAMPLES_NUMBER];
 uint16_t k=0;
 uint16_t cansendflag=0;
@@ -365,9 +365,9 @@ int main(void)
 
     // Definition of proportional parameters
     p_data_pressure_error.left_x=0.0f;
-    p_data_pressure_error.left_y=400;
+    p_data_pressure_error.left_y=500;  // TODO: remind 400
     p_data_pressure_error.right_x=2.0f;
-    p_data_pressure_error.right_y=100;
+    p_data_pressure_error.right_y=200;  // TODO: remind 100
 
     // Definition of lowpass parameters
     lowpass_data_pressure.input=ADC2_Value[0];
@@ -380,8 +380,8 @@ int main(void)
     lowpass_data_angle.cutoff_frequency=20.0f; // [rad/s]
     lowpass_data_angle.dt=0.0125f; // TIM3 time period
 
-    lowpass32_data.input=400;
-    lowpass32_data.output=400;
+    lowpass32_data.input=500;  // TODO: remind 400
+    lowpass32_data.output=500;  // TODO: remind 400
     lowpass32_data.cutoff_frequency=15.0f; // [rad/s]
     lowpass32_data.dt=0.0125f; // TIM3 time period
 
