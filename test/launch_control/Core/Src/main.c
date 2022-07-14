@@ -248,12 +248,7 @@ int main(void)
 //  Buzzer_Delay = MMR_Delay(9000);
 
   while (1) {
-<<<<<<< Updated upstream
     MMR_BACK_Run();
-=======
-    MMR_AS_
-	Run();
->>>>>>> Stashed changes
     //MACCHINA A STATI FINITI DEFINITA DA REGOLAMENTO
 
 //#ifdef ASSI_TEST
