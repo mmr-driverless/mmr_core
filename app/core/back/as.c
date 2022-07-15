@@ -21,7 +21,7 @@ static MmrAsState stateAs = MMR_AS_OFF;
 static bool waitingMissionReady = false;
 
 static MmrAsState computeState();
-static bool areBrakeEngaged();
+static bool areBrakesEngaged();
 static bool isAsmsOk();
 static bool isTSOk();
 static bool isEbsReady();
@@ -36,7 +36,6 @@ void MMR_AS_Run() {
   static MmrDelay sendDelay = { .ms = 15 };
 
   // Handbook: https://bit.ly/3bRd49t
-
   stateAs = computeState();
   gs.stateAs = stateAs;
   MMR_AXIS_LEDS_Run(stateAs);
@@ -75,7 +74,6 @@ static MmrAsState computeState() {
 
   bool canDrive =
     gs.currentMission != MMR_MISSION_IDLE &&
-    gs.currentMission != MMR_MISSION_INSPECTION &&
     gs.currentMission != MMR_MISSION_MANUAL &&
     isEbsReady() &&
     isAsmsOk() &&
@@ -85,7 +83,7 @@ static MmrAsState computeState() {
     if (gs.readyToDrive)
       return MMR_AS_DRIVING;
 
-    if (areBrakeEngaged())
+    if (areBrakesEngaged())
       return MMR_AS_READY;
   }
 
@@ -93,12 +91,18 @@ static MmrAsState computeState() {
 }
 
 
-static void off() {}
+static void off() {
+
+}
 
 static void ready() {
   static MmrDelay readyToDriveDelay = { .ms = 5000 };
 
-  if (MMR_DELAY_WaitOnceAsync(&readyToDriveDelay) && gs.resGoButton == MMR_BUTTON_PRESSED) {
+  if (!MMR_DELAY_WaitOnceAsync(&readyToDriveDelay)) {
+    return;
+  }
+
+  if (gs.resGoButton == MMR_BUTTON_PRESSED) {
     waitingMissionReady = true;
     if (gs.missionReady) {
       gs.readyToDrive = true;
@@ -121,6 +125,7 @@ static void emergency() {
   }
 }
 
+
 static void finished() {
 
 }
@@ -135,13 +140,13 @@ static bool isTSOk() {
   return gs.gear == 0 && gs.rpm >= 1000;
 }
 
-static bool areBrakeEngaged() {
-  static const int BRAKE_MIN_PRESSURE = 4;
+static bool areBrakesEngaged() {
   return
-    gs.brakePressureFront >= BRAKE_MIN_PRESSURE &&
-    gs.brakePressureRear >= BRAKE_MIN_PRESSURE;
+    gs.brakePressureFront >= 2 &&
+    gs.brakePressureRear >= 4;
 }
 
 static bool isEbsReady() {
+  return true;
   return gs.ebsState == MMR_EBS_ARMED;
 }

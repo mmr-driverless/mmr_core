@@ -54,7 +54,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
+ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan;
@@ -646,8 +646,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, SDC_IS_READY_Pin|GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin
-                          |LSW_LED1_Pin|LSW_LEDEBS_Pin|EBS_CONTROL2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|LSW_LED1_Pin
+                          |LSW_LEDEBS_Pin|EBS_CONTROL2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|CTR_LED1_Pin|CTR_LED2_Pin
@@ -668,10 +668,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SDC_IS_READY_Pin GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin
-                           EBS_CONTROL2_Pin */
-  GPIO_InitStruct.Pin = SDC_IS_READY_Pin|GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin
-                          |EBS_CONTROL2_Pin;
+  /*Configure GPIO pins : SDC_IS_READY_Pin BUTTON1_Pin */
+  GPIO_InitStruct.Pin = SDC_IS_READY_Pin|BUTTON1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin EBS_CONTROL2_Pin */
+  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|EBS_CONTROL2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -696,12 +700,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ASMS_SUPPLY_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : BUTTON1_Pin */
-  GPIO_InitStruct.Pin = BUTTON1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : AS_SDC_CLOSE_Pin AS_DRIVING_MODE_Pin */
   GPIO_InitStruct.Pin = AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin;

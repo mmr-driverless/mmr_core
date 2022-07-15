@@ -76,11 +76,9 @@ static MmrMission autocross() {
 }
 
 static MmrMission inspection() {
-  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
-
   if (gs.missionFinished) {
-    MMR_EBS_Disarm();
+//    MMR_EBS_Disarm();
     return MMR_MISSION_FINISHED;
   }
 

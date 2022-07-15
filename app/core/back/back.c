@@ -85,6 +85,8 @@ void MMR_BACK_Init(
 
 
 void MMR_BACK_Run() {
+  static int brakeDisableCount = 0;
+
   MMR_GS_UpdateFromCan(asp.can);
 
   if (gs.currentMission == MMR_MISSION_MANUAL) {
@@ -95,12 +97,20 @@ void MMR_BACK_Run() {
 
   if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
     MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
-    MMR_NET_EngageBrakeAsync(asp.can, 0.7);
+
+    if (gs.stateAs < MMR_AS_DRIVING) {
+      MMR_NET_EngageBrakeAsync(asp.can, 0.7);
+    }
+    else {
+      if (brakeDisableCount++ < 3) {
+        MMR_NET_EngageBrakeAsync(asp.can, 0.0);
+      }
+    }
 
     if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
       gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
     }
-
-    MMR_AS_Run();
   }
+
+  MMR_AS_Run();
 }
