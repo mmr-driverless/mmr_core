@@ -147,6 +147,5 @@ static bool areBrakesEngaged() {
 }
 
 static bool isEbsReady() {
-  return true;
   return gs.ebsState == MMR_EBS_ARMED;
 }

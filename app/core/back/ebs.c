@@ -106,10 +106,7 @@ static MmrEbsCheckState idle(MmrEbsCheckState state) {
 
 
 static MmrEbsCheckState startWatchdog(MmrEbsCheckState state) {
-  if (!asp.watchdogStart()) {
-    return EBS_CHECK_ERROR;
-  }
-
+  asp.watchdogStart();
   return EBS_CHECK_SDC_WAIT_HIGH;
 }
 
@@ -122,10 +119,7 @@ static MmrEbsCheckState sdcWaitHigh(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState stopWatchdog(MmrEbsCheckState state) {
-  if (!asp.watchdogStop()) {
-    return EBS_CHECK_ERROR;
-  }
-
+  asp.watchdogStop();
   return EBS_CHECK_SDC_WAIT_LOW;
 }
 
@@ -144,10 +138,7 @@ static MmrEbsCheckState sdcWaitLow(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState retoggleWatchdog(MmrEbsCheckState state) {
-  if (!asp.watchdogStart()) {
-    return EBS_CHECK_ERROR;
-  }
-
+  asp.watchdogStart();
   return EBS_CHECK_EBS_PRESSURE_OK;
 }
 
@@ -185,10 +176,16 @@ static MmrEbsCheckState activateTs(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState waitTsActivation(MmrEbsCheckState state) {
+  static MmrDelay tsSimulationDelay = { .ms = 3000 };  // TODO: faked
+  if (MMR_DELAY_WaitAsync(&tsSimulationDelay)) {
+	  return EBS_WAIT_TS_ACTIVATED;
+  }
+
+  /*
   if (gs.gear == 0 && gs.rpm >= 1000) {
     return EBS_WAIT_TS_ACTIVATED;
   }
-
+  */
   return state;
 }
 
