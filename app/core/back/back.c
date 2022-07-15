@@ -83,9 +83,10 @@ void MMR_BACK_Init(
   };
 }
 
+
 void MMR_BACK_Run() {
   MMR_GS_UpdateFromCan(asp.can);
-//  MMR_NET_BRAKE_Init(asp.can);
+//  MMR_NET_EngageBrakeAsync(asp.can, 0.7);
 //
 //  if (gs.currentMission == MMR_MISSION_MANUAL) {
 //    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_MANUAL);
@@ -99,7 +100,7 @@ void MMR_BACK_Run() {
 //      gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
 //    }
 //  }
-  MMR_BACK_HWTEST_ResGoButton();
+  gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
 //  MMR_BACK_MOCK_AxisLeds();
 
   MMR_APPS_TryWrite(*asp.appsIn);

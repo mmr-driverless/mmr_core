@@ -54,7 +54,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan;
@@ -108,13 +108,10 @@ void Buzzer_activation(void){
 void Buzzer_disactivation(void){
   HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);
 }
-bool buzzerflag = false;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-MmrMission mission = MMR_MISSION_IDLE;
 
 /* USER CODE END 0 */
 
@@ -235,7 +232,7 @@ int main(void)
     &asmsPin
   );
 
-//  EBS_Init(&Ebs1Pin, &Ebs2Pin, &asCloseSDCpin,&ebsLedpin);
+
   MMR_GS_Init();
 
   if (!MMR_CAN0_Start(&hcan)) {
@@ -244,7 +241,7 @@ int main(void)
 
   MMR_SetTickProvider(HAL_GetTick);
   while (1) {
-    MMR_BACK_Run();
+//    MMR_BACK_Run();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

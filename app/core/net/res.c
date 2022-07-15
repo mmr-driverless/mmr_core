@@ -9,7 +9,7 @@ static bool maskBit(uint8_t val, unsigned bitIdx) {
 }
 
 void MMR_NET_ResParse(uint8_t resPayload, MmrButtonState *emergencyButtonState, MmrButtonState *goButtonState, MmrButtonState *bagButtonState) {
-  *emergencyButtonState = maskBit(resPayload, 0) ? MMR_BUTTON_PRESSED : MMR_BUTTON_RELEASED;
+  *emergencyButtonState = maskBit(resPayload, 0) ? MMR_BUTTON_RELEASED : MMR_BUTTON_PRESSED;
   *goButtonState = maskBit(resPayload, 1) ? MMR_BUTTON_PRESSED : MMR_BUTTON_RELEASED;
   *bagButtonState = maskBit(resPayload, 2) ? MMR_BUTTON_PRESSED : MMR_BUTTON_RELEASED;
 }

@@ -5,8 +5,7 @@
 #include <can.h>
 #include <button.h>
 
-void MMR_NET_BRAKE_Init(MmrCan *can);
-bool MMR_NET_EngageBrakeAsync();
+bool MMR_NET_EngageBrakeAsync(MmrCan *can, float target);
 
 bool MMR_NET_ClutchPullAsync(MmrCan *can);
 bool MMR_NET_ClutchReleaseAsync(MmrCan *can);

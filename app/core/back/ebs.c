@@ -2,8 +2,8 @@
 #include "inc/peripherals.h"
 #include "inc/global_state.h"
 
-const uint8_t EBS_CHECK_MIN_PRESSURE = 40;
-const uint8_t BRAKE_MIN_PRESSURE = 15;
+const uint8_t EBS_CHECK_MIN_PRESSURE = 20;
+const uint8_t BRAKE_MIN_PRESSURE = 2;
 
 
 static bool checkEbsPressureOk();
@@ -12,13 +12,13 @@ static bool checkBrakesPressureOk();
 
 void MMR_EBS_Arm() {
   MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_HIGH);
-  MMR_PIN_Write(asp.ebs1, MMR_PIN_HIGH);
-  MMR_PIN_Write(asp.ebs2, MMR_PIN_HIGH);
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
 }
 
 void MMR_EBS_Disarm() {
-  MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
-  MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_HIGH);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_HIGH);
 }
 
 void MMR_EBS_Brake() {
@@ -48,6 +48,7 @@ static MmrEbsCheckState ebsPressureOk(MmrEbsCheckState state);
 static MmrEbsCheckState brakePressureOk(MmrEbsCheckState state);
 static MmrEbsCheckState activateTs(MmrEbsCheckState state);
 static MmrEbsCheckState waitTsActivation(MmrEbsCheckState state);
+static MmrEbsCheckState waitTsActivated(MmrEbsCheckState state);
 static MmrEbsCheckState disableActuator1(MmrEbsCheckState state);
 static MmrEbsCheckState checkAct1BrakePressure(MmrEbsCheckState state);
 static MmrEbsCheckState enableActuator1(MmrEbsCheckState state);
@@ -80,6 +81,7 @@ MmrEbsCheckState MMR_EBS_Check(MmrEbsCheckState state) {
 
   case EBS_CHECK_ACTIVATE_TS: return activateTs(state);
   case EBS_CHECK_WAIT_TS_ACTIVATION: return waitTsActivation(state);
+  case EBS_WAIT_TS_ACTIVATED: return waitTsActivated(state);
 
   case EBS_CHECK_DISABLE_ACTUATOR_1: return disableActuator1(state);
   case EBS_CHECK_CHECK_ACT_1_BRAKE_PRESSURE: return checkAct1BrakePressure(state);
@@ -184,15 +186,32 @@ static MmrEbsCheckState activateTs(MmrEbsCheckState state) {
 
 static MmrEbsCheckState waitTsActivation(MmrEbsCheckState state) {
   if (gs.gear == 0 && gs.rpm >= 1000) {
+    return EBS_WAIT_TS_ACTIVATED;
+  }
+
+  return state;
+}
+
+
+static MmrEbsCheckState waitTsActivated(MmrEbsCheckState state) {
+  if (MMR_EBS_SdcIsReady()) {
     return EBS_CHECK_DISABLE_ACTUATOR_1;
   }
 
   return state;
 }
 
+
 static MmrEbsCheckState disableActuator1(MmrEbsCheckState state) {
+  static MmrDelay delay = { .ms = 2000 };
+
   MMR_PIN_Write(asp.ebs1, MMR_PIN_HIGH);
-  return EBS_CHECK_CHECK_ACT_1_BRAKE_PRESSURE;
+
+  if (MMR_DELAY_WaitAsync(&delay)) {
+    return EBS_CHECK_CHECK_ACT_1_BRAKE_PRESSURE;
+  }
+
+  return state;
 }
 
 static MmrEbsCheckState checkAct1BrakePressure(MmrEbsCheckState state) {
@@ -210,14 +229,28 @@ static MmrEbsCheckState checkAct1BrakePressure(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState enableActuator1(MmrEbsCheckState state) {
+  static MmrDelay delay = { .ms = 2000 };
+
   MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
-  return EBS_CHECK_DISABLE_ACTUATOR_2;
+
+  if (MMR_DELAY_WaitAsync(&delay)) {
+    return EBS_CHECK_DISABLE_ACTUATOR_2;
+  }
+
+  return state;
 }
 
 
 static MmrEbsCheckState disableActuator2(MmrEbsCheckState state) {
+  static MmrDelay delay = { .ms = 2000 };
+
   MMR_PIN_Write(asp.ebs2, MMR_PIN_HIGH);
-  return EBS_CHECK_CHECK_ACT_2_BRAKE_PRESSURE;
+
+  if (MMR_DELAY_WaitAsync(&delay)) {
+    return EBS_CHECK_CHECK_ACT_2_BRAKE_PRESSURE;
+  }
+
+  return state;
 }
 
 static MmrEbsCheckState checkAct2BrakePressure(MmrEbsCheckState state) {
@@ -241,12 +274,19 @@ static MmrEbsCheckState enableActuator2(MmrEbsCheckState state) {
 
 
 static MmrEbsCheckState armEbs(MmrEbsCheckState state) {
-  MMR_EBS_Arm();
-  return EBS_CHECK_READY;
+  static MmrDelay delay = { .ms = 2000 };
+
+  if (MMR_DELAY_WaitAsync(&delay)) {
+    return EBS_CHECK_READY;
+  }
+
+  return state;
 }
 
 
 static MmrEbsCheckState ready(MmrEbsCheckState state) {
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_HIGH);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_HIGH);
   return EBS_CHECK_READY;
 }
 
