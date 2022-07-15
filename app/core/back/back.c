@@ -91,6 +91,7 @@ void MMR_BACK_Run() {
   MMR_GS_UpdateFromCan(asp.can);
 
   if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
+    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
     gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
     return;
   }
@@ -99,6 +100,7 @@ void MMR_BACK_Run() {
     return;
   }
 
+  MMR_EBS_Arm();
   MMR_AS_Run();
 
 //

@@ -11,14 +11,13 @@ static bool checkBrakesPressureOk();
 
 
 void MMR_EBS_Arm() {
-  MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_HIGH);
-  MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
-  MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_HIGH);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_HIGH);
 }
 
 void MMR_EBS_Disarm() {
-  MMR_PIN_Write(asp.ebs1, MMR_PIN_HIGH);
-  MMR_PIN_Write(asp.ebs2, MMR_PIN_HIGH);
+  MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
+  MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
 }
 
 void MMR_EBS_Brake() {
@@ -106,7 +105,10 @@ static MmrEbsCheckState idle(MmrEbsCheckState state) {
 
 
 static MmrEbsCheckState startWatchdog(MmrEbsCheckState state) {
-  asp.watchdogStart();
+  if (!asp.watchdogStart()) {
+    return EBS_CHECK_ERROR;
+  }
+
   return EBS_CHECK_SDC_WAIT_HIGH;
 }
 
@@ -119,7 +121,10 @@ static MmrEbsCheckState sdcWaitHigh(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState stopWatchdog(MmrEbsCheckState state) {
-  asp.watchdogStop();
+  if (!asp.watchdogStop()) {
+    return EBS_CHECK_ERROR;
+  }
+
   return EBS_CHECK_SDC_WAIT_LOW;
 }
 
@@ -138,7 +143,10 @@ static MmrEbsCheckState sdcWaitLow(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState retoggleWatchdog(MmrEbsCheckState state) {
-  asp.watchdogStart();
+  if (!asp.watchdogStart()) {
+    return EBS_CHECK_ERROR;
+  }
+
   return EBS_CHECK_EBS_PRESSURE_OK;
 }
 
@@ -171,6 +179,7 @@ static MmrEbsCheckState brakePressureOk(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState activateTs(MmrEbsCheckState state) {
+  MMR_PIN_Write(asp.ebsAsCloseSdc, MMR_PIN_HIGH);
   MMR_EBS_Arm();
   return EBS_CHECK_WAIT_TS_ACTIVATION;
 }

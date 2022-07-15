@@ -75,8 +75,8 @@ void Error_Handler(void);
 #define APPS2_IN_GPIO_Port GPIOA
 #define APPS1_OUT_Pin GPIO_PIN_4
 #define APPS1_OUT_GPIO_Port GPIOA
-#define WATCHDOG_Pin GPIO_PIN_6
-#define WATCHDOG_GPIO_Port GPIOA
+#define EBS_CONTROL2_Pin GPIO_PIN_7
+#define EBS_CONTROL2_GPIO_Port GPIOA
 #define LSW_LED1_Pin GPIO_PIN_4
 #define LSW_LED1_GPIO_Port GPIOC
 #define LSW_LEDEBS_Pin GPIO_PIN_5
@@ -87,10 +87,10 @@ void Error_Handler(void);
 #define LSW_ASSI_YELLOW_GPIO_Port GPIOB
 #define ASMS_SUPPLY_Pin GPIO_PIN_12
 #define ASMS_SUPPLY_GPIO_Port GPIOB
-#define EBS_CONTROL1_Pin GPIO_PIN_15
-#define EBS_CONTROL1_GPIO_Port GPIOB
-#define EBS_CONTROL2_Pin GPIO_PIN_6
-#define EBS_CONTROL2_GPIO_Port GPIOC
+#define WATCHDOG_Pin GPIO_PIN_14
+#define WATCHDOG_GPIO_Port GPIOB
+#define EBS_CONTROL1_Pin GPIO_PIN_6
+#define EBS_CONTROL1_GPIO_Port GPIOC
 #define BUTTON1_Pin GPIO_PIN_8
 #define BUTTON1_GPIO_Port GPIOC
 #define AS_SDC_CLOSE_Pin GPIO_PIN_8

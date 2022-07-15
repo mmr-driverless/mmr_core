@@ -63,6 +63,7 @@ DAC_HandleTypeDef hdac;
 DMA_HandleTypeDef hdma_dac_ch1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 TIM_HandleTypeDef htim17;
 
@@ -79,11 +80,11 @@ uint8_t TS_EBS;
 
 
 bool WATCHDOG_Activation() {
-  return HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1) == HAL_OK;
+  return HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1) == HAL_OK;
 }
 
 bool WATCHDOG_Disable() {
-  return HAL_TIM_PWM_Stop(&htim16, TIM_CHANNEL_1) == HAL_OK;
+  return HAL_TIM_PWM_Stop(&htim15, TIM_CHANNEL_1) == HAL_OK;
 }
 
 /* USER CODE END PV */
@@ -98,6 +99,7 @@ static void MX_TIM2_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
+static void MX_TIM15_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -150,6 +152,7 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM16_Init();
   MX_TIM17_Init();
+  MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
   /*ADC/DAC with DMA Start*/
   HAL_ADC_Start_DMA(&hadc1, appsIn, sizeof(appsIn) / sizeof(*appsIn));
@@ -157,7 +160,8 @@ int main(void)
   HAL_TIM_Base_Start(&htim2);
   /**/
 
-  WATCHDOG_Activation();
+//  WATCHDOG_Activation();
+  TIM15->CCR1 = 0.5f * TIM15->ARR;
 
   /* USER CODE END 2 */
 
@@ -172,7 +176,7 @@ int main(void)
   MmrPin LAYpin = MMR_Pin(LSW_ASSI_YELLOW_GPIO_Port,LSW_ASSI_YELLOW_Pin, true);
 
   MmrPin asDrivingModePin = MMR_Pin(AS_DRIVING_MODE_GPIO_Port, AS_DRIVING_MODE_Pin, false);
-  MmrPin asSdcIsReadyPin = MMR_Pin(AS_SDC_CLOSE_GPIO_Port, AS_SDC_CLOSE_Pin, false);
+  MmrPin asSdcIsReadyPin = MMR_Pin(SDC_IS_READY_GPIO_Port, SDC_IS_READY_Pin, false);
 
   MmrPin Ebs1Pin = MMR_Pin(EBS_CONTROL1_GPIO_Port, EBS_CONTROL1_Pin, false);
   MmrPin Ebs2Pin = MMR_Pin(EBS_CONTROL2_GPIO_Port, EBS_CONTROL2_Pin, false);
@@ -286,8 +290,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_TIM16|RCC_PERIPHCLK_TIM17
-                              |RCC_PERIPHCLK_ADC1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_TIM15|RCC_PERIPHCLK_TIM16
+                              |RCC_PERIPHCLK_TIM17|RCC_PERIPHCLK_ADC1;
+  PeriphClkInit.Tim15ClockSelection = RCC_TIM15CLK_HCLK;
   PeriphClkInit.Tim16ClockSelection = RCC_TIM16CLK_HCLK;
   PeriphClkInit.Tim17ClockSelection = RCC_TIM17CLK_HCLK;
   PeriphClkInit.Adc1ClockSelection = RCC_ADC1PLLCLK_DIV64;
@@ -487,6 +492,72 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM15 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM15_Init(void)
+{
+
+  /* USER CODE BEGIN TIM15_Init 0 */
+
+  /* USER CODE END TIM15_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
+
+  /* USER CODE BEGIN TIM15_Init 1 */
+
+  /* USER CODE END TIM15_Init 1 */
+  htim15.Instance = TIM15;
+  htim15.Init.Prescaler = 64000-1;
+  htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim15.Init.Period = 20-1;
+  htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim15.Init.RepetitionCounter = 0;
+  htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_PWM_Init(&htim15) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim15, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 50;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_PWM_ConfigChannel(&htim15, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.BreakFilter = 0;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim15, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM15_Init 2 */
+
+  /* USER CODE END TIM15_Init 2 */
+  HAL_TIM_MspPostInit(&htim15);
+
+}
+
+/**
   * @brief TIM16 Initialization Function
   * @param None
   * @retval None
@@ -497,9 +568,6 @@ static void MX_TIM16_Init(void)
   /* USER CODE BEGIN TIM16_Init 0 */
 
   /* USER CODE END TIM16_Init 0 */
-
-  TIM_OC_InitTypeDef sConfigOC = {0};
-  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
   /* USER CODE BEGIN TIM16_Init 1 */
 
@@ -515,37 +583,9 @@ static void MX_TIM16_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_PWM_Init(&htim16) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 25-1;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  if (HAL_TIM_PWM_ConfigChannel(&htim16, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-  sBreakDeadTimeConfig.DeadTime = 0;
-  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-  sBreakDeadTimeConfig.BreakFilter = 0;
-  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  if (HAL_TIMEx_ConfigBreakDeadTime(&htim16, &sBreakDeadTimeConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
   /* USER CODE BEGIN TIM16_Init 2 */
 
   /* USER CODE END TIM16_Init 2 */
-  HAL_TIM_MspPostInit(&htim16);
 
 }
 
@@ -646,21 +686,18 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin
-                          |LSW_LED1_Pin|LSW_LEDEBS_Pin|EBS_CONTROL2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|LSW_LED1_Pin
+                          |LSW_LEDEBS_Pin|EBS_CONTROL1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, EBS_CONTROL2_Pin|AS_DRIVING_MODE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|CTR_LED1_Pin|CTR_LED2_Pin
                           |CTR_LED3_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(EBS_CONTROL1_GPIO_Port, EBS_CONTROL1_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(AS_SDC_CLOSE_GPIO_Port, AS_SDC_CLOSE_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(AS_DRIVING_MODE_GPIO_Port, AS_DRIVING_MODE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -668,13 +705,25 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SDC_IS_READY_Pin GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin
-                           EBS_CONTROL2_Pin */
-  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|EBS_CONTROL2_Pin;
+  /*Configure GPIO pins : SDC_IS_READY_Pin BUTTON1_Pin */
+  GPIO_InitStruct.Pin = SDC_IS_READY_Pin|BUTTON1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : GEARUP_SWITCH_Pin GEARN_SWITCH_Pin GEARDOWN_SWITCH_Pin EBS_CONTROL1_Pin */
+  GPIO_InitStruct.Pin = GEARUP_SWITCH_Pin|GEARN_SWITCH_Pin|GEARDOWN_SWITCH_Pin|EBS_CONTROL1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : EBS_CONTROL2_Pin AS_SDC_CLOSE_Pin AS_DRIVING_MODE_Pin */
+  GPIO_InitStruct.Pin = EBS_CONTROL2_Pin|AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LSW_LED1_Pin LSW_LEDEBS_Pin */
   GPIO_InitStruct.Pin = LSW_LED1_Pin|LSW_LEDEBS_Pin;
@@ -683,8 +732,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LSW_ASSI_BLUE_Pin LSW_ASSI_YELLOW_Pin EBS_CONTROL1_Pin CTR_LED3_Pin */
-  GPIO_InitStruct.Pin = LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|EBS_CONTROL1_Pin|CTR_LED3_Pin;
+  /*Configure GPIO pins : LSW_ASSI_BLUE_Pin LSW_ASSI_YELLOW_Pin CTR_LED3_Pin */
+  GPIO_InitStruct.Pin = LSW_ASSI_BLUE_Pin|LSW_ASSI_YELLOW_Pin|CTR_LED3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -695,19 +744,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ASMS_SUPPLY_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : BUTTON1_Pin */
-  GPIO_InitStruct.Pin = BUTTON1_Pin|SDC_IS_READY_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : AS_SDC_CLOSE_Pin AS_DRIVING_MODE_Pin */
-  GPIO_InitStruct.Pin = AS_SDC_CLOSE_Pin|AS_DRIVING_MODE_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : CTR_LED1_Pin CTR_LED2_Pin */
   GPIO_InitStruct.Pin = CTR_LED1_Pin|CTR_LED2_Pin;
