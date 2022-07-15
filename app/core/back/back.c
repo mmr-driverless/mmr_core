@@ -85,6 +85,7 @@ void MMR_BACK_Init(
 
 
 void MMR_BACK_Run() {
+  static bool isAutonomous;
   MMR_GS_UpdateFromCan(asp.can);
 
   if (gs.currentMission == MMR_MISSION_MANUAL) {
@@ -93,7 +94,9 @@ void MMR_BACK_Run() {
     MMR_MISSION_Run(gs.currentMission);
   }
 
-  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
+  isAutonomous = true;
+  // isAutonomous = gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL;  // TODO: decomment
+  if (isAutonomous) {
     MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
     MMR_NET_EngageBrakeAsync(asp.can, 0.7);
 

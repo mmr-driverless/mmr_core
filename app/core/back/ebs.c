@@ -185,10 +185,16 @@ static MmrEbsCheckState activateTs(MmrEbsCheckState state) {
 }
 
 static MmrEbsCheckState waitTsActivation(MmrEbsCheckState state) {
+  static MmrDelay tsSimulationDelay = { .ms = 3000 };  // TODO: faked
+  if (MMR_DELAY_WaitAsync(&tsSimulationDelay)) {
+	  return EBS_WAIT_TS_ACTIVATED;
+  }
+
+  /*
   if (gs.gear == 0 && gs.rpm >= 1000) {
     return EBS_WAIT_TS_ACTIVATED;
   }
-
+  */
   return state;
 }
 
