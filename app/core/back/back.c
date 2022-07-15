@@ -86,24 +86,21 @@ void MMR_BACK_Init(
 
 void MMR_BACK_Run() {
   MMR_GS_UpdateFromCan(asp.can);
-//  MMR_NET_EngageBrakeAsync(asp.can, 0.7);
-//
-//  if (gs.currentMission == MMR_MISSION_MANUAL) {
-//    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_MANUAL);
-//  }
-//
-//  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
-//    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
-//    MMR_NET_EngageBrakeAsync();
-//
-//    if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
-//      gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
-//    }
-//  }
-  gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
-//  MMR_BACK_MOCK_AxisLeds();
 
-  MMR_APPS_TryWrite(*asp.appsIn);
+  if (gs.currentMission == MMR_MISSION_MANUAL) {
+    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_MANUAL);
 
-//  MMR_AS_Run();
+    MMR_MISSION_Run(gs.currentMission);
+  }
+
+  if (gs.currentMission != MMR_MISSION_IDLE && gs.currentMission != MMR_MISSION_MANUAL) {
+    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
+    MMR_NET_EngageBrakeAsync(asp.can, 0.7);
+
+    if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
+      gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
+    }
+
+    MMR_AS_Run();
+  }
 }

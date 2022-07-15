@@ -241,7 +241,7 @@ int main(void)
 
   MMR_SetTickProvider(HAL_GetTick);
   while (1) {
-//    MMR_BACK_Run();
+    MMR_BACK_Run();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
