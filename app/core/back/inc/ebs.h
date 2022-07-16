@@ -24,7 +24,7 @@ typedef enum MmrEbsCheckState {
 
   EBS_CHECK_ACTIVATE_TS,
   EBS_CHECK_WAIT_TS_ACTIVATION,
-  EBS_WAIT_TS_ACTIVATED,
+  EBS_CHECK_WAIT_TS_ACTIVATED,
 
   EBS_CHECK_DISABLE_ACTUATOR_1,
   EBS_CHECK_CHECK_ACT_1_BRAKE_PRESSURE,
@@ -42,11 +42,12 @@ typedef enum MmrEbsCheckState {
 
 
 typedef enum MmrEbsDrivingMode {
-  MMR_EBS_CHECK_DRIVING_MODE_MANUAL,
-  MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS,
+  MMR_EBS_DRIVING_MODE_MANUAL,
+  MMR_EBS_DRIVING_MODE_AUTONOMOUS,
 } MmrEbsDrivingMode;
 
 void MMR_EBS_Arm();
+void MMR_EBS_Off();
 void MMR_EBS_Disarm();
 void MMR_EBS_SetDrivingMode(MmrEbsDrivingMode mode);
 bool MMR_EBS_SdcIsReady();

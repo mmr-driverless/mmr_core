@@ -5,6 +5,7 @@
 #include "inc/mock.h"
 #include "inc/tps.h"
 #include "inc/hwtest.h"
+#include "inc/manual.h"
 #include "../net/inc/net.h"
 
 MmrAsPeripherals asp;
@@ -86,56 +87,57 @@ void MMR_BACK_Init(
 
 void MMR_BACK_Run() {
   static int brakeDisableCount = 0;
-  static bool isAutonomous;
-  
+
   MMR_GS_UpdateFromCan(asp.can);
 
-  if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
-    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
-    gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
-    return;
+  if (gs.currentMission == MMR_MISSION_MANUAL) {
+    gs.ms = MMR_MANUAL_Run(gs.ms);
   }
 
-  if (gs.ebsCheckState == EBS_CHECK_ERROR) {
-    return;
+
+  bool isAutonomous =
+    gs.currentMission != MMR_MISSION_IDLE &&
+    gs.currentMission != MMR_MISSION_MANUAL;
+
+  if (isAutonomous) {
+    MMR_EBS_SetDrivingMode(MMR_EBS_DRIVING_MODE_AUTONOMOUS);
+
+    bool asmsOk = MMR_PIN_Read(asp.asms) == MMR_PIN_HIGH;
+    if (asmsOk && gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
+      if (gs.ebsCheckState == EBS_CHECK_ACTIVATE_TS) {
+        MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(0.3));
+      }
+
+      if (gs.ebsCheckState == EBS_CHECK_DISABLE_ACTUATOR_1) {
+        MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(0.0));
+      }
+
+      gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
+      return;
+    }
+
+    if (gs.ebsCheckState == EBS_CHECK_ERROR) {
+      return;
+    }
+
+    if (gs.stateAs < MMR_AS_DRIVING) {
+      MMR_NET_EngageBrakeAsync(asp.can, 0.7);
+    }
+    else {
+      if (brakeDisableCount < 3 && MMR_NET_EngageBrakeAsync(asp.can, 0.0)) {
+        brakeDisableCount++;
+      }
+    }
+
+    bool isEbsActivated =
+        gs.ebsCheckState == EBS_CHECK_READY &&
+        (gs.resEmergencyButton == MMR_BUTTON_PRESSED ||
+        asmsOk == false);
+
+    if (isEbsActivated) {
+      gs.ebsState = MMR_EBS_ACTIVATED;
+    }
+
+    MMR_AS_Run();
   }
-
-  MMR_EBS_Arm();
-  MMR_AS_Run();
-
-//
-//  if (gs.currentMission == MMR_MISSION_MANUAL) {
-//    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_MANUAL);
-//
-//    MMR_MISSION_Run(gs.currentMission);
-//  }
-//
-//
-//  isAutonomous =
-//    gs.currentMission != MMR_MISSION_IDLE &&
-//    gs.currentMission != MMR_MISSION_MANUAL;
-//
-//  if (isAutonomous) {
-//    MMR_EBS_SetDrivingMode(MMR_EBS_CHECK_DRIVING_MODE_AUTONOMOUS);
-//
-//    if (gs.ebsCheckState != EBS_CHECK_ERROR && gs.ebsCheckState != EBS_CHECK_READY) {
-//      gs.ebsCheckState = MMR_EBS_Check(gs.ebsCheckState);
-//      return;
-//    }
-//
-//    if (gs.ebsCheckState == EBS_CHECK_ERROR) {
-//      return;
-//    }
-//
-//    if (gs.stateAs < MMR_AS_DRIVING) {
-//      MMR_NET_EngageBrakeAsync(asp.can, 0.7);
-//    }
-//    else {
-//      if (brakeDisableCount++ < 3) {
-//        MMR_NET_EngageBrakeAsync(asp.can, 0.0);
-//      }
-//    }
-//
-//    MMR_AS_Run();
-//  }
 }

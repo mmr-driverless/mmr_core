@@ -4,6 +4,7 @@
 #include "mission.h"
 #include "as.h"
 #include "ebs.h"
+#include "manual.h"
 #include "manual_launch.h"
 #include "autonomous_launch.h"
 #include <button.h>
@@ -25,10 +26,12 @@ typedef enum MmrLaunchControlState {
 
 typedef struct MmrGlobalState {
   MmrAutonomousState as;
+  MmrManualLaunchState mls;
   MmrManualState ms;
   MmrAsState stateAs;
   MmrEbsCheckState ebsCheckState;
   MmrEbsState ebsState;
+
 
   float infoThrottle;
   int16_t steeringAngle;

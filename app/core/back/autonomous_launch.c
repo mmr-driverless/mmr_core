@@ -111,7 +111,9 @@ static MmrAutonomousState changeGear(MmrAutonomousState state) {
 
 
 static MmrAutonomousState setLaunchControl(MmrAutonomousState state) {
-  if (MMR_NET_LaunchControlSetAsync(asp.can)) {
+  static MmrDelay timeout = { .ms = 500 };
+
+  if (MMR_DELAY_WaitAsync(&timeout) || MMR_NET_LaunchControlSetAsync(asp.can)) {
     return MMR_AUTONOMOUS_LAUNCH_WAIT_BEFORE_ACCELERATING;
   }
 
@@ -151,7 +153,9 @@ static MmrAutonomousState releaseClutch(MmrAutonomousState state) {
 
 
 static MmrAutonomousState unsetLaunchControl(MmrAutonomousState state){
-  if (MMR_NET_LaunchControlUnsetAsync(asp.can)) {
+  static MmrDelay timeout = { .ms = 500 };
+
+  if (MMR_DELAY_WaitAsync(&timeout) || MMR_NET_LaunchControlUnsetAsync(asp.can)) {
     return MMR_AUTONOMOUS_LAUNCH_ACCELERATE_TO_15;
   }
 
@@ -176,8 +180,8 @@ static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
 
   if (MMR_DELAY_WaitAsync(&delay)) {
     uint32_t out = gs.currentMission == MMR_MISSION_INSPECTION
-      ? 900
-      : MMR_APPS_ComputeSpeed(0.0);
+      ? MMR_APPS_ComputeSpeed(0.15)
+      : MMR_APPS_ComputeSpeed(0.1);
 
     MMR_APPS_TryWrite(out);
     return MMR_AUTONOMOUS_LAUNCH_CLUTCH_SET_MANUAL;
@@ -185,7 +189,6 @@ static MmrAutonomousState accelerateToMinimum(MmrAutonomousState state) {
 
   return state;
 }
-
 
 
 static MmrAutonomousState clutchSetManual(MmrAutonomousState state) {

@@ -7,13 +7,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-static MmrManualState waiting(MmrManualState state);
-static MmrManualState setLaunchControl(MmrManualState state);
-static MmrManualState stopLaunchControl(MmrManualState state);
-static MmrManualState done(MmrManualState state);
+static MmrManualLaunchState waiting(MmrManualLaunchState state);
+static MmrManualLaunchState setLaunchControl(MmrManualLaunchState state);
+static MmrManualLaunchState stopLaunchControl(MmrManualLaunchState state);
+static MmrManualLaunchState done(MmrManualLaunchState state);
 
 
-MmrManualState MMR_MANUAL_LAUNCH_Run(MmrManualState state) {
+MmrManualLaunchState MMR_MANUAL_LAUNCH_Run(MmrManualLaunchState state) {
   switch (state) {
   case MMR_MANUAL_LAUNCH_WAITING: return waiting(state);
   case MMR_MANUAL_LAUNCH_SET_LAUNCH_CONTROL: return setLaunchControl(state);
@@ -24,11 +24,11 @@ MmrManualState MMR_MANUAL_LAUNCH_Run(MmrManualState state) {
 }
 
 
-static MmrManualState waiting(MmrManualState state) {
+static MmrManualLaunchState waiting(MmrManualLaunchState state) {
   return MMR_MANUAL_LAUNCH_SET_LAUNCH_CONTROL;
 }
 
-static MmrManualState setLaunchControl(MmrManualState state) {
+static MmrManualLaunchState setLaunchControl(MmrManualLaunchState state) {
   static MmrDelay delay = { .ms = 250 };
   static MmrCanBuffer buffer = { 0x8 };
 
@@ -53,7 +53,7 @@ static MmrManualState setLaunchControl(MmrManualState state) {
 }
 
 
-static MmrManualState stopLaunchControl(MmrManualState state) {
+static MmrManualLaunchState stopLaunchControl(MmrManualLaunchState state) {
   static MmrDelay delay = { .ms = 250 };
   static MmrCanBuffer buffer = { 0x8 };
 
@@ -76,6 +76,6 @@ static MmrManualState stopLaunchControl(MmrManualState state) {
   return state;
 }
 
-static MmrManualState done(MmrManualState state) {
+static MmrManualLaunchState done(MmrManualLaunchState state) {
   return state;
 }

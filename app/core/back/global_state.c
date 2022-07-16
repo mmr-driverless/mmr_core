@@ -83,8 +83,8 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       break;
 
     case MMR_CAN_MESSAGE_ID_ECU_EBS_PRESSURES:
-      gs.ebs1Pressure = 1.f * MMR_BUFFER_ReadUint32(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
-      gs.ebs2Pressure = 1.f * MMR_BUFFER_ReadUint32(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.ebs1Pressure = MMR_BUFFER_ReadFloat(buffer, 0, MMR_ENCODING_LITTLE_ENDIAN);
+      gs.ebs2Pressure = MMR_BUFFER_ReadFloat(buffer, 4, MMR_ENCODING_LITTLE_ENDIAN);
       break;
 
     case MMR_CAN_MESSAGE_ID_RES:

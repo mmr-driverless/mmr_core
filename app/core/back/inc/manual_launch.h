@@ -8,9 +8,9 @@ typedef enum MmrManualState {
   MMR_MANUAL_LAUNCH_SET_LAUNCH_CONTROL,
   MMR_MANUAL_LAUNCH_STOP_LAUNCH,
   MMR_MANUAL_LAUNCH_DONE,
-} MmrManualState;
+} MmrManualLaunchState;
 
 
-MmrManualState MMR_MANUAL_LAUNCH_Run(MmrManualState state);
+MmrManualLaunchState MMR_MANUAL_LAUNCH_Run(MmrManualLaunchState state);
 
 #endif // !APP_CORE_LAUNCH_CONTROL_INC_MANUAL_H_

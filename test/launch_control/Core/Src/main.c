@@ -104,11 +104,11 @@ static void MX_TIM15_Init(void);
 
 
 void Buzzer_activation(void){
-  HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);
+  TIM17->CCR1 = 0.5f * TIM17->ARR;
 }
 
-void Buzzer_disactivation(void){
-  HAL_TIM_PWM_Stop(&htim17, TIM_CHANNEL_1);
+void Buzzer_deactivation(void){
+  TIM17->CCR1 = 0.0f * TIM17->ARR;
 }
 /* USER CODE END PFP */
 
@@ -161,7 +161,10 @@ int main(void)
   /**/
 
 //  WATCHDOG_Activation();
+  HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);
+
   TIM15->CCR1 = 0.5f * TIM15->ARR;
+  TIM17->CCR1 = 0.0f;
 
   /* USER CODE END 2 */
 
@@ -188,7 +191,7 @@ int main(void)
   MmrPin ctrLed2Pin = MMR_Pin(CTR_LED2_GPIO_Port, CTR_LED2_Pin, true);
   MmrPin ctrLed3Pin = MMR_Pin(CTR_LED3_GPIO_Port, CTR_LED3_Pin, true);
 
-  MmrPin asmsPin = MMR_Pin(ASMS_SUPPLY_GPIO_Port, ASMS_SUPPLY_Pin, false);
+  MmrPin asmsPin = MMR_Pin(ASMS_SUPPLY_GPIO_Port, ASMS_SUPPLY_Pin, true);
 
   MmrButton blueButton = MMR_Button(&blueButtonPin);
   MmrLed blueAxisLed = MMR_Led(&LABpin);
@@ -215,7 +218,7 @@ int main(void)
     appsIn,
 
     Buzzer_activation,
-    Buzzer_disactivation,
+    Buzzer_deactivation,
 
     &Ebs1Pin,
     &Ebs2Pin,
@@ -246,6 +249,7 @@ int main(void)
   MMR_SetTickProvider(HAL_GetTick);
   while (1) {
     MMR_BACK_Run();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -623,7 +627,7 @@ static void MX_TIM17_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 250-1;
+  sConfigOC.Pulse = 50;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;

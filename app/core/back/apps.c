@@ -4,8 +4,8 @@
 #include <delay.h>
 #include <math.h>
 
-static const uint32_t APPS_MIN = 1150;
-static const uint32_t APPS_SLOPE = 700;
+static const uint32_t APPS_MIN = 950;
+static const uint32_t APPS_SLOPE = 1350;
 
 static bool areAppsPlausible();
 

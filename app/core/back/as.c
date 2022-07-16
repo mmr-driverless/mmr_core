@@ -33,7 +33,8 @@ static void emergency();
 static void finished();
 
 void MMR_AS_Run() {
-  static MmrDelay sendDelay = { .ms = 15 };
+  static MmrDelay sendDelay = { .ms = 30 };
+  static MmrDelay r2dDelay = { .ms = 15 };
 
   // Handbook: https://bit.ly/3bRd49t
   stateAs = computeState();
@@ -54,12 +55,12 @@ void MMR_AS_Run() {
     MmrCanMessage message = MMR_CAN_OutMessage(header);
     MMR_CAN_MESSAGE_SetPayload(&message, (uint8_t*)&stateAs, sizeof(stateAs));
     MMR_CAN_Send(asp.can, &message);
+  }
 
-    if (waitingMissionReady) {
-      MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_R2D);
-      MmrCanMessage message = MMR_CAN_OutMessage(header);
-      MMR_CAN_Send(asp.can, &message);
-    }
+  if (waitingMissionReady && MMR_DELAY_WaitAsync(&r2dDelay)) {
+    MmrCanHeader header = MMR_CAN_NormalHeader(MMR_CAN_MESSAGE_ID_AS_R2D);
+    MmrCanMessage message = MMR_CAN_OutMessage(header);
+    MMR_CAN_Send(asp.can, &message);
   }
 }
 
@@ -111,6 +112,7 @@ static void ready() {
 }
 
 static void driving() {
+  waitingMissionReady = false;
   MMR_MISSION_Run(gs.currentMission);
 }
 
@@ -127,7 +129,7 @@ static void emergency() {
 
 
 static void finished() {
-
+  asp.buzzerStop();
 }
 
 
@@ -137,13 +139,13 @@ static bool isAsmsOk() {
 
 
 static bool isTSOk() {
-  return gs.gear == 0 && gs.rpm >= 1000;
+  return gs.rpm >= 1000;
 }
 
 static bool areBrakesEngaged() {
   return
-    gs.brakePressureFront >= 2 &&
-    gs.brakePressureRear >= 4;
+    gs.brakePressureFront >= 1 &&
+    gs.brakePressureRear >= 2;
 }
 
 static bool isEbsReady() {
