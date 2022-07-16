@@ -89,6 +89,7 @@ struct lowpass32_data lowpass32_data;
 
 float target_pressure=0; // [bar]
 float current_pressure=0; // [bar]
+float front_pressure=0; // [bar]
 float tension=0; // [V]
 float pressure_error=0; // [bar]
 uint16_t prescaler=100-1;
@@ -403,11 +404,18 @@ int main(void)
 	  	      switch (header.messageId) {
 	  	      case MMR_CAN_MESSAGE_ID_ECU_BRAKE_PRESSURES:
 	  	    	  current_pressure = (*(uint16_t*)buffer)/200.0f;
+	  	    	  front_pressure = (*(uint16_t*)buffer + 2)/200.0f;
+
+	  	    	  if(current_pressure >= 15.0f || front_pressure >= 15.0f)
+	  	    		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+	  	    	  else
+	  	    		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
 	  	    	  break;
 
 	  	      case MMR_CAN_MESSAGE_ID_BRK_TARGET_PRESSURE:
 	  	        // target_pressure = (((*(uint16_t*)buffer)-1000)/9000.0f) * max_pressure; // ECU, EMA
 	  	    	target_pressure=(*(float*)buffer) * max_pressure;
+
 	  	        break;
 
 	  	      case MMR_CAN_MESSAGE_ID_BRK_PROPORTIONAL_ERROR_LEFT_X:
