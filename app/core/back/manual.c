@@ -6,68 +6,47 @@
 #include <pin.h>
 #include <delay.h>
 
-typedef enum {
-  WaitingTs,
-  WaitSdcReady,
-  EbsDisarm1,
-  EbsArm,
-  EbsDisarm2,
-  EbsDisarmDone,
-} MmrManualEbsDisarmState;
-
-static MmrManualState ManualInit();
+static MmrManualState ManualEntryPoint();
+static MmrManualState ManualWaitTs();
+static MmrManualState ManualWaitSdc();
+static MmrManualState ManualEbsOff();
 static MmrManualState ManualRunning();
 
 MmrManualState MMR_MANUAL_Run(MmrManualState state) {
   switch (state) {
-  case MMR_MANUAL_INIT: return ManualInit();
+  case MMR_MANUAL_ENTRY_POINT: return ManualEntryPoint();
+  case MMR_MANUAL_WAIT_TS: return ManualWaitTs();
+  case MMR_MANUAL_WAIT_SDC: return ManualWaitSdc();
+  case MMR_MANUAL_EBS_OFF: return ManualEbsOff();
   case MMR_MANUAL_RUNNING: return ManualRunning();
   }
 }
 
-static MmrManualState ManualInit() {
-  static MmrManualEbsDisarmState disarmState = WaitingTs;
-  static MmrDelay delay = { .ms = 2000 };
-  static bool watchdogStarted = false;
-  bool isDelayWaited = MMR_DELAY_WaitAsync(&delay);
-  // bool isDelayWaited = true;
-
-  MMR_EBS_SetDrivingMode(MMR_EBS_DRIVING_MODE_AUTONOMOUS);
-  if (!watchdogStarted && asp.watchdogStart()) {
-    watchdogStarted = true;
-  }
-
-  if (gs.rpm >= 10 && gs.gear == 0) {
-    disarmState = WaitSdcReady;
-  }
-
-  if (disarmState == WaitSdcReady && MMR_PIN_Read(asp.ebsAsSdcIsReady) == MMR_PIN_HIGH) {
-    disarmState = EbsDisarm1;
-  }
-
-  if (disarmState == EbsDisarm1) {
-    MMR_EBS_Off();
-    MMR_DELAY_Reset(&delay);
-    disarmState = EbsArm;
-  }
-  else if (isDelayWaited && disarmState == EbsArm) {
-    MMR_EBS_Arm();
-    MMR_DELAY_Reset(&delay);
-    disarmState = EbsDisarm2;
-  }
-  else if (isDelayWaited && disarmState == EbsDisarm2) {
-    MMR_EBS_Off();
-    MMR_DELAY_Reset(&delay);
-    disarmState = EbsDisarmDone;
-  }
-
-
-  if (disarmState == EbsDisarmDone) {
+static MmrManualState ManualEntryPoint() {
+  MMR_EBS_SetDrivingMode(MMR_EBS_DRIVING_MODE_MANUAL);
+  if (!asp.watchdogStart()) {
     return MMR_MANUAL_RUNNING;
   }
-  else {
-    return MMR_MANUAL_INIT;
+  return MMR_MANUAL_WAIT_TS;
+}
+
+static MmrManualState ManualWaitTs() {
+  if (gs.gear == 0) {
+    return MMR_MANUAL_WAIT_SDC;
   }
+  return MMR_MANUAL_WAIT_TS;
+}
+
+static MmrManualState ManualWaitSdc() {
+  if (MMR_PIN_Read(asp.ebsAsSdcIsReady) == MMR_PIN_HIGH) {
+    return MMR_MANUAL_EBS_OFF;
+  }
+  return MMR_MANUAL_WAIT_SDC;
+}
+
+static MmrManualState ManualEbsOff() {
+  MMR_EBS_Off();
+  return MMR_MANUAL_RUNNING;
 }
 
 static MmrManualState ManualRunning() {
