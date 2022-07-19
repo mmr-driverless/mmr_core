@@ -65,8 +65,15 @@ void MMR_AS_Run() {
 }
 
 static MmrAsState computeState() {
-  if (gs.ebsState == MMR_EBS_ACTIVATED) {
+  if (gs.ebsState == MMR_EBS_ACTIVATED || gs.ebsState == MMR_EBS_ACTIVATED_BY_US) {
     if (gs.missionFinished && gs.vehicleStandstill) {
+      return MMR_AS_FINISHED;
+    }
+
+    if (gs.ebsState == MMR_EBS_ACTIVATED_BY_US && !MMR_DELAY_WaitOnceAsync(&gs.asDrivingTimeout)) {
+      return MMR_AS_DRIVING;
+    }
+    else if (gs.ebsState == MMR_EBS_ACTIVATED_BY_US && MMR_DELAY_WaitOnceAsync(&gs.asDrivingTimeout)) {
       return MMR_AS_FINISHED;
     }
 

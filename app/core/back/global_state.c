@@ -13,6 +13,7 @@ MmrGlobalState gs;
 void MMR_GS_Init() {
   gs = (MmrGlobalState) {
     .lap = 0,
+    .asDrivingTimeout = { .ms = 5000 },
     .clutch = MMR_CLUTCH_UNKNOWN,
     .launchControl = MMR_LAUNCH_CONTROL_UNKNOWN,
     .currentMission = MMR_MISSION_IDLE,
@@ -65,12 +66,9 @@ void MMR_GS_UpdateFromCan(MmrCan *can) {
       gs.clutch = MMR_CLUTCH_RELEASED;
       break;
 
-    case MMR_CAN_MESSAGE_ID_D_SPEED_TARGET:
-      gs.infoThrottle = *(float*)(buffer);
-      break;
-
     case MMR_CAN_MESSAGE_ID_D_ACCELERATOR_PERCENTAGE:
       gs.infoAth = *(float*)(buffer);
+      gs.infoAth = gs.infoAth < 0.1 ? 0.1 : gs.infoAth;
       break;
 
     case MMR_CAN_MESSAGE_ID_D_LAP_COUNTER:

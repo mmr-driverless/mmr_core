@@ -32,8 +32,8 @@ typedef struct MmrGlobalState {
   MmrEbsCheckState ebsCheckState;
   MmrEbsState ebsState;
 
+  MmrDelay asDrivingTimeout;
 
-  float infoThrottle;
   int16_t steeringAngle;
   uint8_t lap;
   uint16_t ath;//<-- primo valore farfalla
@@ -51,6 +51,7 @@ typedef struct MmrGlobalState {
   float brakePressureFront;
   float brakePressureRear;
 
+  bool stoppingWithEbs;
   bool missionFinished;
   bool missionReady;
   bool asbCheck;

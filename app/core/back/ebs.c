@@ -23,7 +23,8 @@ void MMR_EBS_Off() {
 void MMR_EBS_Disarm() {
   MMR_PIN_Write(asp.ebs1, MMR_PIN_LOW);
   MMR_PIN_Write(asp.ebs2, MMR_PIN_LOW);
-  gs.ebsState = MMR_EBS_ACTIVATED;
+  gs.ebsState = MMR_EBS_ACTIVATED_BY_US;
+  MMR_DELAY_Reset(&gs.asDrivingTimeout);
 }
 
 void MMR_EBS_Brake() {
@@ -106,6 +107,7 @@ MmrEbsCheckState MMR_EBS_Check(MmrEbsCheckState state) {
 
 
 static MmrEbsCheckState idle(MmrEbsCheckState state) {
+  MMR_LED_Set(asp.ebsErrorLed, MMR_LED_OFF);
   return EBS_CHECK_START_WATCHDOG;
 }
 

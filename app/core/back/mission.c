@@ -41,7 +41,7 @@ static MmrMission manual() {
 static MmrMission skidpad() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
   if (gs.as == MMR_AUTONOMOUS_LAUNCH_DONE) {
-    MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
+    MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoAth));
   }
 
   if (gs.missionFinished) {
@@ -54,9 +54,9 @@ static MmrMission skidpad() {
 
 static MmrMission ebsTest() {
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
-  if (gs.as == MMR_AUTONOMOUS_LAUNCH_DONE) {
-    MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
-  }
+//  if (gs.as == MMR_AUTONOMOUS_LAUNCH_DONE) {
+//    MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoAth));
+//  }
 
   if (gs.missionFinished) {
     return MMR_MISSION_FINISHED;
@@ -66,7 +66,7 @@ static MmrMission ebsTest() {
 }
 
 static MmrMission autocross() {
-  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
+  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoAth));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
@@ -88,8 +88,10 @@ static MmrMission inspection() {
 }
 
 static MmrMission trackdrive() {
-  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
+  if (gs.as == MMR_AUTONOMOUS_LAUNCH_DONE) {
+    MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoAth));
+  }
 
   if (gs.missionFinished) {
     MMR_EBS_Disarm();
@@ -100,7 +102,7 @@ static MmrMission trackdrive() {
 }
 
 static MmrMission acceleration() {
-  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoThrottle));
+  MMR_APPS_TryWrite(MMR_APPS_ComputeSpeed(gs.infoAth));
   gs.as = MMR_AUTONOMOUS_LAUNCH_Run(gs.as);
 
   if (gs.missionFinished) {
